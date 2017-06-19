@@ -1,0 +1,15 @@
+<ivysettings>
+  <settings defaultResolver="default"/>
+  
+
+  <resolvers>
+  <filesystem name="local" checkmodified="true">
+        <ivy pattern="${user.home}/.imathrowback/repo/ivy/[module](-[branch])/[revision]/[artifact](-[branch])-[revision].[ext]" />
+        <artifact pattern="${user.home}/.imathrowback/repo/artifacts/[module]/[revision]/[artifact](-[branch])-[revision].[ext]" />
+    </filesystem>
+  	<chain name="default" returnFirst="true">
+  	  <resolver ref="local" />
+  	  <ibiblio name="public" m2compatible="true"/>
+	 </chain>
+  </resolvers>
+ </ivysettings>

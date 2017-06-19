@@ -1,0 +1,69 @@
+<project name="totext" xmlns:ivy="antlib:org.apache.ivy.ant" default="jar">
+	
+	<!-- Configure ivy -->
+	<target name="check-ivy">
+		<available file="${user.home}/.ant/lib/ivy.jar" property="ivy.present"/>
+	</target>
+	<target name="downloadivy" description="Bootstrap IVY by downloading the jars into ants lib" unless="ivy.present">
+	    <mkdir dir="${user.home}/.ant/lib"/>
+	    <get dest="${user.home}/.ant/lib/ivy.jar" src="http://search.maven.org/remotecontent?filepath=org/apache/ivy/ivy/2.4.0-rc1/ivy-2.4.0-rc1.jar"/>
+	</target>
+	<!-- resolve and setup a tasks path for additional ant takss -->
+	<target name="ivyresolve">
+		<ivy:configure file="ivysettings.xml" />
+		<ivy:resolve file="${ivy.dep.file}" conf="${ivy.configurations}" log="download-only"/>
+		
+		<ivy:cachepath pathid="compile.ivy.path" conf="compile"/>	
+		 <!--<ivy:retrieve pattern="build/jar/libs/[artifact]-[revision].[ext]" conf="compile" /> -->
+		<!--
+		 <ivy:retrieve pattern="build/jar/libs/[artifact]-[revision]-sources.[ext]" conf="sources" />
+		 <ivy:retrieve pattern="build/jar/libs/[artifact]-[revision]-javadoc.[ext]" conf="javadoc" />
+		-->
+
+		<pathconvert property="classpath.name" pathsep=" ">
+					<path refid="compile.ivy.path" />
+					<mapper>
+						<chainedmapper>
+							<flattenmapper />
+							<globmapper from="*.jar" to="libs/*.jar" />
+						</chainedmapper>
+					</mapper>
+				</pathconvert>
+	</target>		
+
+	
+	
+	<target name="bootstrapivy" depends="check-ivy,downloadivy,ivyresolve"/>
+	<!-- END CONFIGURE IVY -->
+	
+    <target name="clean">
+        <delete dir="build"/>
+    </target>
+
+    <target name="compile" >
+        <mkdir dir="build/classes"/>
+        <javac srcdir="src" destdir="build/classes" classpathref="compile.ivy.path"/>
+    	<!--<copy file="src/logback.xml" todir="build/classes"/>-->
+
+
+    </target>
+
+    <target name="jar" depends="clean,bootstrapivy,compile">
+        <mkdir dir="build/jar"/>
+        <jar destfile="build/jar/totext-1.0.jar" basedir="build/classes">
+		<manifest>
+			<attribute name="Class-Path" value="${classpath.name}" />
+		</manifest>
+        </jar>
+    	
+    	<ivy:publish 
+    		srcivypattern="ivy.xml"
+    	    update="true"    
+    		resolver="local" 
+    	        overwrite="true"
+    	        revision="1.0">  
+    	        <artifacts pattern="build/jar/[artifact]-[revision].[type]" />
+    	    </ivy:publish>
+    	
+    </target>
+</project>

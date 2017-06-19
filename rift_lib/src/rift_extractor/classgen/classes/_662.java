@@ -1,0 +1,27 @@
+package rift_extractor.classgen.classes;
+import org.imathrowback.datparser.CObject;
+import static rift_extractor.classgen.ClassUtils.*;
+import rift_extractor.classgen.ClassUtils;
+
+/** 662 **/
+@com.thoughtworks.xstream.annotations.XStreamAlias("_662")
+public class _662 
+{
+	public _662(){}
+	Object unk0;
+	java.lang.Long unk1;
+	Object unk2;
+	Object unk3;
+	rift_extractor.classgen.Vector3 unk4;
+
+	public void parse(CObject obj)
+	{
+		ClassUtils.assertType(obj, 662);
+
+		unk0 = ClassUtils.getFieldMember(Object.class,obj, 0);
+		unk1 = ClassUtils.getFieldMember(java.lang.Long.class,obj, 1);
+		unk2 = ClassUtils.getFieldMember(Object.class,obj, 2);
+		unk3 = ClassUtils.getFieldMember(Object.class,obj, 3);
+		unk4 = ClassUtils.vector3(obj,4);
+	}
+}

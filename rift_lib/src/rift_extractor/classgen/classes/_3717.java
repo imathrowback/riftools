@@ -1,0 +1,21 @@
+package rift_extractor.classgen.classes;
+import org.imathrowback.datparser.CObject;
+import static rift_extractor.classgen.ClassUtils.*;
+import rift_extractor.classgen.ClassUtils;
+
+/** 3717 **/
+@com.thoughtworks.xstream.annotations.XStreamAlias("_3717")
+public class _3717 
+{
+	public _3717(){}
+	Object unk0;
+	java.util.List<java.lang.Long> unk1;
+
+	public void parse(CObject obj)
+	{
+		ClassUtils.assertType(obj, 3717);
+
+		unk0 = ClassUtils.getFieldMember(Object.class,obj, 0);
+		unk1 = ClassUtils.list(java.lang.Long.class,obj,1);
+	}
+}

@@ -1,0 +1,131 @@
+package rift_extractor.classgen.classes;
+import org.imathrowback.datparser.CObject;
+import static rift_extractor.classgen.ClassUtils.*;
+import rift_extractor.classgen.ClassUtils;
+
+/** 3625 **/
+@com.thoughtworks.xstream.annotations.XStreamAlias("_3625")
+public class _3625 
+{
+	public _3625(){}
+	Object unk0;
+	public java.lang.Float unk1;
+	Object unk2;
+	public _1844 unk3;
+	public java.lang.Float unk4;
+	Object unk5;
+	Object unk6;
+	Object unk7;
+	public java.lang.Float unk8;
+	public java.lang.Float unk9;
+	public java.util.List<java.lang.Long> unk10;
+	public java.util.List<java.lang.Long> unk11;
+	Object unk12;
+	Object unk13;
+	Object unk14;
+	Object unk15;
+	public java.lang.Long unk16;
+	public java.lang.Float unk17;
+	public java.util.List<java.lang.Long> unk18;
+	Object unk19;
+	Object unk20;
+	Object unk21;
+	Object unk22;
+	Object unk23;
+	Object unk24;
+	Object unk25;
+	public java.lang.Float unk26;
+	public java.lang.Float unk27;
+	Object unk28;
+	Object unk29;
+	Object unk30;
+	Object unk31;
+	Object unk32;
+	Object unk33;
+	Object unk34;
+	public java.lang.Float unk35;
+	Object unk36;
+	Object unk37;
+	Object unk38;
+	Object unk39;
+	Object unk40;
+	Object unk41;
+	Object unk42;
+	Object unk43;
+	Object unk44;
+	Object unk45;
+	Object unk46;
+	Object unk47;
+	Object unk48;
+	public java.lang.Float unk49;
+	public java.lang.Float unk50;
+	Object unk51;
+	Object unk52;
+	public java.util.List<java.lang.Long> unk53;
+	Object unk54;
+	Object unk55;
+	public java.lang.Boolean unk56;
+
+	public void parse(CObject obj)
+	{
+		ClassUtils.assertType(obj, 3625);
+
+		unk0 = ClassUtils.getFieldMember(Object.class,obj, 0);
+		unk1 = ClassUtils.getFieldMember(java.lang.Float.class,obj, 1);
+		unk2 = ClassUtils.getFieldMember(Object.class,obj, 2);
+		unk3 = ClassUtils.getFieldMember(_1844.class,obj, 3);
+		unk4 = ClassUtils.getFieldMember(java.lang.Float.class,obj, 4);
+		unk5 = ClassUtils.getFieldMember(Object.class,obj, 5);
+		unk6 = ClassUtils.getFieldMember(Object.class,obj, 6);
+		unk7 = ClassUtils.getFieldMember(Object.class,obj, 7);
+		unk8 = ClassUtils.getFieldMember(java.lang.Float.class,obj, 8);
+		unk9 = ClassUtils.getFieldMember(java.lang.Float.class,obj, 9);
+		unk10 = ClassUtils.list(java.lang.Long.class,obj,10);
+		unk11 = ClassUtils.list(java.lang.Long.class,obj,11);
+		unk12 = ClassUtils.getFieldMember(Object.class,obj, 12);
+		unk13 = ClassUtils.getFieldMember(Object.class,obj, 13);
+		unk14 = ClassUtils.getFieldMember(Object.class,obj, 14);
+		unk15 = ClassUtils.getFieldMember(Object.class,obj, 15);
+		unk16 = ClassUtils.getFieldMember(java.lang.Long.class,obj, 16);
+		unk17 = ClassUtils.getFieldMember(java.lang.Float.class,obj, 17);
+		unk18 = ClassUtils.list(java.lang.Long.class,obj,18);
+		unk19 = ClassUtils.getFieldMember(Object.class,obj, 19);
+		unk20 = ClassUtils.getFieldMember(Object.class,obj, 20);
+		unk21 = ClassUtils.getFieldMember(Object.class,obj, 21);
+		unk22 = ClassUtils.getFieldMember(Object.class,obj, 22);
+		unk23 = ClassUtils.getFieldMember(Object.class,obj, 23);
+		unk24 = ClassUtils.getFieldMember(Object.class,obj, 24);
+		unk25 = ClassUtils.getFieldMember(Object.class,obj, 25);
+		unk26 = ClassUtils.getFieldMember(java.lang.Float.class,obj, 26);
+		unk27 = ClassUtils.getFieldMember(java.lang.Float.class,obj, 27);
+		unk28 = ClassUtils.getFieldMember(Object.class,obj, 28);
+		unk29 = ClassUtils.getFieldMember(Object.class,obj, 29);
+		unk30 = ClassUtils.getFieldMember(Object.class,obj, 30);
+		unk31 = ClassUtils.getFieldMember(Object.class,obj, 31);
+		unk32 = ClassUtils.getFieldMember(Object.class,obj, 32);
+		unk33 = ClassUtils.getFieldMember(Object.class,obj, 33);
+		unk34 = ClassUtils.getFieldMember(Object.class,obj, 34);
+		unk35 = ClassUtils.getFieldMember(java.lang.Float.class,obj, 35);
+		unk36 = ClassUtils.getFieldMember(Object.class,obj, 36);
+		unk37 = ClassUtils.getFieldMember(Object.class,obj, 37);
+		unk38 = ClassUtils.getFieldMember(Object.class,obj, 38);
+		unk39 = ClassUtils.getFieldMember(Object.class,obj, 39);
+		unk40 = ClassUtils.getFieldMember(Object.class,obj, 40);
+		unk41 = ClassUtils.getFieldMember(Object.class,obj, 41);
+		unk42 = ClassUtils.getFieldMember(Object.class,obj, 42);
+		unk43 = ClassUtils.getFieldMember(Object.class,obj, 43);
+		unk44 = ClassUtils.getFieldMember(Object.class,obj, 44);
+		unk45 = ClassUtils.getFieldMember(Object.class,obj, 45);
+		unk46 = ClassUtils.getFieldMember(Object.class,obj, 46);
+		unk47 = ClassUtils.getFieldMember(Object.class,obj, 47);
+		unk48 = ClassUtils.getFieldMember(Object.class,obj, 48);
+		unk49 = ClassUtils.getFieldMember(java.lang.Float.class,obj, 49);
+		unk50 = ClassUtils.getFieldMember(java.lang.Float.class,obj, 50);
+		unk51 = ClassUtils.getFieldMember(Object.class,obj, 51);
+		unk52 = ClassUtils.getFieldMember(Object.class,obj, 52);
+		unk53 = ClassUtils.list(java.lang.Long.class,obj,53);
+		unk54 = ClassUtils.getFieldMember(Object.class,obj, 54);
+		unk55 = ClassUtils.getFieldMember(Object.class,obj, 55);
+		unk56 = ClassUtils.getFieldMember(java.lang.Boolean.class,obj, 56);
+	}
+}
