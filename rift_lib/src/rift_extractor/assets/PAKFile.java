@@ -1,4 +1,4 @@
-package rift_extractor;
+package rift_extractor.assets;
 
 import java.io.*;
 import java.util.LinkedList;
@@ -15,18 +15,14 @@ import rift_extractor.util.Util;
 
 public class PAKFile
 {
-	public class PAKEntry
-	{
-		public int offset;
-		public int compressedSize;
-		public int uncompressedSize;
-		public byte[] filenameHash;
-		public String filenameHashStr;
-	}
-
 	public List<PAKEntry> entries = new LinkedList<>();
 	byte[] data;
+
 	//String file;
+	public boolean canExtract()
+	{
+		return data != null;
+	}
 
 	public void extract(final String hash, final OutputStream stream) throws IOException
 	{
@@ -63,33 +59,64 @@ public class PAKFile
 
 	public PAKFile(final String file) throws IOException
 	{
-		this(new FileInputStream(file));
+		this(new FileInputStream(file), true);
 	}
 
 	public PAKFile(final InputStream is) throws IOException
 	{
-		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		IOUtils.copy(is, bos);
-		data = bos.toByteArray();
-		process();
+		this(is, true);
 	}
 
-	private void process() throws IOException
+	/**
+	 * A PAK file can be in two different states, one that allows extraction of files from the pak file and one that does not. By not allowing extraction
+	 * you don't need to read the entire file, you only need to read the header.
+	 *
+	 * @param is
+	 * @param allowExtraction
+	 * @throws IOException
+	 */
+	public PAKFile(final InputStream is, final boolean allowExtraction) throws IOException
 	{
-		LittleEndianDataInputStream dis = new LittleEndianDataInputStream(new ByteArrayInputStream(data));
 
-		int version = dis.readInt();
-		int pakfileSize = dis.readInt();
-		int headerSize = dis.readInt();
-		int entrySize = dis.readInt();
+		if (allowExtraction)
+		{
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			IOUtils.copy(is, bos);
+			data = bos.toByteArray();
+			process(new ByteArrayInputStream(data));
+		} else
+		{
+			process(is);
+		}
+	}
 
-		int entries = entrySize / 60;
+	public PAKFile(final PAKHeader header, final InputStream is) throws IOException
+	{
+		try (LittleEndianDataInputStream dis = new LittleEndianDataInputStream(is))
+		{
+			processEntries(dis, header.numEntries);
+		}
+	}
 
-		System.out.println(version);
-		System.out.println(pakfileSize);
-		System.out.println(headerSize);
-		System.out.println(entrySize);
-		System.out.println(entries);
+	public static PAKHeader readPAKHeader(final InputStream is) throws IOException
+	{
+		try (LittleEndianDataInputStream dis = new LittleEndianDataInputStream(is))
+		{
+			return new PAKHeader(dis);
+		}
+	}
+
+	private void process(final InputStream is) throws IOException
+	{
+		try (LittleEndianDataInputStream dis = new LittleEndianDataInputStream(is))
+		{
+			PAKHeader header = new PAKHeader(dis);
+			processEntries(dis, header.numEntries);
+		}
+	}
+
+	private void processEntries(final LittleEndianDataInputStream dis, final int entries) throws IOException
+	{
 
 		for (int i = 0; i < entries; i++)
 		{
@@ -114,12 +141,6 @@ public class PAKFile
 			if (offset != 0)
 			{
 				//				if (i = 0)
-				System.out
-						.println("[a]" + a + "[b]" + b + "[c]" + c + "[d]" + Util.bytesToHexString(filenameHash)
-								+ "[e]" + e
-								+ "[csize]" + csize
-								+ ":[size]" + size + ":[unk2]" + unk2 + ":[offset]" + offset + ":[unk]"
-								+ Util.bytesToHexString(unk3));
 
 				PAKEntry entry = new PAKEntry();
 				entry.compressedSize = csize;
@@ -128,8 +149,18 @@ public class PAKFile
 				entry.filenameHash = ArrayUtils.clone(filenameHash);
 				entry.filenameHashStr = Util.bytesToHexString(filenameHash);
 				this.entries.add(entry);
+				entry.str = ("[a]" + a + "[b]" + b + "[c]" + c + "[filename]" + Util.bytesToHexString(filenameHash)
+						+ "[e]" + e
+						+ "[csize]" + csize
+						+ ":[size]" + size + ":[unk2]" + unk2 + ":[offset]" + offset + ":[unk]"
+						+ Util.bytesToHexString(unk3));
 			}
 		}
 
+	}
+
+	public boolean containsFilenameHash(final String filenameHashStr)
+	{
+		return entries.stream().anyMatch(p -> p.filenameHashStr.equals(filenameHashStr));
 	}
 }

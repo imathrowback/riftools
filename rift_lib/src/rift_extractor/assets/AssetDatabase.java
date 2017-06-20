@@ -172,6 +172,11 @@ public class AssetDatabase
 		findAssetFileForID(ae.strID).extract(ae, fos);
 	}
 
+	public byte[] extractNoDecompress(final AssetEntry ae) throws IOException
+	{
+		return findAssetFileForID(ae.strID).extractWithoutDecompression(ae);
+	}
+
 	public AssetEntry getEntryForID(final byte[] id)
 	{
 		AssetFile file = findAssetFileForID(id);

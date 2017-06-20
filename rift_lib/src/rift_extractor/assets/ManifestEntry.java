@@ -27,6 +27,16 @@ public class ManifestEntry
 	public final int unk;
 	public String shaStr;
 
+	public int getPakIndex()
+	{
+		return pakIndex;
+	}
+
+	public int getPakOffset()
+	{
+		return pakOffset;
+	}
+
 	public ManifestEntry(final LittleEndianDataInputStream dis) throws IOException
 	{
 		// read the ID of the entry
@@ -66,7 +76,8 @@ public class ManifestEntry
 	{
 		return ("[namehash]" + filenameHashStr + ":[partsha1sum]:" + idStr + ":[pakoffset]" +
 				StringUtils.leftPad("" + pakOffset, 10, ' ') + ":[compressedSize]" +
-				StringUtils.leftPad("" + compressedSize, 10, ' ') + ":[filesize]" + StringUtils.leftPad("" + size, 10, ' ')
+				StringUtils.leftPad("" + compressedSize, 10, ' ') + ":[filesize]"
+				+ StringUtils.leftPad("" + size, 10, ' ')
 				+ ":"
 				+ "[PAKIndex]" + StringUtils.leftPad("" + pakIndex, 4, ' ') + ":[unkw2]"
 				+ StringUtils.leftPad("" + w2, 6, ' ') + ":[lang]" + lang + ""

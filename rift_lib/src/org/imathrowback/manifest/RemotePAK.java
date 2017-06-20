@@ -20,10 +20,13 @@ import org.apache.http.impl.client.HttpClients;
 import org.tukaani.xz.LZMA2InputStream;
 
 import com.google.common.io.Files;
+import com.google.common.io.LittleEndianDataInputStream;
 
 import rift_extractor.assets.Manifest;
 import rift_extractor.assets.ManifestEntry;
-import rift_extractor.assets.PAKFileEntry;
+import rift_extractor.assets.PAKFile;
+import rift_extractor.assets.PAKHeader;
+import rift_extractor.assets.ManifestPAKFileEntry;
 
 public class RemotePAK
 {
@@ -196,6 +199,59 @@ public class RemotePAK
 		}
 	}
 
+	private static PAKHeader getPAKHeader(final CloseableHttpClient client, final String url) throws IOException
+	{
+		HttpGet get = new HttpGet(url);
+		get.addHeader("Range", "bytes=" + 0 + "-" + 15 + "");
+		try (CloseableHttpResponse response = client.execute(get))
+		{
+			HttpEntity httpEntity = response.getEntity();
+
+			try (InputStream httpInputStream = httpEntity.getContent())
+			{
+				try (LittleEndianDataInputStream lis = new LittleEndianDataInputStream(httpInputStream))
+				{
+					return new PAKHeader(lis);
+				}
+			}
+		}
+	}
+
+	public static PAKFile getPAKFile(final CloseableHttpClient client, final ReleaseType type, final PatchInfo patch,
+			final String pakFile,
+			final boolean extractable)
+			throws Exception
+	{
+		String url = getBaseUrl(type) + "/" + getContentUrl(type) + patch.index + "/"
+				+ pakFile;
+		System.out.println("get pak:" + url);
+		PAKHeader header = getPAKHeader(client, url);
+
+		HttpGet get = new HttpGet(url);
+		get.addHeader("Range", "bytes=" + 16 + "-" + header.entryTableSize + "");
+		try (CloseableHttpResponse response = client.execute(get))
+		{
+			HttpEntity httpEntity = response.getEntity();
+
+			try (InputStream httpInputStream = httpEntity.getContent())
+			{
+				return new PAKFile(header, httpInputStream);
+			}
+		}
+
+	}
+
+	public static PAKFile getPAKFile(final ReleaseType type, final PatchInfo patch, final String pakFile,
+			final boolean extractable)
+			throws Exception
+	{
+
+		try (CloseableHttpClient client = HttpClients.createDefault())
+		{
+			return getPAKFile(client, type, patch, pakFile, extractable);
+		}
+	}
+
 	/**
 	 * Download a file from the current release.
 	 *
@@ -231,7 +287,7 @@ public class RemotePAK
 	{
 
 		int pakIndex = e.pakIndex;
-		PAKFileEntry pakFile = manifest.getPAK(pakIndex);
+		ManifestPAKFileEntry pakFile = manifest.getPAK(pakIndex);
 
 		//System.out.println(e);
 		//System.out.println(pakFile);

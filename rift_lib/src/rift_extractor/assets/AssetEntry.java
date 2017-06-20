@@ -22,6 +22,7 @@ public class AssetEntry
 		this.filenum = filenum;
 	}
 
+	public long metaOffset = 0;
 	int filenum;
 	final public AssetFile file;
 	final public byte[] hash;

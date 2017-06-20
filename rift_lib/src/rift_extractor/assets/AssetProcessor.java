@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Stream;
 
+import com.google.common.io.CountingInputStream;
 import com.google.common.io.LittleEndianDataInputStream;
 
 import rift_extractor.util.Util;
@@ -51,78 +52,83 @@ public class AssetProcessor
 				});
 			}
 		});
-
 	}
 
 	public static AssetFile buildAssetFileDatabase(final Manifest manifest, final File file) throws IOException
 	{
 		boolean debug = false;
 		AssetFile assetFile = new AssetFile(file);
-		if (false)
-			if (file.getName().contains("assets.023"))
-				debug = true;
 
-		try (LittleEndianDataInputStream dis = new LittleEndianDataInputStream(new FileInputStream(file)))
+		try (CountingInputStream cis = new CountingInputStream(new FileInputStream(file)))
 		{
-			byte[] magic = new byte[4];
-			dis.readFully(magic);
-			//System.out.println(new String(magic));
-			int version = dis.readInt();
-			int headersize = dis.readInt();
-			int maxfiles = dis.readInt();
-			int lastEntryIndex = dis.readInt();
-			String ss = ("[" + file.getName() + "]: Version:" + version + " headerSize:" + headersize + ", maxFiles:"
-					+ maxfiles + ", files:" + lastEntryIndex);
-			if (debug)
-				System.out.println(ss);
-			// System.out.println("\t assets " + files + ", max:" + maxfiles);
-			// FIXME: For some reason, using the "files" variable doesnt read the proper amount of actual files, deleted? renamed? moved?
-			int actualFiles = 0;
-			for (int i = 0; i < maxfiles; i++)
+			try (LittleEndianDataInputStream dis = new LittleEndianDataInputStream(cis))
 			{
-				byte[] entry = new byte[44];
-				dis.readFully(entry);
+				byte[] magic = new byte[4];
+				dis.readFully(magic);
+				//System.out.println(new String(magic));
+				int version = dis.readInt();
+				int headersize = dis.readInt();
+				int maxfiles = dis.readInt();
+				int lastEntryIndex = dis.readInt();
+				String ss = ("[" + file.getName() + "]: Version:" + version + " headerSize:" + headersize
+						+ ", maxFiles:"
+						+ maxfiles + ", files:" + lastEntryIndex);
 
-				try (LittleEndianDataInputStream bis = new LittleEndianDataInputStream(new ByteArrayInputStream(entry)))
+				//System.out.println(cis);
+				// System.out.println("\t assets " + files + ", max:" + maxfiles);
+				// FIXME: For some reason, using the "files" variable doesnt read the proper amount of actual files, deleted? renamed? moved?
+				int actualFiles = 0;
+
+				for (int i = 0; i < maxfiles; i++)
 				{
-					byte[] id = new byte[8];
-					bis.readFully(id);
-					int offset = bis.readInt();
-					int size1 = bis.readInt();
-					int size2 = bis.readInt();
-					int index = bis.readShort();
-					int flag = bis.readShort(); //compressed?
-					byte[] hash = new byte[20];
-					bis.readFully(hash);
-					if (offset == 0)
-					{
-						// entry was deleted? Corrupt? No longer exists?
-						if (debug)
-							System.out.println(
-									"found zero offset entry for data entry " + i + ", entry:"
-											+ Util.bytesToHexString(entry) + " @" + offset);
-					} else
-					{
-						String idstr = Util.bytesToHexString(id);
-						Set<String> namehashes = manifest.getFilenameHashesForID(idstr);
+					byte[] entry = new byte[44];
+					dis.readFully(entry);
 
+					try (LittleEndianDataInputStream bis = new LittleEndianDataInputStream(
+							new ByteArrayInputStream(entry)))
+					{
+						byte[] id = new byte[8];
+						bis.readFully(id);
+						int offset = bis.readInt();
+						int size1 = bis.readInt();
+						int size2 = bis.readInt();
+						int index = bis.readShort();
+						int flag = bis.readShort(); //compressed?
+						byte[] hash = new byte[20];
+						bis.readFully(hash);
 						AssetEntry entryX = new AssetEntry(id, offset, size1, size2, index, flag, hash, assetFile);
-						if (debug)
-							System.out.println("[" + i + "]:" + entryX);
-						assetFile.addAsset(entryX);
-						if (index == lastEntryIndex - 1 && debug)
-							System.out.println(ss + ":" + entryX);
-						actualFiles++;
+						entryX.metaOffset = cis.getCount() - entry.length;
+						//if (entryX.strID.equals("e1d0d8f2d6f50cba"))
+						//	System.out.println("found @" + entryX.metaOffset + " in " + file + "\n\t" + entryX);
+						if (offset == 0)
+						{
+							// entry was deleted? Corrupt? No longer exists?
+							if (debug)
+								System.out.println(
+										"found zero offset entry for data entry " + i + ":" + entryX);
+							continue;
+						} else
+						{
+							String idstr = Util.bytesToHexString(id);
+							Set<String> namehashes = manifest.getFilenameHashesForID(idstr);
+
+							if (debug)
+								System.out.println("[" + i + "]:" + entryX);
+							assetFile.addAsset(entryX);
+							if (index == lastEntryIndex - 1 && debug)
+								System.out.println(ss + ":" + entryX);
+							actualFiles++;
+						}
+
 					}
 
 				}
-
+				//System.out.println("\tActual files:" + actualFiles);
+			} catch (Exception e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-			//System.out.println("\tActual files:" + actualFiles);
-		} catch (Exception e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 		return assetFile;
 	}

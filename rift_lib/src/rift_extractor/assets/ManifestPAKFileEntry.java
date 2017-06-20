@@ -8,13 +8,13 @@ import com.google.common.io.LittleEndianDataInputStream;
 
 import rift_extractor.util.Util;
 
-public class PAKFileEntry
+public class ManifestPAKFileEntry
 {
 	public String hash1Str;
 	public String hash2Str;
 	public String combHash;
 
-	public PAKFileEntry(final byte[] manifestData, final LittleEndianDataInputStream dis2) throws Exception
+	public ManifestPAKFileEntry(final byte[] manifestData, final LittleEndianDataInputStream dis2) throws Exception
 	{
 		int offsetToName = dis2.readInt();
 		name = readString(manifestData, offsetToName);

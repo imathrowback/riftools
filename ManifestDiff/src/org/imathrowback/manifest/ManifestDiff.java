@@ -15,7 +15,7 @@ import org.kohsuke.args4j.OptionHandlerFilter;
 
 import rift_extractor.assets.Manifest;
 import rift_extractor.assets.ManifestEntry;
-import rift_extractor.assets.PAKFileEntry;
+import rift_extractor.assets.ManifestPAKFileEntry;
 import rift_extractor.util.Util;
 
 public class ManifestDiff
@@ -282,7 +282,7 @@ public class ManifestDiff
 		if (header)
 			System.out.println("change|filename|filenamehash|assetid|lang" + (showPak ? "|pakIndex" : ""));
 		Set<String> pakHashesProcessed = new TreeSet<>();
-		Set<PAKFileEntry> paksToUse = new TreeSet<>((a, b) -> a.name.compareTo(b.name));
+		Set<ManifestPAKFileEntry> paksToUse = new TreeSet<>((a, b) -> a.name.compareTo(b.name));
 		for (ManifestEntry del : deleted)
 		{
 			if (verbose)
@@ -302,7 +302,7 @@ public class ManifestDiff
 						"+|" + hname.apply(add) + "|" + Util.bytesToHexString(add.filenameHash) + ":" + add.idStr + ":"
 								+ add.lang
 								+ getPak(add));
-			PAKFileEntry pEntry = manifestB.pakFiles.get(add.pakIndex);
+			ManifestPAKFileEntry pEntry = manifestB.pakFiles.get(add.pakIndex);
 
 			// extract the added file
 			if (extractAdded)
@@ -329,7 +329,7 @@ public class ManifestDiff
 
 		if (verbose)
 		{
-			for (PAKFileEntry en : paksToUse)
+			for (ManifestPAKFileEntry en : paksToUse)
 				System.out.println(en);
 
 			long sum = paksToUse.stream().mapToLong(p -> p.getSize()).sum();
@@ -340,7 +340,7 @@ public class ManifestDiff
 	private void extractEntry(final ReleaseType type, final ManifestEntry entry, final Manifest manifest,
 			final int ptsIndex, final char patchIndex, final Function<ManifestEntry, String> hname)
 	{
-		PAKFileEntry pEntry = manifest.getPAK(entry.pakIndex);
+		ManifestPAKFileEntry pEntry = manifest.getPAK(entry.pakIndex);
 		int lang = entry.lang;
 
 		try

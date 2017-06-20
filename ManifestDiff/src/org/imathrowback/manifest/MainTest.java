@@ -6,8 +6,8 @@ import java.util.Map;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
-import rift_extractor.PAKFile;
-import rift_extractor.PAKFile.PAKEntry;
+import rift_extractor.assets.PAKEntry;
+import rift_extractor.assets.PAKFile;
 
 public class MainTest
 {

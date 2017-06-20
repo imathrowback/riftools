@@ -95,7 +95,7 @@ public class Manifest
 		}
 	}
 
-	public List<PAKFileEntry> pakFiles = new LinkedList<>();
+	public List<ManifestPAKFileEntry> pakFiles = new LinkedList<>();
 	public final List<ManifestEntry> manifestEntries = new LinkedList<>();
 
 	private void processTable(final byte[] manifestData) throws Exception
@@ -145,7 +145,7 @@ public class Manifest
 				try (LittleEndianDataInputStream dis2 = new LittleEndianDataInputStream(
 						new ByteArrayInputStream(manifestData, a.offset + (i * a.stride), a.stride)))
 				{
-					pakFiles.add(new PAKFileEntry(manifestData, dis2));
+					pakFiles.add(new ManifestPAKFileEntry(manifestData, dis2));
 
 				}
 			}
@@ -206,12 +206,12 @@ public class Manifest
 		}
 	}
 
-	public Stream<PAKFileEntry> getPAKs()
+	public Stream<ManifestPAKFileEntry> getPAKs()
 	{
 		return pakFiles.stream();
 	}
 
-	public PAKFileEntry getPAK(final int index)
+	public ManifestPAKFileEntry getPAK(final int index)
 	{
 		return pakFiles.get(index);
 	}

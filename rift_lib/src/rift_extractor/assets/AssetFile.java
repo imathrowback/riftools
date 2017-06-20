@@ -86,6 +86,16 @@ public class AssetFile
 		return b;
 	}
 
+	public void invalidateAsset(final AssetEntry entry) throws Exception
+	{
+		try (RandomAccessFile file = new RandomAccessFile(entry.file.file, "rw"))
+		{
+			file.seek(entry.metaOffset);
+			byte[] data = new byte[44];
+			file.write(data);
+		}
+	}
+
 	/**
 	 * Attempt to extract the given assetentry into a byte array. Because the content may be compressed the returned byte array
 	 * may be larger than the requested max bytes.
