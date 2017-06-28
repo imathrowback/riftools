@@ -131,15 +131,18 @@ public class Manifest
 			//System.out.println(c);
 
 			// why is there a 256 table at the start?
-			int[] table = new int[256];
+			/** TABLE 0 - 256 byte table */
+			byte[] table = new byte[256];
 			for (int i = 0; i < _256; i++)
 			{
 				try (LittleEndianDataInputStream dis2 = new LittleEndianDataInputStream(
 						new ByteArrayInputStream(manifestData, _256tableoffset + i, 1)))
 				{
-					table[i] = dis2.read();
+					table[i] = dis2.readByte();
 				}
 			}
+			//System.out.println(Util.bytesToHexString(table));
+			/** TABLE 1 - PAK files */
 			for (int i = 0; i < a.count; i++)
 			{
 				try (LittleEndianDataInputStream dis2 = new LittleEndianDataInputStream(
@@ -150,10 +153,8 @@ public class Manifest
 				}
 			}
 
-			int stringOffset = a.offset + (a.count * a.stride);
-
-			//int stringOffset = a.offset + (a.count * a.stride);
-			//System.out.println("begin table read3:" + c.offset);
+			/** TABLE 3 - unknown? */
+			//System.out.println(c.count);
 			try (LittleEndianDataInputStream dis2 = new LittleEndianDataInputStream(
 					new ByteArrayInputStream(manifestData, c.offset, c.tableSize)))
 			{
@@ -168,7 +169,7 @@ public class Manifest
 					{
 						for (int j = 0; j < ecount; j++)
 						{
-							//if (j < 100)
+							//if (j < 20)
 							//	System.out.println("[" + j + "]" + dis3.readInt());
 						}
 					}
@@ -177,8 +178,7 @@ public class Manifest
 			}
 		}
 
-		//System.out.println("Manifest entries:" + count);
-		// each manifest entry is 56 bytes but we only actually read the first 12, we don't know what the rest are
+		/** TABLE 2 - Manifest entries */
 		int entrySize = 56;
 		for (int i = 0; i < count; i++)
 		{

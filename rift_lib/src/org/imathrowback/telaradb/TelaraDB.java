@@ -11,9 +11,12 @@ import com.google.common.io.LittleEndianDataInputStream;
 import com.sun.jna.Native;
 import com.thoughtworks.xstream.XStream;
 
+import Huffman.magleo.HuffmanReader;
 import rift_extractor.util.Leb128;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.sql.Connection;
 import java.util.Collections;
 import java.util.List;
@@ -125,6 +128,22 @@ public class TelaraDB implements TelaraDBInterface
 		return b;
 	}
 
+	public synchronized int[] getFreq(final Integer datasetid) throws IOException
+	{
+		byte[] freq = getFreqTable(datasetid);
+
+		// do decompression
+		LittleEndianDataInputStream fdis = new LittleEndianDataInputStream(new ByteArrayInputStream(freq));
+		int[] freqInts = new int[256];
+		for (int i = 0; i < 256; i++)
+		{
+			int f = fdis.readInt();
+			freqInts[i] = f;
+		}
+		return freqInts;
+
+	}
+
 	public synchronized byte[] getFreqTable(final Integer datasetid)
 	{
 		try
@@ -173,11 +192,12 @@ public class TelaraDB implements TelaraDBInterface
 	@Override
 	public byte[] getData(final Integer datasetid, final Integer key)
 	{
-		byte[] freqData = getFreqTable(datasetid);
-		byte[] compresseddata = getCompressedData(datasetid, key);
 
 		try
 		{
+			int[] freqData = getFreq(datasetid);
+			byte[] compresseddata = getCompressedData(datasetid, key);
+
 			ByteArrayInputStream instr = new ByteArrayInputStream(compresseddata);
 			LittleEndianDataInputStream dis = new LittleEndianDataInputStream(instr);
 			int uncompressedSize = Leb128.readUnsignedLeb128_X(dis).get();
@@ -189,7 +209,11 @@ public class TelaraDB implements TelaraDBInterface
 				return new byte[0];
 			synchronized (lock)
 			{
-				decomp.decompressData(freqData, inputData, inputData.length, outputdata, outputdata.length);
+				HuffmanReader reader = new HuffmanReader(freqData);
+				ByteBuffer buffer = ByteBuffer.wrap(inputData);
+				outputdata = reader.read(buffer, inputData.length, outputdata.length);
+
+				//decomp.decompressData(freqData, inputData, inputData.length, outputdata, outputdata.length);
 			}
 			return outputdata;
 		} catch (java.lang.Error ex)

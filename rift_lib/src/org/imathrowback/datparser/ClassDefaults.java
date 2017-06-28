@@ -20,6 +20,7 @@ public class ClassDefaults
 				{
 					case 4086:
 					case 4235:
+					case 13154:
 						return new CFileTimeConvertor();
 				}
 				return new CDoubleConvertor();
@@ -28,6 +29,7 @@ public class ClassDefaults
 			{
 				switch (parentType)
 				{
+					case 1035:
 					case 7319:
 					case 7318:
 					case 602:

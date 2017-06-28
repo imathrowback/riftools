@@ -22,7 +22,7 @@ public class AssetProcessor
 		File[] assetFiles = new File(assetDirectory).listFiles();
 		if (assetFiles == null)
 			throw new IllegalArgumentException("Unable to find files in the asset directory: " + assetDirectory);
-		Stream.of(assetFiles).parallel().forEach(file -> {
+		Stream.of(assetFiles).forEach(file -> {
 
 			try
 			{
@@ -57,7 +57,12 @@ public class AssetProcessor
 	public static AssetFile buildAssetFileDatabase(final Manifest manifest, final File file) throws IOException
 	{
 		boolean debug = false;
+		boolean debug1 = file.getName().contains("assets.074") && false;
+		debug1 = file.getName().contains("new");
 		AssetFile assetFile = new AssetFile(file);
+
+		int[] prev = new int[1489];
+		int current = -1;
 
 		try (CountingInputStream cis = new CountingInputStream(new FileInputStream(file)))
 		{
@@ -65,16 +70,19 @@ public class AssetProcessor
 			{
 				byte[] magic = new byte[4];
 				dis.readFully(magic);
-				//System.out.println(new String(magic));
 				int version = dis.readInt();
 				int headersize = dis.readInt();
 				int maxfiles = dis.readInt();
-				int lastEntryIndex = dis.readInt();
-				String ss = ("[" + file.getName() + "]: Version:" + version + " headerSize:" + headersize
-						+ ", maxFiles:"
-						+ maxfiles + ", files:" + lastEntryIndex);
+				int endEntryIndex = dis.readInt();
+				assetFile.endEntryIndex = endEntryIndex - 1;
+				assetFile.prev = prev;
 
-				//System.out.println(cis);
+				String ss = ("[" + file.getName() + "]: Version:" + version + " headerSize:" + headersize
+						+ ", maxEntries:"
+						+ maxfiles + ", startIndex:" + (endEntryIndex - 1));
+				current = endEntryIndex - 1;
+				if (debug1)
+					System.out.println(ss);
 				// System.out.println("\t assets " + files + ", max:" + maxfiles);
 				// FIXME: For some reason, using the "files" variable doesnt read the proper amount of actual files, deleted? renamed? moved?
 				int actualFiles = 0;
@@ -98,8 +106,9 @@ public class AssetProcessor
 						bis.readFully(hash);
 						AssetEntry entryX = new AssetEntry(id, offset, size1, size2, index, flag, hash, assetFile);
 						entryX.metaOffset = cis.getCount() - entry.length;
-						//if (entryX.strID.equals("e1d0d8f2d6f50cba"))
-						//	System.out.println("found @" + entryX.metaOffset + " in " + file + "\n\t" + entryX);
+						if (debug1)
+							System.out.println("\t[" + i + "] - next:" + (index - 1) + " @" + offset);
+						prev[i] = (index - 1);
 						if (offset == 0)
 						{
 							// entry was deleted? Corrupt? No longer exists?
@@ -109,13 +118,15 @@ public class AssetProcessor
 							continue;
 						} else
 						{
-							String idstr = Util.bytesToHexString(id);
-							Set<String> namehashes = manifest.getFilenameHashesForID(idstr);
-
+							if (manifest != null)
+							{
+								String idstr = Util.bytesToHexString(id);
+								Set<String> namehashes = manifest.getFilenameHashesForID(idstr);
+							}
 							if (debug)
 								System.out.println("[" + i + "]:" + entryX);
 							assetFile.addAsset(entryX);
-							if (index == lastEntryIndex - 1 && debug)
+							if (index == endEntryIndex - 1 && debug)
 								System.out.println(ss + ":" + entryX);
 							actualFiles++;
 						}
@@ -130,6 +141,19 @@ public class AssetProcessor
 				e.printStackTrace();
 			}
 		}
+
+		{
+			int count = 0;
+			while (current != -1)
+			{
+				count++;
+				current = prev[current];
+			}
+			assetFile.realCount = count;
+			if (debug1)
+				System.out.println("\tfound " + count + " files -> " + file);
+		}
+
 		return assetFile;
 	}
 

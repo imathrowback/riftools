@@ -29,7 +29,6 @@ public class ManifestPAKFileEntry
 		hash1Str = Util.bytesToHexString(hash1);
 		hash2Str = Util.bytesToHexString(hash2);
 		combHash = hash1Str + hash2Str;
-		//System.out.println("\t" + Util.bytesToHexString(hash1) + ":" + Util.bytesToHexString(hash2));
 	}
 
 	private String readString(final byte[] manifestData, final int offset) throws IOException

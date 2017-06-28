@@ -25,6 +25,9 @@ public class AssetFile
 	final public File file;
 	boolean is64 = false;
 	Map<String, AssetEntry> assets = new HashMap<>();
+	public int endEntryIndex;
+	public int[] prev;
+	public int realCount;
 
 	@Override
 	public String toString()
