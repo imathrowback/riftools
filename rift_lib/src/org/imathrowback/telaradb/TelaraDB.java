@@ -8,7 +8,6 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.cache.Cache;
 import com.google.common.io.LittleEndianDataInputStream;
-import com.sun.jna.Native;
 import com.thoughtworks.xstream.XStream;
 
 import Huffman.magleo.HuffmanReader;
@@ -50,7 +49,6 @@ public class TelaraDB implements TelaraDBInterface
 	Field<byte[]> ds_FREQ = DSL.fieldByName(SQLDataType.BLOB, "frequencies");
 	Map<Integer, Boolean> compressedMap = new TreeMap<>();
 
-	TelaraDBDecomp decomp;
 	Connection con;
 	Object lock = new Object();
 
@@ -78,14 +76,6 @@ public class TelaraDB implements TelaraDBInterface
 		};
 		idsAndKeysWithKeyCache = CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.MINUTES).build(loader);
 		con = c;
-		try
-		{
-			System.loadLibrary("riftdecomp");
-			decomp = Native.loadLibrary("riftdecomp", TelaraDBDecomp.class);
-		} catch (ClassCastException ex)
-		{
-			ex.printStackTrace();
-		}
 	}
 
 	/* (non-Javadoc)

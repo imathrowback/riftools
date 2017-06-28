@@ -43,6 +43,7 @@
     	<mkdir dir="build/classes"/>
       <javac srcdir="src" destdir="build/classes" classpathref="compile.ivy.path" debug="true"/>
   		<copy file="src/org/imathrowback/manifest/single-entries.dat" todir="build/classes/org/imathrowback/manifest/"/>
+  		<copy file="src/org/imathrowback/telaradb/db_key" todir="build/classes/org/imathrowback/telaradb/"/>
     </target>
 
     <target name="jar" depends="clean,bootstrapivy,compile">

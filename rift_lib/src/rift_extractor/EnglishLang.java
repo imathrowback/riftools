@@ -7,11 +7,8 @@ import java.util.TreeMap;
 
 import org.imathrowback.datparser.CObject;
 import org.imathrowback.datparser.DatParser;
-import org.imathrowback.telaradb.TelaraDBDecomp;
-
 import com.google.common.io.LittleEndianDataInputStream;
-import com.sun.jna.Native;
-
+import Huffman.magleo.HuffmanReader;
 import rift_extractor.util.Leb128;
 
 class CDEntry
@@ -60,8 +57,6 @@ public class EnglishLang
 
 	public EnglishLang(final byte[] langdata) throws Exception
 	{
-		System.loadLibrary("riftdecomp");
-		TelaraDBDecomp decomp = Native.loadLibrary("riftdecomp", TelaraDBDecomp.class);
 
 		LittleEndianDataInputStream diss = new LittleEndianDataInputStream(new ByteArrayInputStream(langdata));
 
@@ -77,6 +72,8 @@ public class EnglishLang
 			entries.add(new CDEntry(key, byteOffsetFromStartOfEntries));
 		}
 
+		HuffmanReader reader = new HuffmanReader(freqData);
+
 		for (int i = 0; i < entryCount; i++)
 		{
 			CDEntry entry = entries.get(i);
@@ -87,7 +84,7 @@ public class EnglishLang
 			diss.readFully(data);
 
 			byte[] dataOut = new byte[decompressedSize];
-			decomp.decompressData(freqData, data, compressedSize, dataOut, decompressedSize);
+			reader.decompress(data, compressedSize, dataOut, decompressedSize);
 			entry.cdata = dataOut;
 			keyMap.put(entry.key, entry);
 			entries.set(i, null);

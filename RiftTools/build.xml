@@ -53,9 +53,6 @@
 
     <target name="jar" depends="clean,builddeps,ivyresolve,compile,manifestjar,totextjar,telaradbdiffjar">
     	<copy file="exes/autodiff.bat" todir="build/jar"/>
-    	<copy file="exes/riftdecomp.dll" todir="build/jar"/>
-    	<copy file="exes/db_key" todir="build/jar"/>
-      <copy file="exes/decrypt_telaradb.exe" todir="build/jar"/>
       <copy file="exes/diff.exe" todir="build/jar"/>
     </target>
    

@@ -20,6 +20,7 @@ import org.imathrowback.datparser.DatParser;
 import org.imathrowback.manifest.ReleaseType;
 import org.imathrowback.manifest.RemotePAK;
 import org.imathrowback.telaradb.TelaraDB;
+import org.imathrowback.telaradb.TelaraDBUtil;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
@@ -327,9 +328,10 @@ public class TelaraDBDiff
 
 	private void tryDecrypt(final File encryptedFile) throws Exception
 	{
-		ProcessBuilder b = new ProcessBuilder("decrypt_telaradb.exe", encryptedFile.toString());
-		Process p = b.start();
-		int res = p.waitFor();
+		byte[] data = java.nio.file.Files.readAllBytes(encryptedFile.toPath());
+		byte[] decrypted = new byte[data.length];
+		TelaraDBUtil.decrypt(data, data.length, decrypted);
+		Files.write(decrypted, encryptedFile);
 	}
 
 	public static String diff(final LinkedList<Diff> diffs)

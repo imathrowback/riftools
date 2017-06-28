@@ -8,8 +8,6 @@ import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.imathrowback.datparser.CObject;
 import org.imathrowback.datparser.CObjectConverter;
 import org.imathrowback.datparser.DatParser;
-import org.imathrowback.telaradb.TelaraDBDecomp;
-
 import com.sun.jna.Native;
 import com.thoughtworks.xstream.XStream;
 import rift_extractor.classgen.classes._7630;
@@ -100,11 +98,6 @@ public class ClassGen
 
 	public static void main(final String[] args) throws Exception
 	{
-		if (false)
-		{
-			System.loadLibrary("riftdecomp");
-			TelaraDBDecomp decomp = Native.loadLibrary("riftdecomp", TelaraDBDecomp.class);
-		}
 
 		String testFile = "C:\\workspace\\rift_extractor\\world_6144_5120.cdr";
 		String testFile2 = "C:\\workspace\\rift_extractor\\world_6144_5120.cdr";

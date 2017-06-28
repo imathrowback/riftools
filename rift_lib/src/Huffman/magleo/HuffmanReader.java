@@ -1,19 +1,43 @@
 package Huffman.magleo;
 
+import com.google.common.io.LittleEndianDataInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
-import java.util.List;
 
 public class HuffmanReader
 {
 
 	private final int[] frequencies;
-	private Node[] nodes;
 	private final Node root;
+
+	static int[] toInts(final byte[] freqData)
+	{
+		int[] freqInts = new int[256];
+		try
+		{
+			// do decompression
+			LittleEndianDataInputStream fdis = new LittleEndianDataInputStream(new ByteArrayInputStream(freqData));
+			for (int i = 0; i < 256; i++)
+			{
+				int f = fdis.readInt();
+				freqInts[i] = f;
+			}
+		} catch (Exception ex)
+		{
+			ex.printStackTrace();
+			;
+		}
+		return freqInts;
+	}
+
+	public HuffmanReader(final byte[] freqDataBlock)
+	{
+		this(toInts(freqDataBlock));
+	}
 
 	/**
 	 * Initialize a new huffman reader with the given frequencies array.
@@ -21,7 +45,6 @@ public class HuffmanReader
 	public HuffmanReader(final int[] frequencies)
 	{
 		this.frequencies = frequencies;
-
 		root = buildTree2(this.frequencies);
 	}
 
@@ -90,7 +113,7 @@ public class HuffmanReader
 		// heapSort3(heap2);
 		heapSort(heap);
 
-		LinkedList<Node> leafs0 = new LinkedList<Node>(Arrays.asList(heap));
+		LinkedList<Node> leafs0 = new LinkedList<>(Arrays.asList(heap));
 		Collections.reverse(leafs0);
 
 		LinkedList<Node> leafs = leafs0;
@@ -117,7 +140,7 @@ public class HuffmanReader
 		//System.out.println("Leaf0 : " + leafs0);
 		//System.out.println("Leaf1 : " + new ArrayList<Node>(Arrays.asList(heap2)));
 
-		LinkedList<Node> nodes = new LinkedList<Node>();
+		LinkedList<Node> nodes = new LinkedList<>();
 
 		Node[] children = new Node[2];
 
@@ -128,10 +151,10 @@ public class HuffmanReader
 
 			for (int i = 0; i < children.length; ++i)
 			{
-				if (leafs.size() == 0)
+				if (leafs.isEmpty())
 				{
 					children[i] = nodes.poll();
-				} else if (nodes.size() == 0)
+				} else if (nodes.isEmpty())
 				{
 					children[i] = leafs.poll();
 				} else
@@ -210,7 +233,7 @@ public class HuffmanReader
 		heap[insert - 1] = node;
 	}
 
-	public static Node buildTree2(final int[] frequencies)
+	private static Node buildTree2(final int[] frequencies)
 	{
 
 		boolean debug = false;
@@ -363,13 +386,6 @@ public class HuffmanReader
 			v6 |= 1;
 		} while (depth >= 0);
 
-		//		  for (int i = 0; i < codeValues.length; ++i) {
-		//			  if (codeLength[i] != 0) {
-		//				  String s = "0000000000" + Integer.toBinaryString(codeValues[i]);
-		//				  System.out.println(i + " => " + s.substring(s.length() - codeLength[i]));
-		//			  }
-		//		  }
-
 		Node root = new Node();
 
 		for (int i = 0; i < codeValues.length; ++i)
@@ -438,17 +454,23 @@ public class HuffmanReader
 		heap[insert - 1 + (heap.length >> 1)] = weight;
 	}
 
+	public byte[] decompress(final byte[] inputData, final int compressedSize, final byte[] dataOut, final int decompressedSize)
+	{
+		ByteBuffer buffer = ByteBuffer.wrap(inputData);
+		byte[] outputdata = read(buffer, inputData.length, dataOut.length);
+		System.arraycopy(outputdata, 0, dataOut, 0, dataOut.length);
+		return outputdata;
+	}
+
 	/**
 	 * An huffman tree node, be it a node or leaf
 	 *
 	 */
 	private static class Node implements Comparable<Node>
 	{
-		static int number = 0;
 		int freq;
 		int value;
 		int depth;
-		int n = number++;
 
 		Node parent;
 		Node a, b;
@@ -483,145 +505,6 @@ public class HuffmanReader
 			return d;
 		}
 
-		@Override
-		public String toString()
-		{
-			return "[" + String.format("%6d", freq) + ":" + (value == -1 ? " * " : String.format("%3d", value)) + ":"
-					+ String.format("%3d", n) + "]";
-		}
-
-		public String toBinaryString()
-		{
-			String s = "";
-			Node current = this;
-
-			while (current.parent != null)
-			{
-				if (current.parent.a == current)
-				{
-					s = "0" + s;
-				} else
-				{
-					s = "1" + s;
-				}
-				current = current.parent;
-			}
-
-			return s;
-		}
 	}
 
-	public void print()
-	{
-
-		for (int i = 0; i < frequencies.length; ++i)
-		{
-			System.out.println(
-					"freq(" + Integer.toHexString(i) + ") = " + frequencies[i] + " " + nodes[i].toBinaryString());
-		}
-
-		if (true)
-			return;
-
-		List<Node>[] nodes = new List[256];
-
-		nodes[0] = new ArrayList<Node>();
-		nodes[0].add(root);
-
-		int depth = 0;
-		for (int i = 0; i < nodes.length; ++i)
-		{
-			if (nodes[i] == null)
-			{
-				depth = i;
-				break;
-			}
-
-			boolean hasChild = false;
-			nodes[i + 1] = new LinkedList<Node>();
-
-			for (Node n : nodes[i])
-			{
-				if (n != null)
-				{
-					if (n.a != null)
-					{
-						hasChild = true;
-					}
-					nodes[i + 1].add(n.a);
-					nodes[i + 1].add(n.b);
-				}
-			}
-
-			if (!hasChild)
-			{
-				nodes[i + 1] = null;
-			}
-		}
-
-		int widthPerNode = 4;
-		for (int d = 0; d < depth; ++d)
-		{
-			// Total width at final depth
-			int total = (1 << (depth)) * widthPerNode;
-
-			int padding = (total / (1 << d)) - widthPerNode;
-
-			for (Node n : nodes[d])
-			{
-				if (padding > 0)
-				{
-					for (int i = 0; i < padding / 4; ++i)
-						System.out.print(" ");
-					for (int i = 0; i < padding / 4; ++i)
-						System.out.print(n != null && n.a != null ? "-" : " ");
-				}
-				if (n == null)
-				{
-					System.out.print(String.format("    "));
-				} else if (n.value == -1)
-				{
-					System.out.print(String.format("0/\\1"));
-				} else
-				{
-					System.out.print(String.format(" %2s ", Integer.toHexString(n.value)));
-				}
-				if (padding > 0)
-				{
-					for (int i = 0; i < padding / 4; ++i)
-						System.out.print(n != null && n.b != null ? "-" : " ");
-					for (int i = 0; i < padding / 4; ++i)
-						System.out.print(" ");
-				}
-			}
-			System.out.println();
-			for (Node n : nodes[d])
-			{
-				if (padding > 0)
-				{
-					for (int i = 0; i < padding / 4; ++i)
-						System.out.print(" ");
-					System.out.print(n != null && n.a != null ? "|" : " ");
-					for (int i = 0; i < padding / 4 - 1; ++i)
-						System.out.print(" ");
-				}
-				if (n == null)
-				{
-					System.out.print(String.format("    "));
-				} else
-				{
-					System.out.print(String.format("%4d", n.freq));
-				}
-				if (padding > 0)
-				{
-					for (int i = 0; i < padding / 4 - 1; ++i)
-						System.out.print(" ");
-					System.out.print(n != null && n.b != null ? "|" : " ");
-					for (int i = 0; i < padding / 4; ++i)
-						System.out.print(" ");
-				}
-			}
-			System.out.println();
-		}
-	}
 }
