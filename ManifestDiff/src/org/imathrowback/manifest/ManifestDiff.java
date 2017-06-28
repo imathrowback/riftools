@@ -356,7 +356,7 @@ public class ManifestDiff
 			{
 				filename = Paths.get(outDir.toString(), guessname + patchIndex).toString();
 			}
-			if (new File(filename).exists())
+			if (new File(filename).exists() && new File(filename).length() > 0)
 				System.out.println(
 						"\tskipping extraction, file[" + filename + "] from " + pEntry.name
 								+ " already exists");
@@ -369,7 +369,7 @@ public class ManifestDiff
 			}
 		} catch (Exception ex)
 		{
-			//ex.printStackTrace();
+			ex.printStackTrace();
 		}
 	}
 

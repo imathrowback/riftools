@@ -293,11 +293,14 @@ public class RemotePAK
 		//System.out.println(pakFile);
 		String url = getBaseUrl(type) + "/" + getContentUrl(type) + pindex + "/"
 				+ pakFile.name;
-		//System.out.println(url);
 
 		int startBytes = e.pakOffset;
 		int endBytes = (e.pakOffset + e.compressedSize) - 1;
-
+		/*
+		System.out
+				.println(url + " - range:" + startBytes + "-" + endBytes + "(" + e.size + "x" + e.compressedSize + ")-"
+						+ pakFile.compressionType);
+		*/
 		try (CloseableHttpClient client = HttpClients.createDefault())
 		{
 			HttpGet get = new HttpGet(url);
@@ -311,6 +314,19 @@ public class RemotePAK
 				{
 					copyWithProgress(e.compressedSize, httpInputStream, bos);
 				}
+				if (response.getStatusLine().getStatusCode() == 416)
+				{
+					System.out.println(
+							"\t\t ERROR - Unable to get the bytes we expected. The remote PAK files may not be up to date?");
+					return;
+				}
+				//System.out.println("\t\t" + response.getStatusLine());
+				/*
+				System.out.println("got " + bos.toByteArray().length + " data from stream");
+				
+				for (Header h : response.getAllHeaders())
+					System.out.println("\t" + h.getName() + ":" + h.getValue());
+					*/
 
 				try (InputStream fis = new ByteArrayInputStream(bos.toByteArray()))
 				{
@@ -319,7 +335,8 @@ public class RemotePAK
 						if (e.size != e.compressedSize)
 						{
 							fis.skip(1);
-							try (LZMA2InputStream in = new LZMA2InputStream(fis, e.size * 2))
+							try (LZMA2InputStream in = new LZMA2InputStream(fis,
+									Math.max(LZMA2InputStream.DICT_SIZE_MIN, e.size * 2)))
 							{
 								IOUtils.copy(in, fos);
 							}
@@ -328,6 +345,13 @@ public class RemotePAK
 							IOUtils.copy(fis, fos);
 						}
 					}
+					if (new File(filename).length() != e.size)
+					{
+						System.out.println("\t Size mismatch in written file, expected " + e.size + " , but was:"
+								+ new File(filename).length());
+					}
+					//else
+					//	System.out.println("\t\t Size of new file:" + new File(filename).length());
 				}
 
 			}
