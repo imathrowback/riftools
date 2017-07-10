@@ -25,6 +25,11 @@ public class PatchInfo implements Comparable<PatchInfo>
 		}
 	}
 
+	public int getIndex()
+	{
+		return index;
+	}
+
 	public List<PatchManifestEntry> getEntries()
 	{
 		return fileEntries;
