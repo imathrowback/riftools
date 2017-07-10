@@ -70,7 +70,7 @@ public class AssetDatabase
 
 		if (holders.size() > 1)
 		{
-			System.out.println(holders);
+			//System.out.println(holders);
 			// we have a 32 and 64 bit one pick the right one
 			AssetFile f_32 = holders.stream().filter(f -> !f.is64).findFirst().get();
 			AssetFile f_64 = holders.stream().filter(f -> f.is64).findFirst().get();
