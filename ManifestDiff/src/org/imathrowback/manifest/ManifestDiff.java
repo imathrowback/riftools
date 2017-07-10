@@ -91,9 +91,9 @@ public class ManifestDiff
 				if ((extractAdded || extractChanged) && (versionA.isEmpty() || versionB.isEmpty()))
 					throw new CmdLineException(parser,
 							"To extract files you need to specify the remote versionA and versionB, local extraction is not yet supported");
-				if (!versionB.isEmpty() && !manifestBFile.exists())
+				if (versionB.isEmpty() && !manifestBFile.exists())
 					throw new CmdLineException(parser, "Must specify either versionB or manifestB file");
-				if (!versionA.isEmpty() && !manifestAFile.exists())
+				if (versionA.isEmpty() && !manifestAFile.exists())
 					throw new CmdLineException(parser, "Must specify either versionA or manifesA file");
 			}
 
@@ -167,12 +167,22 @@ public class ManifestDiff
 
 			patchBInfo = sortedPatches.last();
 			patchAInfo = sortedPatches.lower(sortedPatches.last());
-			System.out.println(
-					"Detected remote patchA index[" + patchAInfo.index + "] as version:" + patchAInfo.version);
-			System.out.println(
-					"Detected remote patchB index[" + patchBInfo.index + "] as version:" + patchBInfo.version);
 
 		}
+		if (patchAInfo == null)
+		{
+			System.err.println("Unable to find patchA " + versionA + ":" + manifestAFile);
+			return;
+		}
+		if (patchBInfo == null)
+		{
+			System.err.println("Unable to find patchB " + versionB + ":" + manifestBFile);
+			return;
+		}
+		System.out.println(
+				"Detected remote patchA index[" + patchAInfo.index + "] as version:" + patchAInfo.version);
+		System.out.println(
+				"Detected remote patchB index[" + patchBInfo.index + "] as version:" + patchBInfo.version);
 
 		InputStream manifestAStream = null;
 		InputStream manifestBStream = null;
