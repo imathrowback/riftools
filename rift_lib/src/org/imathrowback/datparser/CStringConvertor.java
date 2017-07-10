@@ -1,7 +1,9 @@
 /*
- * 
+ *
  */
 package org.imathrowback.datparser;
+
+import java.nio.charset.Charset;
 
 /**
  *
@@ -15,9 +17,9 @@ public class CStringConvertor extends CObjectConverter<String>
 	}
 
 	@Override
-	public String convert(CObject obj) throws Exception
+	public String convert(final CObject obj) throws Exception
 	{
-		return new String(obj.data);
+		return new String(obj.data, Charset.forName("UTF-8"));
 	}
-	
+
 }
