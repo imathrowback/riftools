@@ -9,7 +9,7 @@ public class DefaultDetector
 
 	public DefaultDetector(final List<Detector> detectors2)
 	{
-		if (detectors == null)
+		if (detectors2 == null)
 			detectors = getDetectors();
 		else
 			detectors.addAll(detectors2);
@@ -77,5 +77,12 @@ public class DefaultDetector
 		return detectors.stream().filter(d -> d.detect(data) == DetectResult.TRUE).map(d -> d.getExtension())
 				.findFirst()
 				.orElse(null);
+	}
+
+	public String detectExtension2(final byte[] data)
+	{
+		return detectors.stream().filter(d -> d.detect(data) == DetectResult.TRUE).map(d -> d.getExtension())
+				.findFirst()
+				.orElse("");
 	}
 }
