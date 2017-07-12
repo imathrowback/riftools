@@ -4,6 +4,8 @@ import rift_extractor.util.Leb128;
 
 import java.io.*;
 import java.util.Arrays;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.StringUtils;
@@ -362,6 +364,11 @@ public class DatParser
 
 	public static CObject processFileAndObject(final InputStream is) throws Exception
 	{
+		return processFileAndObject(is, null);
+	}
+
+	public static CObject processFileAndObject(final InputStream is, final DataModel dataModel) throws Exception
+	{
 		LittleEndianDataInputStream dis = new LittleEndianDataInputStream(is);
 
 		int code1 = Leb128.readUnsignedLeb128_X(dis).get();
@@ -381,6 +388,28 @@ public class DatParser
 			DatParser.log("do member " + (++i) + ": with code:" + result, 0);
 			r = DatParser.handleCode(root, dis, result.code, result.data, 1);
 		} while (r);
+
+		if (dataModel != null)
+			guessNames(root, dataModel);
+
 		return root;
+	}
+
+	private static void guessNames(final CObject node, final DataModel dataModel)
+	{
+		Map<Integer, String> fields = new TreeMap<>();
+		Clazz clazz = dataModel.getClazz(node.type.longValue());
+		if (clazz != null)
+		{
+			node.clazzName = clazz.name;
+			fields = clazz.fields;
+		}
+
+		for (CObject o : node.members)
+		{
+			guessNames(o, dataModel);
+			if (fields.containsKey(o.index))
+				o.clazzName = fields.get(o.index);
+		}
 	}
 }

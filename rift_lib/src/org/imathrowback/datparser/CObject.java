@@ -30,6 +30,9 @@ public class CObject
 	@XStreamAsAttribute
 	public String stringValue;
 
+	@XStreamAsAttribute
+	public String clazzName;
+
 	public CObjectConverter getConvertor()
 	{
 		return convertor;

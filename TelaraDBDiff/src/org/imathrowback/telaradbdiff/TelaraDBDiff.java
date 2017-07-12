@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.imathrowback.datparser.CObject;
 import org.imathrowback.datparser.DatParser;
+import org.imathrowback.datparser.DataModel;
 import org.imathrowback.manifest.ReleaseType;
 import org.imathrowback.manifest.RemotePAK;
 import org.imathrowback.telaradb.TelaraDB;
@@ -36,6 +37,9 @@ public class TelaraDBDiff
 {
 	@Option(name = "-dbA", usage = "First database", required = true)
 	File dba;
+
+	@Option(name = "-dbResolve", usage = "Name resolution database", required = false)
+	File dbResolve;
 
 	@Option(name = "-release", usage = "Release type, needed if -autoDownload is specified")
 	ReleaseType releaseType;
@@ -146,12 +150,12 @@ public class TelaraDBDiff
 				transmog(o, lang);
 	}
 
+	EnglishLang langAdb = null;
+	EnglishLang langBdb = null;
+
 	void doDiff() throws Exception
 	{
 		doDecrypt();
-
-		EnglishLang langAdb = null;
-		EnglishLang langBdb = null;
 
 		if (autoDownloadLangDB)
 		{
@@ -193,23 +197,14 @@ public class TelaraDBDiff
 				System.out.println("deleted in B:" + idA);
 		}
 		System.out.println("look for additions/changes");
+		DataModel dataModel = new DataModel(dbResolve);
 		try (PrintWriter newFos = new PrintWriter("new.xml"))
 		{
 			int totalCount = idsB.size();
-			int count = 0;
-			int lastP = 0;
-			for (Pair<Integer, Integer> idB : idsB)
-			{
-				count++;
-				int per = (int) (((float) count / (float) totalCount) * 100.0f);
-				if (lastP != per)
-				{
-					if ((per % 5) == 0)
-						System.out.print(per + "%");
-					else
-						System.out.print(".");
-					lastP = per;
-				}
+			AtomicInteger count = new AtomicInteger();
+			AtomicInteger lastP = new AtomicInteger();
+			//for (Pair<Integer, Integer> idB : idsB)
+			idsB.parallelStream().forEach(idB -> {
 
 				try
 				{
@@ -220,11 +215,15 @@ public class TelaraDBDiff
 						//System.out.println("added in B:" + idB);
 						CObject obj = DatParser
 								.processFileAndObject(
-										new ByteArrayInputStream(fileB.getData(idB.getLeft(), idB.getRight())));
+										new ByteArrayInputStream(fileB.getData(idB.getLeft(), idB.getRight())),
+										dataModel);
 						XStream str = new XStream();
 						str.processAnnotations(CObject.class);
-						str.toXML(obj, newFos);
-						newFos.println("");
+						synchronized (newFos)
+						{
+							str.toXML(obj, newFos);
+							newFos.println("");
+						}
 					} else
 					{
 						// check for changed
@@ -238,10 +237,12 @@ public class TelaraDBDiff
 							//System.out.println("changed:" + idB);
 							CObject objA = DatParser
 									.processFileAndObject(
-											new ByteArrayInputStream(fileA.getData(idB.getLeft(), idB.getRight())));
+											new ByteArrayInputStream(fileA.getData(idB.getLeft(), idB.getRight())),
+											dataModel);
 							CObject objB = DatParser
 									.processFileAndObject(
-											new ByteArrayInputStream(fileB.getData(idB.getLeft(), idB.getRight())));
+											new ByteArrayInputStream(fileB.getData(idB.getLeft(), idB.getRight())),
+											dataModel);
 
 							if (langAdb != null)
 								transmog(objA, langAdb);
@@ -266,26 +267,30 @@ public class TelaraDBDiff
 								diff = diff.redirectOutput(diffPath.toFile());
 								Process p = diff.start();
 								p.waitFor();
-								/*
-								DiffMatchPatch dmp = new DiffMatchPatch();
-								LinkedList<Diff> diffs = dmp.diff_main(a, b);
-								dmp.diff_cleanupSemantic(diffs);
-								String t = dmp.diff_toDelta(diffs);
-								t = dmp.diff_prettyHtml(diffs);
-								t = diff(diffs);
-								changedFos.println(">>>>>>>" + idB);
-								changedFos.println(t);
-								changedFos.println("<<<<<<<<<<<");
-								*/
 							}
-
 						}
 					}
 				} catch (Exception ex)
 				{
 					System.err.println("Error processing entry:" + idB);
+					ex.printStackTrace();
+				} finally
+				{
+					synchronized (dataModel)
+					{
+						int c = count.incrementAndGet();
+						int per = (int) (((float) c / (float) totalCount) * 100.0f);
+						if (lastP.get() != per)
+						{
+							if ((per % 5) == 0)
+								System.out.print(per + "%");
+							else
+								System.out.print(".");
+							lastP.set(per);
+						}
+					}
 				}
-			}
+			});
 		}
 		System.out.println(
 				"Done. See new.xml for any additions and " + Paths.get(outdir.toString(), "db") + " for changes.");
