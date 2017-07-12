@@ -170,7 +170,7 @@ public class TelaraDBDiff
 		{
 			if (langB.exists())
 			{
-				System.out.println("Loading english language DB(b) " + langA);
+				System.out.println("Loading english language DB(b) " + langB);
 				langBdb = new EnglishLang(java.nio.file.Files.readAllBytes(langB.toPath()));
 			}
 		}
