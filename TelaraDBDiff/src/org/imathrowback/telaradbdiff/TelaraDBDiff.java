@@ -70,7 +70,7 @@ public class TelaraDBDiff
 			parser.parseArgument(args);
 			if (!outdir.isDirectory())
 				throw new CmdLineException(parser, "Output must be a directory");
-			if (!autoDownloadLangDB && releaseType == null)
+			if (autoDownloadLangDB && releaseType == null)
 				throw new CmdLineException(parser, "Release type must be specified in addition to auto download");
 
 		} catch (CmdLineException e)
