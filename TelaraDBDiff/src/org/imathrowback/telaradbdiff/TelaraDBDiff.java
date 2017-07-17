@@ -1,10 +1,6 @@
 package org.imathrowback.telaradbdiff;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -198,7 +194,8 @@ public class TelaraDBDiff
 		}
 		System.out.println("look for additions/changes");
 		DataModel dataModel = new DataModel(dbResolve);
-		try (PrintWriter newFos = new PrintWriter("new.xml"))
+		try (PrintWriter newFos = new PrintWriter(
+				new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream("new.xml")), "UTF-8")))
 		{
 			int totalCount = idsB.size();
 			AtomicInteger count = new AtomicInteger();
@@ -213,16 +210,28 @@ public class TelaraDBDiff
 					if (!idsA.contains(idB))
 					{
 						//System.out.println("added in B:" + idB);
+						byte[] data = fileB.getData(idB.getLeft(), idB.getRight());
 						CObject obj = DatParser
 								.processFileAndObject(
-										new ByteArrayInputStream(fileB.getData(idB.getLeft(), idB.getRight())),
+										new ByteArrayInputStream(data),
 										dataModel);
+						obj.index = id;
+						obj.extracode = key;
+
+						if (langAdb != null)
+							transmog(obj, langBdb);
+
 						XStream str = new XStream();
 						str.processAnnotations(CObject.class);
+						Path dbDir = Paths.get(outdir.toString(), "db");
+						dbDir.toFile().mkdir();
+						Path aPath = Paths.get(dbDir.toString(), id + "_" + key + ".dat");
+						Files.write(data, aPath.toFile());
 						synchronized (newFos)
 						{
 							str.toXML(obj, newFos);
 							newFos.println("");
+							newFos.println("---");
 						}
 					} else
 					{
