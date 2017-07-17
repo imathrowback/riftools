@@ -52,6 +52,9 @@ public class ManifestDiff
 	@Option(name = "-release", usage = "The release to diff (required)", required = true)
 	ReleaseType release = ReleaseType.LIVE;
 
+	@Option(name = "-onlyLang", usage = "Only process a single language, english = 1", required = true)
+	int onlyLang = -1;
+
 	@Option(name = "-extractAdded", usage = "Extract added entries", required = false)
 	boolean extractAdded = false;
 	@Option(name = "-extractChanged", usage = "Extract changed entries", required = false)
@@ -238,9 +241,12 @@ public class ManifestDiff
 
 		for (ManifestEntry aEntry : manifestA.manifestEntries)
 		{
+			if (onlyLang > 0 && aEntry.lang > 0 && aEntry.lang != onlyLang)
+				continue;
+
 			// check if the name for the entry from manifestA exists in manifestB
-			List<ManifestEntry> entries = findEntrysWithName(aEntry, manifestB);
-			if (entries.isEmpty())
+			List<ManifestEntry> bentries = findEntrysWithName(aEntry, manifestB);
+			if (bentries.isEmpty())
 			{
 				// no? then it was deleted entirely
 				deleted.add(aEntry);
@@ -248,7 +254,7 @@ public class ManifestDiff
 			{
 				// it exists, now check if the hashes and language match
 				boolean matches = false;
-				for (ManifestEntry bEntry : entries)
+				for (ManifestEntry bEntry : bentries)
 				{
 					if (bEntry.lang == aEntry.lang)
 					{
@@ -267,7 +273,7 @@ public class ManifestDiff
 					if (extractChanged)
 					{
 						extractEntry(releaseType, aEntry, manifestA, patchAInfo.index, 'A', hname);
-						for (ManifestEntry bEntry : entries)
+						for (ManifestEntry bEntry : bentries)
 							extractEntry(releaseType, bEntry, manifestB, patchBInfo.index, 'B', hname);
 					}
 
@@ -305,11 +311,13 @@ public class ManifestDiff
 		}
 		for (ManifestEntry add : added)
 		{
+
 			if (verbose)
 				System.out.println("[add]:" + hname.apply(add) + "|" + add + ":" + add.pakIndex);
 			else
 				System.out.println(
-						"+|" + hname.apply(add) + "|" + Util.bytesToHexString(add.filenameHash) + ":" + add.idStr + ":"
+						"+|" + hname.apply(add) + "|" + Util.bytesToHexString(add.filenameHash) + ":" + add.idStr
+								+ ":"
 								+ add.lang
 								+ getPak(add));
 			ManifestPAKFileEntry pEntry = manifestB.pakFiles.get(add.pakIndex);
@@ -327,6 +335,9 @@ public class ManifestDiff
 		}
 		for (ManifestEntry change : changed)
 		{
+			if (onlyLang > 0 && change.lang > 0 && change.lang != onlyLang)
+				continue;
+
 			if (verbose)
 				System.out.println("[change]:" + hname.apply(change) + "|" + change + ":" + change.pakIndex);
 			else
