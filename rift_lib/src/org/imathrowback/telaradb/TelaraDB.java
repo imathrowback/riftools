@@ -7,16 +7,20 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.cache.Cache;
+import com.google.common.io.Files;
 import com.google.common.io.LittleEndianDataInputStream;
 import com.thoughtworks.xstream.XStream;
 
 import Huffman.magleo.HuffmanReader;
+import rift_extractor.assets.AssetDatabase;
 import rift_extractor.util.Leb128;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -76,6 +80,28 @@ public class TelaraDB implements TelaraDBInterface
 		};
 		idsAndKeysWithKeyCache = CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.MINUTES).build(loader);
 		con = c;
+	}
+
+	private static void tryDecrypt(final File encryptedFile) throws Exception
+	{
+		byte[] data = java.nio.file.Files.readAllBytes(encryptedFile.toPath());
+		byte[] decrypted = new byte[data.length];
+		TelaraDBUtil.decrypt(data, data.length, decrypted);
+		Files.write(decrypted, encryptedFile);
+	}
+
+	public TelaraDB(final AssetDatabase adb) throws Exception
+	{
+		this(DriverManager.getConnection("jdbc:sqlite:" + getSQLDB(adb)));
+	}
+
+	private static String getSQLDB(final AssetDatabase adb) throws Exception
+	{
+		File db = File.createTempFile("1234", ".db");
+		db.deleteOnExit();
+		adb.extractToFilename("telara.db", db.getPath());
+		tryDecrypt(db);
+		return db.getPath();
 	}
 
 	/* (non-Javadoc)

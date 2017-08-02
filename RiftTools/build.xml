@@ -51,9 +51,10 @@
     	<copy file="src/logback.xml" todir="build/classes"/>
     </target>
 
-    <target name="jar" depends="clean,builddeps,ivyresolve,compile,manifestjar,totextjar,telaradbdiffjar">
-    	<copy file="exes/autodiff.bat" todir="build/jar"/>
-      <copy file="exes/diff.exe" todir="build/jar"/>
+    <target name="jar" depends="clean,builddeps,ivyresolve,compile,mapgenjar,manifestjar,totextjar,telaradbdiffjar">
+		<copy file="exes/autodiff.bat" todir="build/jar"/>
+      	<copy file="exes/diff.exe" todir="build/jar"/>
+    	<copy file="exes/montage.exe" todir="build/jar"/>
     </target>
    
   <target name="builddeps" depends="check-ivy,downloadivy,purgecache">
@@ -61,6 +62,7 @@
 	    <ant dir="../telaradbdiff/" antfile="../telaradbdiff/build.xml" target="jar"/>    
 	    <ant dir="../ManifestDiff/" antfile="../ManifestDiff/build.xml" target="jar"/>    
 	    <ant dir="../totext/" antfile="../totext/build.xml" target="jar"/>    
+    	<ant dir="../mapgen/" antfile="../mapgen/build.xml" target="jar"/>    
   </target>
 	<target name="telaradbdiffjar">
 		<mkdir dir="build/jar"/>
@@ -89,4 +91,13 @@
 			</manifest>
         </jar>
     </target>
+	<target name="mapgenjar">
+	        <mkdir dir="build/jar"/>
+	        <jar destfile="build/jar/MapGen.jar"  basedir="build/classes">
+				<manifest>
+					<attribute name="Class-Path" value="${classpath.name}" />
+					<attribute name="Main-Class" value="org.imathrowback.mapgen.MapGen" />
+				</manifest>
+	        </jar>
+	    </target>
 </project>

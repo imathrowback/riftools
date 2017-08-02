@@ -97,6 +97,7 @@ public class Manifest
 
 	public List<ManifestPAKFileEntry> pakFiles = new LinkedList<>();
 	public final List<ManifestEntry> manifestEntries = new LinkedList<>();
+	public TreeMap<String, List<ManifestEntry>> manifestEntryMap = new TreeMap<>();
 
 	private void processTable(final byte[] manifestData) throws Exception
 	{
@@ -189,6 +190,7 @@ public class Manifest
 			{
 				ManifestEntry entry = new ManifestEntry(dis);
 				manifestEntries.add(entry);
+
 				if (!idEntryMap.containsKey(entry.idStr))
 					idEntryMap.put(entry.idStr, new LinkedList<ManifestEntry>());
 				idEntryMap.get(entry.idStr).add(entry);

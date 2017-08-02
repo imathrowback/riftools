@@ -1,0 +1,93 @@
+<obj type="81" extracode="81" index="81" clazzName="Ability">
+  <obj type="11" extracode="1" index="4" clazzName=" ClassVec&lt;[#8d57cb4d, #5bd08033, #fa6358f8, #98a14e54, #4748c67a, #e32f8d0a, #0d84c5f9, #7b66640c, #d6b5bd89, #af394201, #7bbe29bd, #72db0cc4, #1e5354c5],13&gt; PreparationScheduler">
+    <obj type="1608" extracode="0" index="0" clazzName="#5bd08033"/>
+  </obj>
+  <obj type="11" extracode="2" index="7" clazzName=" EnumVec&lt;AbilityEffectDataset,Key,AbilityEffectName&gt; AbilityEffectIds">
+    <obj type="3" extracode="0" index="0" clazzName="HoT_QuestHistoryEntry">
+      <objData class="long">1496156471</objData>
+    </obj>
+    <obj type="3" extracode="1" index="1" clazzName="HoT_QuestHistoryEntry">
+      <objData class="long">1496156470</objData>
+    </obj>
+  </obj>
+  <obj type="2" extracode="8" index="8" clazzName=" Enum&lt;1,TargetTypeDataset,EnumTypeId,EnumTypeDesc&gt; RequiredTarget">
+    <objData class="long">5</objData>
+  </obj>
+  <obj type="11" extracode="15" index="9" clazzName=" EnumVec&lt;AbilityTagDataset,Key,EnumTypeDesc&gt; AbilityTags">
+    <obj type="3" extracode="0" index="0" clazzName="HoT_QuestHistoryEntry">
+      <objData class="long">101</objData>
+    </obj>
+    <obj type="3" extracode="1" index="1" clazzName="HoT_QuestHistoryEntry">
+      <objData class="long">128</objData>
+    </obj>
+    <obj type="3" extracode="2" index="2" clazzName="HoT_QuestHistoryEntry">
+      <objData class="long">153</objData>
+    </obj>
+    <obj type="3" extracode="3" index="3" clazzName="HoT_QuestHistoryEntry">
+      <objData class="long">154</objData>
+    </obj>
+    <obj type="3" extracode="4" index="4" clazzName="HoT_QuestHistoryEntry">
+      <objData class="long">160</objData>
+    </obj>
+    <obj type="3" extracode="5" index="5" clazzName="HoT_QuestHistoryEntry">
+      <objData class="long">17</objData>
+    </obj>
+    <obj type="3" extracode="6" index="6" clazzName="HoT_QuestHistoryEntry">
+      <objData class="long">20</objData>
+    </obj>
+    <obj type="3" extracode="7" index="7" clazzName="HoT_QuestHistoryEntry">
+      <objData class="long">27</objData>
+    </obj>
+    <obj type="3" extracode="8" index="8" clazzName="HoT_QuestHistoryEntry">
+      <objData class="long">30</objData>
+    </obj>
+    <obj type="3" extracode="9" index="9" clazzName="HoT_QuestHistoryEntry">
+      <objData class="long">32</objData>
+    </obj>
+    <obj type="3" extracode="10" index="10" clazzName="HoT_QuestHistoryEntry">
+      <objData class="long">44</objData>
+    </obj>
+    <obj type="3" extracode="11" index="11" clazzName="HoT_QuestHistoryEntry">
+      <objData class="long">73</objData>
+    </obj>
+    <obj type="3" extracode="12" index="12" clazzName="HoT_QuestHistoryEntry">
+      <objData class="long">9</objData>
+    </obj>
+    <obj type="3" extracode="13" index="13" clazzName="HoT_QuestHistoryEntry">
+      <objData class="long">90</objData>
+    </obj>
+    <obj type="3" extracode="14" index="14" clazzName="HoT_QuestHistoryEntry">
+      <objData class="long">47</objData>
+    </obj>
+  </obj>
+  <obj type="11" extracode="1" index="11" clazzName=" EnumVec&lt;AbilityCooldownGroupDataset,#dfeb00c6,CooldownGroupName&gt; CooldownGroups">
+    <obj type="3" extracode="0" index="0" clazzName="HoT_QuestHistoryEntry">
+      <objData class="long">926422167</objData>
+    </obj>
+  </obj>
+  <obj type="4" extracode="12" index="12" clazzName=" Enum&lt;1,VFX_TreeDataset,Key,VFX_TreeName&gt; VFX_TreeId">
+    <objData class="float">3.7335596E-10</objData>
+  </obj>
+  <obj type="2" extracode="13" index="13" clazzName=" Enum&lt;1,Animation_AbilityAnimPackageDataset,Key,AbilityAnimPackageName&gt; AnimationPackage">
+    <objData class="long">24</objData>
+  </obj>
+  <obj type="2" extracode="15" index="15" clazzName=" Enum&lt;1,#4a25ca27,EnumTypeId,EnumTypeDesc&gt; CombatCalculationType">
+    <objData class="long">5</objData>
+  </obj>
+  <obj type="2" extracode="17" index="17" clazzName=" Int StackSize">
+    <objData class="long">50</objData>
+  </obj>
+  <obj type="7703" extracode="27" index="27" clazzName=" Class&lt;HoT_TextEntry&gt; Name">
+    <obj type="4" extracode="0" index="0" clazzName=" Enum&lt;0,HoT_LocalizedTextDataset,Key,TextDescription&gt; LocalizedTextId">
+      <objData class="int">1308637789</objData>
+    </obj>
+  </obj>
+  <obj type="7703" extracode="28" index="28" clazzName=" Class&lt;HoT_TextEntry&gt; Description">
+    <obj type="4" extracode="0" index="0" clazzName=" Enum&lt;0,HoT_LocalizedTextDataset,Key,TextDescription&gt; LocalizedTextId">
+      <objData class="int">1239118022</objData>
+    </obj>
+  </obj>
+  <obj type="4" extracode="39" index="39" clazzName=" Enum&lt;0,UI_IconTypeDataset,Key,Name&gt; Icon">
+    <objData class="float">2.7226315E-6</objData>
+  </obj>
+</obj>

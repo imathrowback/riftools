@@ -24,6 +24,6 @@ public interface TelaraDBInterface
 
 	default public Stream<Integer> getKeys(final Integer i)
 	{
-		return getIdsAndKeys().filter(x -> x.getLeft() == i).map(r -> r.getRight());
+		return getIdsAndKeys().filter(x -> x.getLeft().equals(i)).map(r -> r.getRight());
 	}
 }

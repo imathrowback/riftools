@@ -223,7 +223,7 @@ public class TelaraDBDiff
 
 						XStream str = new XStream();
 						str.processAnnotations(CObject.class);
-						Path dbDir = Paths.get(outdir.toString(), "db");
+						Path dbDir = Paths.get(outdir.toString(), "db", "new");
 						dbDir.toFile().mkdir();
 						Path aPath = Paths.get(dbDir.toString(), id + "_" + key + ".dat");
 						Files.write(data, aPath.toFile());

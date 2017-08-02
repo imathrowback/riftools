@@ -15,5 +15,6 @@
   	<dependency org="org.imathrowback" name="ManifestDiff" rev="1.0" conf="compile"/>
   	<dependency org="org.imathrowback" name="totext" rev="1.0" conf="compile"/>
   	<dependency org="org.imathrowback" name="telaradbdiff" rev="1.0" conf="compile"/>
+  	<dependency org="org.imathrowback" name="mapgen" rev="1.0" conf="compile"/>
   </dependencies>
 </ivy-module>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ivy-module version="2.0" 
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:noNamespaceSchemaLocation=
+                   "http://ant.apache.org/ivy/schemas/ivy.xsd">
+  <info organisation="org.imathrowback" module="mapgen"/>
+  <configurations defaultconfmapping="compile">
+  	<conf name="compile"/>
+  	<conf name="sources" />
+  	<conf name="javadoc" />
+  	<conf name="tasks" description="Ant tasks"/>
+  </configurations>
+   <publications>
+        <artifact name="mapgen" type="jar"/>
+    </publications>
+  <dependencies defaultconf="compile->default">
+<dependency org="org.imathrowback" name="riftlib" rev="1.0" conf="compile"/>
+  	<dependency org="org.slf4j" name="slf4j-api" rev="1.7.7"/>
+  	<dependency org="org.slf4j" name="jul-to-slf4j" rev="1.7.7"/>
+  	<dependency org="ch.qos.logback" name="logback-classic" rev="1.1.2">
+  		<exclude org="javax.mail"/>
+  		<exclude org="javax.servlet"/>
+  		<exclude org="org.codehaus.groovy"/>
+  	</dependency>
+  	<dependency org="com.google.guava" name="guava" rev="19.0"/>
+  	<dependency org="net.java.dev.jna" name="jna" rev="4.4.0"/>
+	<dependency org="org.apache.commons" name="commons-lang3" rev="3.4"/>  
+  	<dependency org="org.apache.httpcomponents" name="httpclient" rev="4.5.3"/>
+	<dependency org="commons-io" name="commons-io" rev="2.5"/>
+  	<dependency org="org.tukaani" name="xz" rev="1.6"/>
+	<dependency org="args4j" name="args4j" rev="2.0.26"/>
+	<!-- https://mvnrepository.com/artifact/commons-net/commons-net -->
+<dependency org="commons-net" name="commons-net" rev="3.6"/>
+	
+	</dependencies>
+</ivy-module>
