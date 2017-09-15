@@ -20,7 +20,7 @@
 
 RiftTools/build/
 ManifestDiff/assets64.manifest.cache
-
+rift_lib/build/classes/org/imathrowback/manifest/single-entries.dat
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*

@@ -2,4 +2,6 @@
 
 
 cd RiftTools
-%ANT_HOME%/bin/ant
+$ANT_HOME/bin/ant
+
+
