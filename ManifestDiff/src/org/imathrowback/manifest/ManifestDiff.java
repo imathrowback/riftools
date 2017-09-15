@@ -32,6 +32,9 @@ public class ManifestDiff
 		}
 	}
 
+	@Option(name = "-ignoreMapTextures", usage = "Ignore map textures when extracting", required = false)
+	boolean ignoreMapTextures = false;
+
 	@Option(name = "-printVersions", usage = "Print current versions and exit", required = false)
 	boolean printVersions = false;
 
@@ -99,6 +102,8 @@ public class ManifestDiff
 				if (versionA.isEmpty() && !manifestAFile.exists() && !printVersions)
 					throw new CmdLineException(parser, "Must specify either versionA or manifesA file");
 			}
+			if (ignoreMapTextures)
+				System.out.println("**** NOT extracting map textures ***");
 
 		} catch (CmdLineException e)
 		{
@@ -139,17 +144,27 @@ public class ManifestDiff
 		System.out.println("using release:" + releaseType);
 		Map<Integer, PatchInfo> patches = RemotePAK.getPatches(releaseType);
 
+		PatchInfo patchAInfo = null;
+		PatchInfo patchBInfo = null;
+
 		if (printVersions)
 		{
 			TreeSet<PatchInfo> sortedPatches = new TreeSet<>();
 			sortedPatches.addAll(patches.values());
+
+			patchBInfo = sortedPatches.last();
+			patchAInfo = sortedPatches.lower(sortedPatches.last());
+
 			for (PatchInfo p : sortedPatches)
-				System.out.println(p);
+			{
+				if (p.version.equals(patchBInfo.version))
+					System.out.println(p + "*");
+				else
+					System.out.println(p);
+			}
 			return;
 		}
 
-		PatchInfo patchAInfo = null;
-		PatchInfo patchBInfo = null;
 		for (PatchInfo p : patches.values())
 		{
 			if (p.version.equals(versionA))
@@ -270,7 +285,7 @@ public class ManifestDiff
 				if (!matches)
 				{
 					changed.add(aEntry);
-					if (extractChanged)
+					if (extractChanged && shouldExtract(aEntry, manifestA))
 					{
 						extractEntry(releaseType, aEntry, manifestA, patchAInfo.index, 'A', hname);
 						for (ManifestEntry bEntry : bentries)
@@ -323,7 +338,7 @@ public class ManifestDiff
 			ManifestPAKFileEntry pEntry = manifestB.pakFiles.get(add.pakIndex);
 
 			// extract the added file
-			if (extractAdded)
+			if (extractAdded && shouldExtract(add, manifestB))
 				extractEntry(releaseType, add, manifestB, patchBInfo.index, 'B', hname);
 
 			if (!pakHashesProcessed.contains(pEntry.combHash))
@@ -356,6 +371,16 @@ public class ManifestDiff
 			long sum = paksToUse.stream().mapToLong(p -> p.getSize()).sum();
 			System.out.println("Total download size: " + MessageFormat.format("{0} bytes", sum));
 		}
+	}
+
+	private boolean shouldExtract(final ManifestEntry aEntry, final Manifest manifestA)
+	{
+		boolean doExtract = true;
+		String pakName = manifestA.getPAKName(aEntry.pakIndex);
+		if (ignoreMapTextures && pakName.contains("texture_map"))
+			return false;
+
+		return doExtract;
 	}
 
 	private void extractEntry(final ReleaseType type, final ManifestEntry entry, final Manifest manifest,

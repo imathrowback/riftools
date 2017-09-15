@@ -324,4 +324,10 @@ public class Manifest
 		return null;
 	}
 
+	public Stream<ManifestEntry> getEntries(final String strID)
+	{
+		return manifestEntries.stream().filter(e -> e.idStr.equals(strID));
+
+	}
+
 }

@@ -367,6 +367,17 @@ public class DatParser
 		return processFileAndObject(is, null);
 	}
 
+	public static CObject processFileAndObject(final byte[] data)
+	{
+		try
+		{
+			return processFileAndObject(new ByteArrayInputStream(data), null);
+		} catch (Exception ex)
+		{
+			return null;
+		}
+	}
+
 	public static CObject processFileAndObject(final InputStream is, final DataModel dataModel) throws Exception
 	{
 		LittleEndianDataInputStream dis = new LittleEndianDataInputStream(is);

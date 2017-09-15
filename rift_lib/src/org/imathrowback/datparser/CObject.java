@@ -6,6 +6,8 @@ import com.thoughtworks.xstream.annotations.XStreamImplicit;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 @XStreamAlias(value = "obj")
 public class CObject
@@ -107,5 +109,50 @@ public class CObject
 	public CObject get(final int i)
 	{
 		return members.get(i);
+	}
+
+	public Map<Integer, CObject> getMap(final int index)
+	{
+		Map<Integer, CObject> map = new TreeMap<>();
+		CObject obj = getAtIndex(index);
+		for (int i = 0; i < obj.members.size(); i += 2)
+		{
+			Integer key = Integer.parseInt("" + obj.members.get(i).convert());
+			CObject value = obj.members.get(i + 1);
+			map.put(key, value);
+
+		}
+		return map;
+	}
+
+	public CObject getAtIndex(final int i)
+	{
+		for (CObject o : members)
+			if (o.index == i)
+				return o;
+		return null;
+	}
+
+	public String getString(final int i)
+	{
+		return getAtIndex(i).convert() + "";
+
+	}
+
+	public Integer getInt(final int i)
+	{
+		try
+		{
+			CObject o = getAtIndex(i);
+			return new CIntConvertor().convert(o);
+		} catch (Exception ex)
+		{
+			return null;
+		}
+	}
+
+	public boolean hasMember(final int i)
+	{
+		return getAtIndex(i) != null;
 	}
 }
