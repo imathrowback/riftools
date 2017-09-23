@@ -1,6 +1,7 @@
 package org.imathrowback.totext;
 
 import java.io.*;
+import java.nio.charset.Charset;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -64,7 +65,7 @@ public class ExtractCDS
 		//	return;
 		// Read each chunk of data
 		try (PrintWriter writer = new PrintWriter(
-				new BufferedWriter(new FileWriter(cdstxt))))
+				new OutputStreamWriter(new FileOutputStream(cdstxt), Charset.forName("UTF-8"))))
 		{
 			long startOffset = cis.getCount();
 			for (int i = 0; i < entryCount; i++)
