@@ -2,7 +2,7 @@ package org.imathrowback.totext;
 
 import java.io.*;
 import java.nio.charset.Charset;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.input.CountingInputStream;
@@ -42,34 +42,21 @@ public class ExtractCDS
 		diss.read(freqData);
 
 		// now decide LEB128 data
-		List<CDEntry> entries = new LinkedList<>();
+		List<CDEntry> entries = new ArrayList<>();
 		for (int i = 0; i < entryCount; i++)
 		{
-			// this "key" is used as a seed into a random number generator to do... i'm not sure.. possibly some kind of hash table.
-			//byte[] key = new byte[4];
-			//diss.read(key);
-
 			int key = diss.readInt();
 			int byteOffsetFromStartOfEntries = Leb128.readUnsignedLeb128_X(diss).get();
 			entries.add(new CDEntry(key, byteOffsetFromStartOfEntries));
-			if (i < 15)
-			//key == 1790678880 || keyvalue == 1790678880)
-			{
-				//System.out.println("[" + i + "]: key[" + key + "]:" + byteOffsetFromStartOfEntries);
-			}
 		}
 
 		HuffmanReader reader = new HuffmanReader(freqData);
 		System.out.println("Writing text entries to " + cdstxt);
-		//if (true)
-		//	return;
 		// Read each chunk of data
 		try (PrintWriter writer = new PrintWriter(
 				new OutputStreamWriter(new FileOutputStream(cdstxt), Charset.forName("UTF-8"))))
 		{
-			long startOffset = cis.getCount();
 			for (int i = 0; i < entryCount; i++)
-			//int i = 0;
 			{
 				CDEntry entry = entries.get(i);
 
@@ -83,6 +70,7 @@ public class ExtractCDS
 				reader.decompress(data, compressedSize, dataOut, decompressedSize);
 
 				CObject obj = DatParser.processFileAndObject(new ByteArrayInputStream(dataOut));
+
 				try
 				{
 					_7707 c = new _7707();
@@ -90,36 +78,13 @@ public class ExtractCDS
 					entry.obj = c;
 					for (_7709 o : c.map.values())
 						writer.println(entry.key + ":" + o.name);
-					/*
-					for (_7709 o : c.map.values())
-					{
-						if (o.name != null)
-							if (o.name.toLowerCase().contains("snow place to go"))
-							{
-								XStream xstr = new XStream();
-								xstr.processAnnotations(CObject.class);
-								xstr.toXML(obj, System.out);
-							}
-					}
-					*/
 				} catch (Exception ex)
 				{
-					/*
-					System.out.println("failed parse[" + i + "]");
-					XStream xstr = new XStream();
-					xstr.processAnnotations(CObject.class);
-					xstr.toXML(obj, System.out);
-					ex.printStackTrace();
-					*/
 					return;
 				}
 			}
 
 		}
-
-		//		XStream xstr = new XStream();
-		//		xstr.processAnnotations(CObject.class);
-		//		xstr.toXML(obj, System.out);
 		System.out.println("done");
 	}
 }
