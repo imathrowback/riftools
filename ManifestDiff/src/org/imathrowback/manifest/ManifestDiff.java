@@ -35,7 +35,7 @@ public class ManifestDiff
 	@Option(name = "-printVersions", usage = "Print current versions and exit", required = false)
 	boolean printVersions = false;
 
-	@Option(name = "-printVersions", usage = "Print current version and exit", required = false)
+	@Option(name = "-printVersion", usage = "Print current version and exit", required = false)
 	boolean printVersion = false;
 
 	@Option(name = "-cacheManifest", usage = "Cache the downloaded manifest files", required = false)
