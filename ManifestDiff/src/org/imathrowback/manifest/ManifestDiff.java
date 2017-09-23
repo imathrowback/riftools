@@ -38,6 +38,9 @@ public class ManifestDiff
 	@Option(name = "-printVersions", usage = "Print current versions and exit", required = false)
 	boolean printVersions = false;
 
+	@Option(name = "-printVersions", usage = "Print current version and exit", required = false)
+	boolean printVersion = false;
+
 	@Option(name = "-cacheManifest", usage = "Cache the downloaded manifest files", required = false)
 	boolean cacheManifest = false;
 
@@ -55,7 +58,7 @@ public class ManifestDiff
 	@Option(name = "-release", usage = "The release to diff (required)", required = true)
 	ReleaseType release = ReleaseType.LIVE;
 
-	@Option(name = "-onlyLang", usage = "Only process a single language, english = 1", required = true)
+	@Option(name = "-onlyLang", usage = "Only process a single language, english = 1", required = false)
 	int onlyLang = -1;
 
 	@Option(name = "-extractAdded", usage = "Extract added entries", required = false)
@@ -141,13 +144,12 @@ public class ManifestDiff
 		}
 
 		ReleaseType releaseType = release;
-		System.out.println("using release:" + releaseType);
 		Map<Integer, PatchInfo> patches = RemotePAK.getPatches(releaseType);
 
 		PatchInfo patchAInfo = null;
 		PatchInfo patchBInfo = null;
 
-		if (printVersions)
+		if (printVersions || printVersion)
 		{
 			TreeSet<PatchInfo> sortedPatches = new TreeSet<>();
 			sortedPatches.addAll(patches.values());
@@ -157,13 +159,18 @@ public class ManifestDiff
 
 			for (PatchInfo p : sortedPatches)
 			{
-				if (p.version.equals(patchBInfo.version))
+				if (printVersion)
+				{
+					System.out.println(p.version);
+					return;
+				} else if (p.version.equals(patchBInfo.version))
 					System.out.println(p + "*");
 				else
 					System.out.println(p);
 			}
 			return;
 		}
+		System.out.println("using release:" + releaseType);
 
 		for (PatchInfo p : patches.values())
 		{
