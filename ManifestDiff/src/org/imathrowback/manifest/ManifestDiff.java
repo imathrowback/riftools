@@ -5,9 +5,6 @@ import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.*;
 import java.util.function.Function;
-import java.util.zip.GZIPInputStream;
-
-import org.apache.commons.io.IOUtils;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
@@ -124,24 +121,7 @@ public class ManifestDiff
 			return;
 		}
 
-		Map<String, String> hashNameMap = new TreeMap<>();
-		Function<ManifestEntry, String> hname = (n) -> hashNameMap.getOrDefault(n.filenameHashStr, "");
-		try
-		{
-			GZIPInputStream singlezip = new GZIPInputStream(this.getClass().getResourceAsStream("single-entries.dat"));
-			BufferedReader reader = new BufferedReader(new InputStreamReader(singlezip));
-			for (String line : IOUtils.readLines(reader))
-			{
-				String[] name = line.split(":");
-				if (name.length == 2)
-					hashNameMap.put(name[0], name[1]);
-			}
-		} catch (Exception ex)
-		{
-			System.err.println("Unable to read filenames.");
-			ex.printStackTrace();
-			return;
-		}
+		Function<ManifestEntry, String> hname = (n) -> NameDB.getNameForHash(n.filenameHashStr, "");
 
 		ReleaseType releaseType = release;
 		Map<Integer, PatchInfo> patches = RemotePAK.getPatches(releaseType);
