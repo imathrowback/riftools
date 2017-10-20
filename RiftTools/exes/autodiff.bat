@@ -7,7 +7,7 @@ set RELEASE=PTS
 
 echo ---Download changed files---
 mkdir output
-"%JAVA_HOME%/bin/java" -Xmx3G -jar ManifestDiff.jar -onlyLang 1 -diffCurrent -outdir output -extractChanged -extractAdded -cacheManifest -release %RELEASE%
+"%JAVA_HOME%/bin/java" -Xmx3G -jar ManifestDiff.jar -onlyLang 1 -diffCurrent -ignoreMapTextures -outdir output -extractChanged -extractAdded -cacheManifest -release %RELEASE%
 
 echo ---Diff language---
 "%JAVA_HOME%/bin/java" -Xmx3G -jar ToTextMode.jar -fileType CDS -file output\lang_english.cdsA -output lang_english.cdsA.txt
