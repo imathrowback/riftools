@@ -95,7 +95,7 @@ public class Manifest
 		}
 	}
 
-	public List<ManifestPAKFileEntry> pakFiles = new LinkedList<>();
+	public List<ManifestPAKFileEntry> pakFiles = new ArrayList<>();
 	public final List<ManifestEntry> manifestEntries = new LinkedList<>();
 	public TreeMap<String, List<ManifestEntry>> manifestEntryMap = new TreeMap<>();
 
@@ -327,6 +327,12 @@ public class Manifest
 	public Stream<ManifestEntry> getEntries(final String strID)
 	{
 		return manifestEntries.stream().filter(e -> e.idStr.equals(strID));
+
+	}
+
+	public Stream<ManifestEntry> getEntriesForNameHash(final String nameHash)
+	{
+		return manifestEntries.stream().filter(e -> e.filenameHashStr.equals(nameHash));
 
 	}
 

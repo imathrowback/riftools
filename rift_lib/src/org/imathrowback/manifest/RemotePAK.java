@@ -252,6 +252,13 @@ public class RemotePAK
 		}
 	}
 
+	public static void downloadLatest(final ReleaseType releaseType, final Manifest manifest, final ManifestEntry entry,
+			final String outputName) throws IOException
+	{
+		PatchInfo currentPatch = getCurrentPatch(releaseType);
+		extract(releaseType, manifest, entry, outputName, currentPatch.index);
+	}
+
 	/**
 	 * Download a file from the current release.
 	 *
