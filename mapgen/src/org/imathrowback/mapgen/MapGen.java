@@ -62,13 +62,13 @@ public class MapGen
 			// you'll get this exception. this will report
 			// an error message.
 			System.err.println(e.getMessage());
-			System.err.println("java ManifestDiff [options...] arguments...");
+			System.err.println("java MapGen [options...] arguments...");
 			// print the list of available options
 			parser.printUsage(System.err);
 			System.err.println();
 
 			// print option sample. This is useful some time
-			System.err.println("  Example: java ManifestDiff" + parser.printExample(OptionHandlerFilter.ALL));
+			System.err.println("  Example: java MapGen" + parser.printExample(OptionHandlerFilter.ALL));
 			return;
 		}
 
