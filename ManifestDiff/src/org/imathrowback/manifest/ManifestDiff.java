@@ -1,10 +1,14 @@
 package org.imathrowback.manifest;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.*;
 import java.util.function.Function;
+
+import org.apache.commons.io.FilenameUtils;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
@@ -13,6 +17,7 @@ import org.kohsuke.args4j.OptionHandlerFilter;
 import rift_extractor.assets.Manifest;
 import rift_extractor.assets.ManifestEntry;
 import rift_extractor.assets.ManifestPAKFileEntry;
+import rift_extractor.detector.DefaultDetector;
 import rift_extractor.util.Util;
 
 public class ManifestDiff
@@ -34,6 +39,12 @@ public class ManifestDiff
 
 	@Option(name = "-printVersions", usage = "Print current versions and exit", required = false)
 	boolean printVersions = false;
+
+	@Option(name = "-onlyB", usage = "Only download the latest files", required = false)
+	boolean onlyB = false;
+
+	@Option(name = "-guessExtensions", usage = "Try to guess file extensions", required = false)
+	boolean guessExtensions = false;
 
 	@Option(name = "-printVersion", usage = "Print current version and exit", required = false)
 	boolean printVersion = false;
@@ -77,6 +88,12 @@ public class ManifestDiff
 
 	//@Option(name = "-showPak", usage = "Show PAK index", required = false)
 	private final boolean showPak = true;
+
+	boolean alwaysDownload(final ManifestEntry e)
+	{
+		String name = (NameDB.getNameForHash(e.filenameHashStr));
+		return (name.contains(".cds") || name.contains(".db"));
+	}
 
 	public void doMain(final Collection<String> args) throws Exception
 	{
@@ -274,7 +291,8 @@ public class ManifestDiff
 					changed.add(aEntry);
 					if (extractChanged && shouldExtract(aEntry, manifestA))
 					{
-						extractEntry(releaseType, aEntry, manifestA, patchAInfo.index, 'A', hname);
+						if (!onlyB || alwaysDownload(aEntry))
+							extractEntry(releaseType, aEntry, manifestA, patchAInfo.index, 'A', hname);
 						for (ManifestEntry bEntry : bentries)
 							extractEntry(releaseType, bEntry, manifestB, patchBInfo.index, 'B', hname);
 					}
@@ -313,6 +331,8 @@ public class ManifestDiff
 		}
 		for (ManifestEntry add : added)
 		{
+			if (onlyLang > 0 && add.lang > 0 && add.lang != onlyLang)
+				continue;
 
 			if (verbose)
 				System.out.println("[add]:" + hname.apply(add) + "|" + add + ":" + add.pakIndex);
@@ -348,6 +368,41 @@ public class ManifestDiff
 								+ change.idStr + ":" + change.lang
 								+ getPak(change));
 			paksToUse.add(manifestB.pakFiles.get(change.pakIndex));
+		}
+
+		if (guessExtensions)
+		{
+			DefaultDetector dd = new DefaultDetector(null);
+			for (File f : outDir.listFiles())
+			{
+				if (f.getName().endsWith(".file") || f.getName().endsWith("B") || f.getName().endsWith("A"))
+					;
+				{
+					byte[] data = Files.readAllBytes(f.toPath());
+					String ext = dd.detectExtension(data);
+					if (ext != null)
+					{
+						if (f.getName().endsWith("B") || f.getName().endsWith("A"))
+						{
+							char last = f.getName().charAt(f.getName().length() - 1);
+							String fext = FilenameUtils.getExtension(f.getName());
+							String base = FilenameUtils.getBaseName(f.getName());
+							fext = fext.substring(0, fext.length());
+
+							String newName = base + "-" + last + "." + fext;
+							Path newPath = Paths.get(outDir.toString(), newName);
+							f.renameTo(newPath.toFile());
+						} else
+						{
+							String newName = f.getName().replace(".file", "." + ext);
+							Path newPath = Paths.get(outDir.toString(), newName);
+							f.renameTo(newPath.toFile());
+						}
+
+					}
+
+				}
+			}
 		}
 
 		if (verbose)
@@ -387,8 +442,12 @@ public class ManifestDiff
 			String guessname = hname.apply(entry);
 			if (!guessname.isEmpty())
 			{
-				filename = Paths.get(outDir.toString(), guessname + patchIndex).toString();
+				if (onlyB && !alwaysDownload(entry))
+					filename = Paths.get(outDir.toString(), guessname).toString();
+				else
+					filename = Paths.get(outDir.toString(), guessname + patchIndex).toString();
 			}
+
 			if (new File(filename).exists() && new File(filename).length() > 0)
 				System.out.println(
 						"\tskipping extraction, file[" + filename + "] from " + pEntry.name
@@ -398,7 +457,9 @@ public class ManifestDiff
 				//if (verbose)
 				System.out.print("\textracting to:" + filename + " from [" + patchIndex + "]" + pEntry.name + " ");
 				if (ptsIndex >= 0)
+				{
 					RemotePAK.extract(type, manifest, entry, filename, ptsIndex);
+				}
 			}
 		} catch (Exception ex)
 		{
