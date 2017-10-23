@@ -194,8 +194,13 @@ public class TelaraDBDiff
 		}
 		System.out.println("look for additions/changes");
 		DataModel dataModel = new DataModel(dbResolve);
-		try (PrintWriter newFos = new PrintWriter(
-				new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream("new.xml")), "UTF-8")))
+		PrintWriter newFos = new PrintWriter(
+				new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream("new.xml")), "UTF-8"));
+		PrintWriter dbStringsA = new PrintWriter(
+				new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream("db_stringsA.txt")), "UTF-8"));
+		PrintWriter dbStringsB = new PrintWriter(
+				new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream("db_stringsB.txt")), "UTF-8"));
+		try
 		{
 			int totalCount = idsB.size();
 			AtomicInteger count = new AtomicInteger();
@@ -233,6 +238,7 @@ public class TelaraDBDiff
 							newFos.println("");
 							newFos.println("---");
 						}
+						writeStrings(dbStringsB, obj);
 					} else
 					{
 						// check for changed
@@ -262,6 +268,9 @@ public class TelaraDBDiff
 							String b = str.toXML(objB);
 							if (!a.equals(b))
 							{
+								writeStrings(dbStringsA, objA);
+								writeStrings(dbStringsB, objB);
+
 								Path dbDir = Paths.get(outdir.toString(), "db");
 								dbDir.toFile().mkdir();
 								Path aPath = Paths.get(dbDir.toString(), id + "_" + key + ".a");
@@ -300,10 +309,29 @@ public class TelaraDBDiff
 					}
 				}
 			});
+		} finally
+		{
+			newFos.close();
+			dbStringsA.close();
+			dbStringsB.close();
+
+			ProcessBuilder diff = new ProcessBuilder("diff", "-d", "db_stringsA.txt", "db_stringsB.txt");
+			diff = diff.redirectOutput(new File("db_strings_diff.txt"));
+			Process p = diff.start();
+			p.waitFor();
+
 		}
 		System.out.println(
 				"Done. See new.xml for any additions and " + Paths.get(outdir.toString(), "db") + " for changes.");
 
+	}
+
+	private void writeStrings(final PrintWriter writer, final CObject obj)
+	{
+		if (obj.type == 6)
+			writer.println(obj.convert() + "");
+		for (CObject o : obj.members)
+			writeStrings(writer, o);
 	}
 
 	static boolean isSQL(final byte[] header)
