@@ -83,17 +83,18 @@ public class ExtractAll extends RiftAction
 				boolean noName = false;
 				String filename = NameDB.getNameForHash(choice.filenameHashStr, null);
 				// strip out any paths
-				String base = FilenameUtils.getName(filename);
-				if (!base.equals(filename))
-				{
-					System.out.println("Warning, stripping path from filename:" + filename);
-					filename = base;
-				}
 
 				if (filename == null)
 				{
 					noName = true;
 					filename = choice.filenameHashStr;
+				}
+
+				String base = FilenameUtils.getName(filename);
+				if (!base.equals(filename))
+				{
+					System.out.println("Warning, stripping path from filename:" + filename);
+					filename = base;
 				}
 
 				if (!outDir.toFile().exists())
@@ -121,6 +122,7 @@ public class ExtractAll extends RiftAction
 			} catch (Exception ex)
 			{
 				System.out.println("error handing asset:" + ae);
+				ex.printStackTrace();
 			}
 			//System.out.println("write:" + outFile + "");
 
