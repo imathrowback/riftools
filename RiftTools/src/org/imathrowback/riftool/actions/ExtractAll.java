@@ -156,6 +156,6 @@ public class ExtractAll extends RiftAction
 		}
 		System.out.println("done...");
 		System.out.println(
-				"NOTE: Due to the FNVHash used there is a high possibility of name collisions and will cause some filenames to be incorrect.");
+				"NOTE: Due to the FNVHash used by RIFT there is a high possibility that name collisions will cause some filenames to be incorrect.");
 	}
 }
