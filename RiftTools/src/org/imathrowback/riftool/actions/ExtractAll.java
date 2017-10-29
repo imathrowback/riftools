@@ -3,6 +3,7 @@ package org.imathrowback.riftool.actions;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -29,6 +30,9 @@ public class ExtractAll extends RiftAction
 	@Option(name = "-riftDir", usage = "The RIFT directory", metaVar = "DIR")
 	File riftDir;
 
+	@Option(name = "-dryRun", usage = "Simulate an extraction but don't write any files")
+	boolean dryRun = false;
+
 	public ExtractAll()
 	{
 
@@ -37,6 +41,8 @@ public class ExtractAll extends RiftAction
 	@Override
 	public void go() throws IOException
 	{
+		if (dryRun)
+			System.out.println("Dry run mode, no files will be written");
 		DefaultDetector dd = new DefaultDetector(null);
 		File assetsManifest = Paths.get(riftDir.toString(), "assets64.manifest").toFile();
 		File assetsDirectory = Paths.get(riftDir.toString(), "assets").toFile();
@@ -93,11 +99,24 @@ public class ExtractAll extends RiftAction
 				String base = FilenameUtils.getName(filename);
 				if (!base.equals(filename))
 				{
-					System.out.println("Warning, stripping path from filename:" + filename);
-					filename = base;
+					//System.out.println("\nWarning, stripping path from filename:" + filename
+					//		+ ", this filename is most likely WRONG");
+					filename = choice.filenameHashStr;
+					noName = true;
 				}
 
-				if (!outDir.toFile().exists())
+				try
+				{
+					Paths.get(filename);
+				} catch (InvalidPathException ex)
+				{
+					//System.out.println("\nWarning, bad filename:" + filename
+					//		+ ", this filename is most likely WRONG");
+					filename = choice.filenameHashStr;
+					noName = true;
+				}
+
+				if (!outDir.toFile().exists() && !dryRun)
 					outDir.toFile().mkdir();
 				Path outFile;
 				if (noName)
@@ -107,16 +126,24 @@ public class ExtractAll extends RiftAction
 					outFile = Paths.get(outDir.toString(), filename);
 					if (ext != null)
 						outFile = Paths.get(outDir.toString(), filename + "." + ext);
-					try (FileOutputStream fos = new FileOutputStream(outFile.toFile()))
+					if (!dryRun)
 					{
-						fos.write(data);
+						if (!outFile.toFile().exists())
+							try (FileOutputStream fos = new FileOutputStream(outFile.toFile()))
+							{
+								fos.write(data);
+							}
 					}
 				} else
 				{
 					outFile = Paths.get(outDir.toString(), filename);
-					try (FileOutputStream fos = new FileOutputStream(outFile.toFile()))
+					if (!dryRun)
 					{
-						adb.extract(ae, fos);
+						if (!outFile.toFile().exists())
+							try (FileOutputStream fos = new FileOutputStream(outFile.toFile()))
+							{
+								adb.extract(ae, fos);
+							}
 					}
 				}
 			} catch (Exception ex)
@@ -128,5 +155,7 @@ public class ExtractAll extends RiftAction
 
 		}
 		System.out.println("done...");
+		System.out.println(
+				"NOTE: Due to the FNVHash used there is a high possibility of name collisions and will cause some filenames to be incorrect.");
 	}
 }
