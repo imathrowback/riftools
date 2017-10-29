@@ -80,14 +80,19 @@ public class ExtractAll extends RiftAction
 			Path outDir = Paths.get(outputDir.toString(), pakFile);
 			boolean noName = false;
 			String filename = NameDB.getNameForHash(choice.filenameHashStr, null);
+			// strip out any paths
+			String base = FilenameUtils.getName(filename);
+			if (!base.equals(filename))
+			{
+				System.out.println("Warning, stripping path from filename:" + filename);
+				filename = base;
+			}
+
 			if (filename == null)
 			{
 				noName = true;
 				filename = choice.filenameHashStr;
 			}
-
-			if (true)
-				continue;
 
 			if (!outDir.toFile().exists())
 				outDir.toFile().mkdir();
