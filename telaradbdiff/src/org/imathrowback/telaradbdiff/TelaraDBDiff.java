@@ -155,8 +155,8 @@ public class TelaraDBDiff
 
 		if (autoDownloadLangDB)
 		{
-			RemotePAK.download(releaseType, 'A', "lang_english.cds", outdir.toString());
-			RemotePAK.download(releaseType, 'B', "lang_english.cds", outdir.toString());
+			RemotePAK.download(releaseType, 'A', "lang_english.cds", "lang_english.cdsA", outdir.toString());
+			RemotePAK.download(releaseType, 'B', "lang_english.cds", "lang_english.cdsB", outdir.toString());
 		}
 		if (langA != null)
 		{

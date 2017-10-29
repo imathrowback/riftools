@@ -42,7 +42,7 @@
 	<!-- END CONFIGURE IVY -->
 	
     <target name="clean">
-        <delete dir="build" quiet="true" failonerror="false"/>
+        <!-- <delete dir="build" quiet="true" failonerror="false"/> -->
     </target>
 
     <target name="compile" >
@@ -55,6 +55,13 @@
 		<copy file="exes/autodiff.bat" todir="build/jar"/>
       	<copy file="exes/diff.exe" todir="build/jar"/>
     	<copy file="exes/montage.exe" todir="build/jar"/>
+
+		<jar destfile="build/jar/RiftTool.jar" basedir="build/classes">
+			<manifest>
+			<attribute name="Class-Path" value="${classpath.name}" />
+			<attribute name="Main-Class" value="org.imathrowback.riftool.RiftTool" />
+			</manifest>
+		</jar>
     </target>
    
   <target name="builddeps" depends="check-ivy,downloadivy,purgecache">

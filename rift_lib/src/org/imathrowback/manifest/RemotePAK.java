@@ -269,6 +269,7 @@ public class RemotePAK
 	 * @throws IOException
 	 */
 	public static void download(final ReleaseType releaseType, final char patch, final String filename,
+			final String outputFilename,
 			final String outputDir) throws IOException
 	{
 		PatchInfo[] currentPatches = getCurrentPatches(releaseType);
@@ -283,7 +284,9 @@ public class RemotePAK
 				Paths.get(outputDir, "assets64.manifest" + patch).toFile())), true);
 
 		ManifestEntry entry = manifest.getEnglishEntry(filename);
-		extract(releaseType, manifest, entry, Paths.get(outputDir, filename + patch).toString(), currentPatch.index);
+		if (entry == null)
+			throw new IllegalArgumentException("Unable to find manifest entry for '" + filename + "'");
+		extract(releaseType, manifest, entry, Paths.get(outputDir, outputFilename).toString(), currentPatch.index);
 
 	}
 
@@ -296,18 +299,23 @@ public class RemotePAK
 		int pakIndex = e.pakIndex;
 		ManifestPAKFileEntry pakFile = manifest.getPAK(pakIndex);
 
-		//System.out.println(e);
 		//System.out.println(pakFile);
 		String url = getBaseUrl(type) + "/" + getContentUrl(type) + pindex + "/"
 				+ pakFile.name;
 
 		int startBytes = e.pakOffset;
 		int endBytes = (e.pakOffset + e.compressedSize) - 1;
-		/*
-		System.out
-				.println(url + " - range:" + startBytes + "-" + endBytes + "(" + e.size + "x" + e.compressedSize + ")-"
-						+ pakFile.compressionType);
-		*/
+
+		if (startBytes == 0)
+		{
+			System.out.println("Unable to download, pak offset is invalid");
+			return;
+		}
+		//System.out.println(e);
+		//System.out
+		//		.println(url + " - range:" + startBytes + "-" + endBytes + "(" + e.size + "x" + e.compressedSize + ")-"
+		//				+ pakFile.compressionType);
+
 		try (CloseableHttpClient client = HttpClients.createDefault())
 		{
 			HttpGet get = new HttpGet(url);
@@ -355,7 +363,10 @@ public class RemotePAK
 					if (new File(filename).length() != e.size)
 					{
 						System.out.println("\t Size mismatch in written file, expected " + e.size + " , but was:"
-								+ new File(filename).length());
+								+ new File(filename).length() + ", compressed size:" + e.compressedSize
+								+ ", http status was: "
+								+ response.getStatusLine().getStatusCode() + ", bytes retrieved were:" + bos.size());
+						//Files.write(bos.toByteArray(), new File(filename + ".fail"));
 					}
 					//else
 					//	System.out.println("\t\t Size of new file:" + new File(filename).length());

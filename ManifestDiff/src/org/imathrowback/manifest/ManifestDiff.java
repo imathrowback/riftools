@@ -75,7 +75,7 @@ public class ManifestDiff
 	boolean extractChanged = false;
 
 	@Option(name = "-manifestA", usage = "RIFT Manifest file to check for changes from, if empty, download remote. ", metaVar = "FILE", required = false)
-	private File manifestAFile = new File("");
+	File manifestAFile = new File("");
 
 	@Option(name = "-manifestB", usage = "RIFT Manifest file to check for changes to, if empty, download remote", metaVar = "FILE", required = false)
 	private File manifestBFile = new File("");
@@ -119,6 +119,8 @@ public class ManifestDiff
 				if (versionA.isEmpty() && !manifestAFile.exists() && !printVersions)
 					throw new CmdLineException(parser, "Must specify either versionA or manifesA file");
 			}
+			if (diffCurrent && (!versionA.isEmpty() || !versionB.isEmpty()))
+				throw new CmdLineException(parser, "diffCurrent cannot be used at the same time as version selection");
 			if (ignoreMapTextures)
 				System.out.println("**** NOT extracting map textures ***");
 

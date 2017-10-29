@@ -26,6 +26,7 @@ public class Manifest
 	Map<String, String> fileNameHashIDMap = new TreeMap<>();
 	public Map<String, List<ManifestEntry>> fileNameHashesIDMap = new TreeMap<>();
 	Map<String, Set<String>> idToNameNameHashMap = new TreeMap<>();
+
 	boolean is64;
 
 	public Manifest(final InputStream str, final boolean _64)
@@ -326,7 +327,8 @@ public class Manifest
 
 	public Stream<ManifestEntry> getEntries(final String strID)
 	{
-		return manifestEntries.stream().filter(e -> e.idStr.equals(strID));
+		return idEntryMap.get(strID).stream();
+		//return manifestEntries.stream().filter(e -> e.idStr.equals(strID));
 
 	}
 

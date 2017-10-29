@@ -11,5 +11,8 @@
   	<conf name="tasks" description="Ant tasks"/>
   </configurations>
  <dependencies defaultconf="compile->default;javadoc->javadoc;sources->sources">
+ 	<dependency org="args4j" name="args4j" rev="2.0.26"/>
+ 		<dependency org="commons-io" name="commons-io" rev="2.5"/>
+ 
   </dependencies>
 </ivy-module>
