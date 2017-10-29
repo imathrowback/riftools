@@ -154,49 +154,39 @@ public class AssetFile
 				// Check if we want to read all the data or only a little
 				boolean readAll = maxBytesToRead >= entry.size;
 
-				FileChannelInputStream fcis = new FileChannelInputStream(fc, entry.offset, entry.size);
-				byte[] cdata = new byte[entry.size];
-				fcis.read(cdata);
-
-				//System.out.println("byte[0]:" + cdata[0] + ":" + ":byte[1]:" + (cdata[1] & 0xff));
-				InflaterInputStream zip = new InflaterInputStream(new ByteArrayInputStream(cdata));
-				BufferedInputStream inf = new BufferedInputStream(zip);
-				//System.out.println("seek to " + entry.offset + ", to decompress " + entry.size
-				//	+ " bytes of data in " + file);
-				ByteArrayOutputStream out = new ByteArrayOutputStream();
-				byte b[] = new byte[4092];
-				try
+				try (FileChannelInputStream fcis = new FileChannelInputStream(fc, entry.offset, entry.size))
 				{
-					int n;
-					while ((n = inf.read(b)) >= 0)
+					byte[] cdata = new byte[entry.size];
+					fcis.read(cdata);
+
+					//System.out.println("byte[0]:" + cdata[0] + ":" + ":byte[1]:" + (cdata[1] & 0xff));
+					InflaterInputStream zip = new InflaterInputStream(new ByteArrayInputStream(cdata));
+					BufferedInputStream inf = new BufferedInputStream(zip);
+					//System.out.println("seek to " + entry.offset + ", to decompress " + entry.size
+					//	+ " bytes of data in " + file);
+					ByteArrayOutputStream out = new ByteArrayOutputStream();
+					byte b[] = new byte[4092];
+					try
 					{
-						//System.out.println("decompressed " + n + " bytes");
+						int n;
+						while ((n = inf.read(b)) >= 0)
+						{
+							//System.out.println("decompressed " + n + " bytes");
 
-						if (!readAll && out.size() >= maxBytesToRead)
-							break;
-						out.write(b, 0, n);
+							if (!readAll && out.size() >= maxBytesToRead)
+								break;
+							out.write(b, 0, n);
+						}
+						inf.close();
+						zip.close();
+						out.close();
+						IOUtils.write(out.toByteArray(), os);
+
+					} catch (Exception e)
+					{
 					}
-					inf.close();
-					zip.close();
-					out.close();
-					IOUtils.write(out.toByteArray(), os);
-
-				} catch (Exception e)
-				{
+					return out.toByteArray();
 				}
-
-				//if (readAll)
-				//	throw new IllegalStateException(
-				//			"size not matched " + b.length + ":" + entry.size + "," + entry.sizeD);
-				/*String hash = DigestUtils.sha1Hex(b);
-				String expected = Hex.encodeHexString(entry.hash);
-				if (!hash.equals(expected))
-					throw new IllegalStateException("hash not matched " + hash + ":" + expected);
-				else
-					System.out.println("HASH MATCH:" + hash);
-				//return data;*/
-				return out.toByteArray();
-
 			}
 		} catch (Exception ex)
 		{
