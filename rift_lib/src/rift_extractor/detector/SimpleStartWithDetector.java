@@ -2,6 +2,7 @@ package rift_extractor.detector;
 
 public class SimpleStartWithDetector implements Detector
 {
+	byte[] bytes;
 	String str;
 	String ext;
 	String description;
@@ -11,19 +12,20 @@ public class SimpleStartWithDetector implements Detector
 	{
 		this.description = description;
 		str = string;
+		bytes = str.getBytes();
 		this.ext = ext;
 	}
 
 	@Override
 	public DetectResult detect(final byte[] data)
 	{
-		if (data.length < str.length())
+		if (data.length < bytes.length)
 			return DetectResult.NEED_MORE;
-		String header = new String(data);
-		if (header.startsWith(str))
-			return DetectResult.TRUE;
-		return DetectResult.FALSE;
 
+		for (int i = 0; i < bytes.length; i++)
+			if (data[i] != bytes[i])
+				return DetectResult.FALSE;
+		return DetectResult.TRUE;
 	}
 
 	@Override

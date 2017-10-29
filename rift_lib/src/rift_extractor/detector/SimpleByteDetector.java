@@ -16,13 +16,13 @@ public class SimpleByteDetector implements Detector
 	@Override
 	public DetectResult detect(final byte[] data)
 	{
-		String header = new String(data);
-		String str = new String(bytes);
-		if (header.length() < str.length())
+		if (data.length < bytes.length)
 			return DetectResult.NEED_MORE;
-		if (header.startsWith(str))
-			return DetectResult.TRUE;
-		return DetectResult.FALSE;
+
+		for (int i = 0; i < bytes.length; i++)
+			if (data[i] != bytes[i])
+				return DetectResult.FALSE;
+		return DetectResult.TRUE;
 
 	}
 
