@@ -59,64 +59,69 @@ public class ExtractAll extends RiftAction
 				lastP = per;
 			}
 
-			if (ae.file.file.getName().contains("assets32"))
-				continue;
-
-			Stream<ManifestEntry> manifestEntriesStream = manifest.getEntries(ae.strID);
-
-			Optional<ManifestEntry> mchoice = manifestEntriesStream.filter(e -> e.lang <= 1)
-					.findFirst();
-			if (!mchoice.isPresent())
+			try
 			{
-				List<ManifestEntry> amentries = manifest.getEntries(ae.strID).collect(Collectors.toList());
-				if (amentries.isEmpty())
-					System.err.println("No manifest entry for asset:" + ae);
-				mchoice = Optional.of(amentries.get(0));
-			}
+				if (ae.file.file.getName().contains("assets32"))
+					continue;
 
-			ManifestEntry choice = mchoice.get();
+				Stream<ManifestEntry> manifestEntriesStream = manifest.getEntries(ae.strID);
 
-			String pakFile = FilenameUtils.getBaseName(manifest.getPAKName(choice.getPakIndex()));
-			Path outDir = Paths.get(outputDir.toString(), pakFile);
-			boolean noName = false;
-			String filename = NameDB.getNameForHash(choice.filenameHashStr, null);
-			// strip out any paths
-			String base = FilenameUtils.getName(filename);
-			if (!base.equals(filename))
-			{
-				System.out.println("Warning, stripping path from filename:" + filename);
-				filename = base;
-			}
-
-			if (filename == null)
-			{
-				noName = true;
-				filename = choice.filenameHashStr;
-			}
-
-			if (!outDir.toFile().exists())
-				outDir.toFile().mkdir();
-			Path outFile;
-			if (noName)
-			{
-				byte[] data = adb.extract(ae);
-				String ext = dd.detectExtension(data);
-				outFile = Paths.get(outDir.toString(), filename);
-				if (ext != null)
-					outFile = Paths.get(outDir.toString(), filename + "." + ext);
-				try (FileOutputStream fos = new FileOutputStream(outFile.toFile()))
+				Optional<ManifestEntry> mchoice = manifestEntriesStream.filter(e -> e.lang <= 1)
+						.findFirst();
+				if (!mchoice.isPresent())
 				{
-					fos.write(data);
+					List<ManifestEntry> amentries = manifest.getEntries(ae.strID).collect(Collectors.toList());
+					if (amentries.isEmpty())
+						System.err.println("No manifest entry for asset:" + ae);
+					mchoice = Optional.of(amentries.get(0));
 				}
-			} else
-			{
-				outFile = Paths.get(outDir.toString(), filename);
-				try (FileOutputStream fos = new FileOutputStream(outFile.toFile()))
-				{
-					adb.extract(ae, fos);
-				}
-			}
 
+				ManifestEntry choice = mchoice.get();
+
+				String pakFile = FilenameUtils.getBaseName(manifest.getPAKName(choice.getPakIndex()));
+				Path outDir = Paths.get(outputDir.toString(), pakFile);
+				boolean noName = false;
+				String filename = NameDB.getNameForHash(choice.filenameHashStr, null);
+				// strip out any paths
+				String base = FilenameUtils.getName(filename);
+				if (!base.equals(filename))
+				{
+					System.out.println("Warning, stripping path from filename:" + filename);
+					filename = base;
+				}
+
+				if (filename == null)
+				{
+					noName = true;
+					filename = choice.filenameHashStr;
+				}
+
+				if (!outDir.toFile().exists())
+					outDir.toFile().mkdir();
+				Path outFile;
+				if (noName)
+				{
+					byte[] data = adb.extract(ae);
+					String ext = dd.detectExtension(data);
+					outFile = Paths.get(outDir.toString(), filename);
+					if (ext != null)
+						outFile = Paths.get(outDir.toString(), filename + "." + ext);
+					try (FileOutputStream fos = new FileOutputStream(outFile.toFile()))
+					{
+						fos.write(data);
+					}
+				} else
+				{
+					outFile = Paths.get(outDir.toString(), filename);
+					try (FileOutputStream fos = new FileOutputStream(outFile.toFile()))
+					{
+						adb.extract(ae, fos);
+					}
+				}
+			} catch (Exception ex)
+			{
+				System.out.println("error handing asset:" + ae);
+			}
 			//System.out.println("write:" + outFile + "");
 
 		}
