@@ -33,6 +33,9 @@ public class ExtractAll extends RiftAction
 	@Option(name = "-dryRun", usage = "Simulate an extraction but don't write any files")
 	boolean dryRun = false;
 
+	@Option(name = "-onlyFile", usage = "Only extract the asset for the given filename", metaVar = "filename")
+	String onlyFile;
+
 	public ExtractAll()
 	{
 
@@ -42,13 +45,25 @@ public class ExtractAll extends RiftAction
 	public void go() throws IOException
 	{
 		if (dryRun)
-			System.out.println("Dry run mode, no files will be written");
+			System.out.println("NOTICE: Dry run mode, no files will be written");
 		DefaultDetector dd = new DefaultDetector(null);
 		File assetsManifest = Paths.get(riftDir.toString(), "assets64.manifest").toFile();
 		File assetsDirectory = Paths.get(riftDir.toString(), "assets").toFile();
 		Manifest manifest = new Manifest(assetsManifest.toString());
 		AssetDatabase adb = AssetProcessor.buildDatabase(manifest, assetsDirectory.toString());
 
+		if (onlyFile != null && onlyFile.length() > 0)
+		{
+			AssetEntry entry = adb.getEntryForFileName(onlyFile);
+			if (entry != null)
+			{
+				File outFile = Paths.get(outputDir.toString(), onlyFile).toFile();
+				System.out.println("writing " + outFile);
+				if (!dryRun)
+					adb.extractToFilename(onlyFile, outFile.toString());
+			}
+			return;
+		}
 		List<AssetEntry> entries = adb.getEntries().collect(Collectors.toList());
 		int lastP = -1;
 		int aeCount = 0;
