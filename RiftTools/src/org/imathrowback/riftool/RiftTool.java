@@ -40,8 +40,11 @@ public class RiftTool extends RiftAction
 	public void doMain(final Collection<String> args) throws Exception
 	{
 		List<String> largs = args.stream().collect(Collectors.toList());
+		List<String> otherArgs = largs;
 		int index = largs.indexOf("-action");
-		parse(this, largs.subList(index, index + 2));
+		if (index >= 0)
+			otherArgs = largs.subList(index, index + 2);
+		parse(this, otherArgs);
 
 		// parse common arguments
 		//System.out.println(args);
