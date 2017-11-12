@@ -46,6 +46,11 @@ public class PatchInfo implements Comparable<PatchInfo>
 		return c.compare(this, o);
 	}
 
+	public String getVersion()
+	{
+		return version;
+	}
+
 	@Override
 	public String toString()
 	{

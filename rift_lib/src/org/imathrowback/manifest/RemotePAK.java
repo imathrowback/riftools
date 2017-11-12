@@ -259,6 +259,23 @@ public class RemotePAK
 		extract(releaseType, manifest, entry, outputName, currentPatch.index);
 	}
 
+	public static void downloadLatest(final ReleaseType releaseType, final String filename, final String outputName)
+			throws IOException
+	{
+		PatchInfo currentPatch = getCurrentPatch(releaseType);
+		File manifestCache = new File(currentPatch.getVersion() + ".manifest.cache");
+
+		byte[] data = downloadManifest(releaseType, currentPatch, manifestCache);
+
+		Manifest manifest = new Manifest(new ByteArrayInputStream(data), true);
+
+		ManifestEntry entry = manifest.getEnglishEntry(filename);
+		if (entry == null)
+			throw new IllegalArgumentException("Unable to find manifest entry for '" + filename + "'");
+		extract(releaseType, manifest, entry, outputName, currentPatch.index);
+
+	}
+
 	/**
 	 * Download a file from the current release.
 	 *
@@ -338,7 +355,7 @@ public class RemotePAK
 				//System.out.println("\t\t" + response.getStatusLine());
 				/*
 				System.out.println("got " + bos.toByteArray().length + " data from stream");
-				
+
 				for (Header h : response.getAllHeaders())
 					System.out.println("\t" + h.getName() + ":" + h.getValue());
 					*/
