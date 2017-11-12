@@ -55,6 +55,7 @@ public class RiftTool extends RiftAction
 			case DOWNLOADFILE:
 				DownloadFile df = new DownloadFile();
 				parse(df, args);
+				df.go();
 				return;
 			case NONE:
 				return;
