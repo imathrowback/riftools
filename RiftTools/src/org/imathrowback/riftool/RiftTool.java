@@ -9,8 +9,10 @@ import java.util.stream.Collectors;
 import org.imathrowback.manifest.PatchInfo;
 import org.imathrowback.manifest.ReleaseType;
 import org.imathrowback.manifest.RemotePAK;
+import org.imathrowback.riftool.actions.DecryptDB;
 import org.imathrowback.riftool.actions.DownloadFile;
 import org.imathrowback.riftool.actions.ExtractAll;
+import org.imathrowback.riftool.actions.ExtractDBStrings;
 import org.imathrowback.riftool.actions.RiftAction;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
@@ -56,6 +58,16 @@ public class RiftTool extends RiftAction
 				DownloadFile df = new DownloadFile();
 				parse(df, args);
 				df.go();
+				return;
+			case DECRYPTFILE:
+				DecryptDB db = new DecryptDB();
+				parse(db, args);
+				db.go();
+				return;
+			case EXTRACT_STRINGS:
+				ExtractDBStrings edb = new ExtractDBStrings();
+				parse(edb, args);
+				edb.go();
 				return;
 			case NONE:
 				return;

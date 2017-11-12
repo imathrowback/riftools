@@ -18,5 +18,6 @@
   	<dependency org="org.imathrowback" name="mapgen" rev="1.0" conf="compile"/>
 	<dependency org="args4j" name="args4j" rev="2.0.26"/>
 		<dependency org="commons-io" name="commons-io" rev="2.5"/>
+			<dependency org="org.apache.commons" name="commons-lang3" rev="3.4"/>
   </dependencies>
 </ivy-module>
