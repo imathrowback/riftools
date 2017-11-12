@@ -6,13 +6,13 @@ import org.kohsuke.args4j.Option;
 
 public class DownloadFile extends RiftAction
 {
-	@Option(name = "-filename", usage = "The name or filename hash of the file")
+	@Option(name = "-filename", usage = "The name or filename hash of the file", required = true)
 	String filenameOrHash;
 
-	@Option(name = "-outfilename", usage = "File file to write to")
+	@Option(name = "-outfilename", usage = "File file to write to", required = true)
 	String filenameOutput;
 
-	@Option(name = "-release", usage = "Release to download from")
+	@Option(name = "-release", usage = "Release to download from", required = true)
 	ReleaseType releaseType;
 
 	public DownloadFile()
