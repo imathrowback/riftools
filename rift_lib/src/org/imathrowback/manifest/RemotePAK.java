@@ -112,11 +112,12 @@ public class RemotePAK
 				}
 				patches.put(i, p);
 
-			} catch (FileNotFoundException ex)
+			} catch (Exception ex)
 			{
 				// ignore this, we don't care
 				//System.err.println("failed:" + url);
-				break;
+				//ex.printStackTrace();
+				//break;
 			}
 		}
 
