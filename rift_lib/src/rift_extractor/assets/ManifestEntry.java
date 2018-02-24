@@ -26,6 +26,7 @@ public class ManifestEntry
 	public final byte[] shahash;
 	public final int unk;
 	public String shaStr;
+	public short v3;
 
 	public int getPakIndex()
 	{
@@ -68,6 +69,14 @@ public class ManifestEntry
 		unk = dis.readInt();
 		shaStr = Util.bytesToHexString(shahash);
 		//Date t = CFileTimeConvertor.readFileTime(dis);
+		try
+		{
+			// valid for manifest v3 only
+			v3 = dis.readShort();
+		} catch (Exception ex)
+		{
+
+		}
 
 	}
 
@@ -79,11 +88,14 @@ public class ManifestEntry
 				StringUtils.leftPad("" + compressedSize, 10, ' ') + ":[filesize]"
 				+ StringUtils.leftPad("" + size, 10, ' ')
 				+ ":"
-				+ "[PAKIndex]" + StringUtils.leftPad("" + pakIndex, 4, ' ') + ":[unkw2]"
-				+ StringUtils.leftPad("" + w2, 6, ' ') + ":[lang]" + lang + ""
+				+ "[PAKIndex]" + StringUtils.leftPad("" + pakIndex, 4, ' ') +
+				":[unkw2]" + StringUtils.leftPad("" + w2, 6, ' ') +
+				":[unkw3]" + StringUtils.leftPad("" + w3, 6, ' ') +
+				":[unkw4]" + StringUtils.leftPad("" + w4, 6, ' ') +
+				":[lang]" + lang + ""
 				+ ":[unk]" + unk
 				+ ":[hash]:" + Util.bytesToHexString(shahash) + ":"
-				+ unk);
+				+ unk + ":[v3]:" + v3);
 	}
 
 }

@@ -178,33 +178,34 @@ public class Manifest
 				}
 
 			}
-		}
 
-		/** TABLE 2 - Manifest entries */
-		int entrySize = 56;
-		for (int i = 0; i < count; i++)
-		{
-			int start = tableOffset + (i * entrySize);
-
-			try (LittleEndianDataInputStream dis = new LittleEndianDataInputStream(
-					new ByteArrayInputStream(manifestData, start, entrySize)))
+			/** TABLE 2 - Manifest entries */
+			int entrySize = b.stride;
+			for (int i = 0; i < count; i++)
 			{
-				ManifestEntry entry = new ManifestEntry(dis);
-				manifestEntries.add(entry);
+				int start = tableOffset + (i * entrySize);
 
-				if (!idEntryMap.containsKey(entry.idStr))
-					idEntryMap.put(entry.idStr, new LinkedList<ManifestEntry>());
-				idEntryMap.get(entry.idStr).add(entry);
+				try (LittleEndianDataInputStream dis2 = new LittleEndianDataInputStream(
+						new ByteArrayInputStream(manifestData, start, entrySize)))
+				{
+					ManifestEntry entry = new ManifestEntry(dis2);
+					System.out.println(entry);
+					manifestEntries.add(entry);
 
-				if (!idToNameNameHashMap.containsKey(entry.idStr))
-					idToNameNameHashMap.put(entry.idStr, new TreeSet<String>());
-				idToNameNameHashMap.get(entry.idStr).add(entry.filenameHashStr);
+					if (!idEntryMap.containsKey(entry.idStr))
+						idEntryMap.put(entry.idStr, new LinkedList<ManifestEntry>());
+					idEntryMap.get(entry.idStr).add(entry);
 
-				if (!fileNameHashesIDMap.containsKey(entry.filenameHashStr))
-					fileNameHashesIDMap.put(entry.filenameHashStr, new LinkedList<>());
-				fileNameHashesIDMap.get(entry.filenameHashStr).add(entry);
+					if (!idToNameNameHashMap.containsKey(entry.idStr))
+						idToNameNameHashMap.put(entry.idStr, new TreeSet<String>());
+					idToNameNameHashMap.get(entry.idStr).add(entry.filenameHashStr);
 
-				fileNameHashIDMap.put(entry.filenameHashStr, entry.idStr);
+					if (!fileNameHashesIDMap.containsKey(entry.filenameHashStr))
+						fileNameHashesIDMap.put(entry.filenameHashStr, new LinkedList<>());
+					fileNameHashesIDMap.get(entry.filenameHashStr).add(entry);
+
+					fileNameHashIDMap.put(entry.filenameHashStr, entry.idStr);
+				}
 			}
 		}
 	}
