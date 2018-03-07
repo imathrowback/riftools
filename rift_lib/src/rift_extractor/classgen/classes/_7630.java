@@ -15,7 +15,7 @@ public class _7630
 	public rift_extractor.classgen.Vector4 unk3;
 	public rift_extractor.classgen.Vector4 unk4;
 	Object unk5;
-	public ID unk6;
+	public TextEntry unk6;
 
 	public void parse(CObject obj)
 	{
@@ -27,6 +27,6 @@ public class _7630
 		unk3 = ClassUtils.vector4(obj,3);
 		unk4 = ClassUtils.vector4(obj,4);
 		unk5 = ClassUtils.getFieldMember(Object.class,obj, 5);
-		unk6 = ClassUtils.getFieldMember(ID.class,obj, 6);
+		unk6 = ClassUtils.getFieldMember(TextEntry.class,obj, 6);
 	}
 }

@@ -10,7 +10,7 @@ public class _703
 	public _703(){}
 	Object unk0;
 	java.lang.Long unk1;
-	ID unk2;
+	TextEntry unk2;
 
 	public void parse(CObject obj)
 	{
@@ -18,6 +18,6 @@ public class _703
 
 		unk0 = ClassUtils.getFieldMember(Object.class,obj, 0);
 		unk1 = ClassUtils.getFieldMember(java.lang.Long.class,obj, 1);
-		unk2 = ClassUtils.getFieldMember(ID.class,obj, 2);
+		unk2 = ClassUtils.getFieldMember(TextEntry.class,obj, 2);
 	}
 }

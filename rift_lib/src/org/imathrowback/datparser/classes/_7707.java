@@ -19,8 +19,11 @@ public class _7707
 	{
 		if (obj.type != 7707)
 			throw new IllegalArgumentException("expected object 7707 got " + obj.type);
-		CObject mary = obj.get(0);
-		decodeMap(mary, map);
+		if (obj.hasMember(2))
+		{
+			CObject mary = obj.getAtIndex(2);
+			decodeMap(mary, map);
+		}
 	}
 
 	private static <T, U> void decodeMap(final CObject mary, final Map<T, U> map)

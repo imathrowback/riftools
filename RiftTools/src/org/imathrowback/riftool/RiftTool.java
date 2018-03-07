@@ -32,6 +32,8 @@ public class RiftTool extends RiftAction
 	{
 		Map<Integer, PatchInfo> patches = RemotePAK.getPatches(ReleaseType.LIVE);
 		System.out.println(patches);
+		patches = RemotePAK.getPatches(ReleaseType.PTS);
+		System.out.println(patches);
 	}
 
 	public void download() throws Exception

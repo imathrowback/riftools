@@ -12,7 +12,7 @@ public class _290
 	java.lang.Long unk0;
 	java.lang.String unk1;
 	java.lang.String unk2;
-	ID unk3;
+	TextEntry unk3;
 	java.lang.Long unk4;
 	java.lang.Boolean unk5;
 	java.lang.Float unk6;
@@ -26,7 +26,7 @@ public class _290
 		unk0 = ClassUtils.getFieldMember(java.lang.Long.class,obj, 0);
 		unk1 = ClassUtils.getFieldMember(java.lang.String.class,obj, 1);
 		unk2 = ClassUtils.getFieldMember(java.lang.String.class,obj, 2);
-		unk3 = ClassUtils.getFieldMember(ID.class,obj, 3);
+		unk3 = ClassUtils.getFieldMember(TextEntry.class,obj, 3);
 		unk4 = ClassUtils.getFieldMember(java.lang.Long.class,obj, 4);
 		unk5 = ClassUtils.getFieldMember(java.lang.Boolean.class,obj, 5);
 		unk6 = ClassUtils.getFieldMember(java.lang.Float.class,obj, 6);

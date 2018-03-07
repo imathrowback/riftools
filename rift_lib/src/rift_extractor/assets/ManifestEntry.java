@@ -2,6 +2,8 @@ package rift_extractor.assets;
 
 import java.io.IOException;
 
+import org.apache.commons.codec.binary.BinaryCodec;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -26,7 +28,7 @@ public class ManifestEntry
 	public final byte[] shahash;
 	public final int unk;
 	public String shaStr;
-	public short v3;
+	public short filenameLength;
 
 	public int getPakIndex()
 	{
@@ -36,6 +38,11 @@ public class ManifestEntry
 	public int getPakOffset()
 	{
 		return pakOffset;
+	}
+
+	public String getHash()
+	{
+		return shaStr;
 	}
 
 	public ManifestEntry(final LittleEndianDataInputStream dis) throws IOException
@@ -72,7 +79,7 @@ public class ManifestEntry
 		try
 		{
 			// valid for manifest v3 only
-			v3 = dis.readShort();
+			filenameLength = dis.readShort();
 		} catch (Exception ex)
 		{
 
@@ -95,7 +102,28 @@ public class ManifestEntry
 				":[lang]" + lang + ""
 				+ ":[unk]" + unk
 				+ ":[hash]:" + Util.bytesToHexString(shahash) + ":"
-				+ unk + ":[v3]:" + v3);
+				+ unk + ":[v3]:" + filenameLength + ":" + toBytes(filenameLength));
 	}
 
+	public String getV3()
+	{
+		return "" + filenameLength;
+	}
+
+	public String getBV3()
+	{
+		byte[] ret = new byte[2];
+		ret[1] = (byte) (filenameLength & 0xff);
+		ret[0] = (byte) ((filenameLength >> 8) & 0xff);
+		return BinaryCodec.toAsciiString(ret);
+	}
+
+	String toBytes(final short x)
+	{
+		byte[] ret = new byte[2];
+		ret[1] = (byte) (x & 0xff);
+		ret[0] = (byte) ((x >> 8) & 0xff);
+		return Hex.encodeHexString(ret);
+
+	}
 }

@@ -19,10 +19,13 @@ public class _7709
 		if (obj.type != 7709)
 			throw new IllegalArgumentException("expected object 7709 got " + obj.type);
 
-		if (obj.members.size() == 1)
-			name = (String) obj.get(0).convert();
-		else if (obj.members.size() != 0)
-			throw new IllegalArgumentException("members size was not 1");
+		if (obj.hasMember(1))
+			name = obj.getString(1);
+		else if (obj.hasMember(0))
+			name = obj.getString(0);
+		else
+			name = "";
+		//throw new IllegalArgumentException("unable to get name of object");
 	}
 
 	public String name;

@@ -9,8 +9,8 @@ public class InstanceDifficulty
 {
 	public InstanceDifficulty(){}
 	java.lang.String unk0;
-	ID unk1;
-	ID unk2;
+	TextEntry unk1;
+	TextEntry unk2;
 	java.lang.String unk3;
 	java.lang.Long unk4;
 	java.lang.Long unk5;
@@ -65,8 +65,8 @@ public class InstanceDifficulty
 		ClassUtils.assertType(obj, 4427);
 
 		unk0 = ClassUtils.getFieldMember(java.lang.String.class,obj, 0);
-		unk1 = ClassUtils.getFieldMember(ID.class,obj, 1);
-		unk2 = ClassUtils.getFieldMember(ID.class,obj, 2);
+		unk1 = ClassUtils.getFieldMember(TextEntry.class,obj, 1);
+		unk2 = ClassUtils.getFieldMember(TextEntry.class,obj, 2);
 		unk3 = ClassUtils.getFieldMember(java.lang.String.class,obj, 3);
 		unk4 = ClassUtils.getFieldMember(java.lang.Long.class,obj, 4);
 		unk5 = ClassUtils.getFieldMember(java.lang.Long.class,obj, 5);

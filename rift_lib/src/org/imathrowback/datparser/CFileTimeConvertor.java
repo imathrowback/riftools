@@ -1,5 +1,5 @@
 /*
- * 
+ *
  */
 package org.imathrowback.datparser;
 
@@ -18,11 +18,11 @@ public class CFileTimeConvertor extends CObjectConverter<Date>
 	}
 
 	@Override
-	public Date convert(CObject obj) throws Exception
+	public Date convert(final CObject obj) throws Exception
 	{
 		return readFileTime(getDIS(obj));
 	}
-	
+
 	public static final int NANO100_TO_MILLI = 10000;
 	public static final long WINDOWS_TO_UNIX_EPOCH = 0x19DB1DED53E8000L;
 

@@ -8,9 +8,9 @@ import rift_extractor.classgen.ClassUtils;
 public class _893 
 {
 	public _893(){}
-	ID unk0;
+	TextEntry unk0;
 	java.util.List<_898> unk1;
-	ID unk2;
+	TextEntry unk2;
 	java.lang.Long unk3;
 	java.lang.Double unk4;
 	java.util.HashMap<java.lang.Long,_676> unk5;
@@ -21,9 +21,9 @@ public class _893
 	{
 		ClassUtils.assertType(obj, 893);
 
-		unk0 = ClassUtils.getFieldMember(ID.class,obj, 0);
+		unk0 = ClassUtils.getFieldMember(TextEntry.class,obj, 0);
 		unk1 = ClassUtils.list(_898.class,obj,1);
-		unk2 = ClassUtils.getFieldMember(ID.class,obj, 2);
+		unk2 = ClassUtils.getFieldMember(TextEntry.class,obj, 2);
 		unk3 = ClassUtils.getFieldMember(java.lang.Long.class,obj, 3);
 		unk4 = ClassUtils.getFieldMember(java.lang.Double.class,obj, 4);
 		unk5 = ClassUtils.getFieldMember(java.util.HashMap.class,obj, 5);

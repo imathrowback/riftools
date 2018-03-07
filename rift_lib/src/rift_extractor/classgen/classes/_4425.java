@@ -13,8 +13,8 @@ public class _4425
 
 	public java.lang.String unk0;
 	java.lang.Long unk1;
-	ID unk2;
-	ID unk3;
+	TextEntry unk2;
+	TextEntry unk3;
 	java.lang.String unk4;
 	Object unk5;
 	java.lang.String unk6;
@@ -71,8 +71,8 @@ public class _4425
 
 		unk0 = ClassUtils.getFieldMember(java.lang.String.class, obj, 0);
 		unk1 = ClassUtils.getFieldMember(java.lang.Long.class, obj, 1);
-		unk2 = ClassUtils.getFieldMember(ID.class, obj, 2);
-		unk3 = ClassUtils.getFieldMember(ID.class, obj, 3);
+		unk2 = ClassUtils.getFieldMember(TextEntry.class, obj, 2);
+		unk3 = ClassUtils.getFieldMember(TextEntry.class, obj, 3);
 		unk4 = ClassUtils.getFieldMember(java.lang.String.class, obj, 4);
 		unk5 = ClassUtils.getFieldMember(Object.class, obj, 5);
 		unk6 = ClassUtils.getFieldMember(java.lang.String.class, obj, 6);

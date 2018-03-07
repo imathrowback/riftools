@@ -9,7 +9,7 @@ public class _4096
 {
 	public _4096(){}
 	Object unk0;
-	ID unk1;
+	TextEntry unk1;
 	java.lang.Long unk2;
 
 	public void parse(CObject obj)
@@ -17,7 +17,7 @@ public class _4096
 		ClassUtils.assertType(obj, 4096);
 
 		unk0 = ClassUtils.getFieldMember(Object.class,obj, 0);
-		unk1 = ClassUtils.getFieldMember(ID.class,obj, 1);
+		unk1 = ClassUtils.getFieldMember(TextEntry.class,obj, 1);
 		unk2 = ClassUtils.getFieldMember(java.lang.Long.class,obj, 2);
 	}
 }

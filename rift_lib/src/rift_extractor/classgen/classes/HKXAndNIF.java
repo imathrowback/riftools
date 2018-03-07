@@ -15,10 +15,10 @@ public class HKXAndNIF
 	java.util.List<_999519> unk4;
 	Object unk5;
 	java.util.List<java.lang.Long> unk6;
-	ID unk7;
-	ID unk8;
+	TextEntry unk7;
+	TextEntry unk8;
 	Object unk9;
-	ID unk10;
+	TextEntry unk10;
 
 	public void parse(CObject obj)
 	{
@@ -31,9 +31,9 @@ public class HKXAndNIF
 		unk4 = ClassUtils.list(_999519.class,obj,4);
 		unk5 = ClassUtils.getFieldMember(Object.class,obj, 5);
 		unk6 = ClassUtils.list(java.lang.Long.class,obj,6);
-		unk7 = ClassUtils.getFieldMember(ID.class,obj, 7);
-		unk8 = ClassUtils.getFieldMember(ID.class,obj, 8);
+		unk7 = ClassUtils.getFieldMember(TextEntry.class,obj, 7);
+		unk8 = ClassUtils.getFieldMember(TextEntry.class,obj, 8);
 		unk9 = ClassUtils.getFieldMember(Object.class,obj, 9);
-		unk10 = ClassUtils.getFieldMember(ID.class,obj, 10);
+		unk10 = ClassUtils.getFieldMember(TextEntry.class,obj, 10);
 	}
 }

@@ -107,7 +107,7 @@ public class ClassGenUtils
 		map.put(107, "MapData");
 		map.put(4426, "InstanceDefinition");
 		map.put(4479, "SpawnPoint");
-		map.put(7703, "ID");
+		map.put(7703, "TextEntry");
 		map.put(628, "HKXAndNIF");
 		map.put(600, "ObjectInstance");
 		map.put(603, "MapObjectTransform");

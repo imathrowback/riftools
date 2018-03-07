@@ -35,8 +35,8 @@ public class _81
 	java.lang.Long unk24;
 	java.util.List<_1656> unk25;
 	Object unk26;
-	ID unk27;
-	ID unk28;
+	TextEntry unk27;
+	TextEntry unk28;
 	Object unk29;
 	java.util.List<java.lang.Long> unk30;
 	java.util.List<java.lang.Long> unk31;
@@ -58,7 +58,7 @@ public class _81
 	java.util.List<java.lang.Long> unk47;
 	java.util.List<java.lang.Long> unk48;
 	Object unk49;
-	ID unk50;
+	TextEntry unk50;
 	java.lang.Boolean unk51;
 	java.lang.Long unk52;
 	java.lang.Float unk53;
@@ -67,7 +67,7 @@ public class _81
 	Object unk56;
 	java.util.List<java.lang.Long> unk57;
 	java.lang.Long unk58;
-	ID unk59;
+	TextEntry unk59;
 	java.lang.Long unk60;
 	java.lang.Float unk61;
 	java.lang.Boolean unk62;
@@ -77,7 +77,7 @@ public class _81
 	java.lang.Long unk66;
 	java.lang.Long unk67;
 	Object unk68;
-	ID unk69;
+	TextEntry unk69;
 	java.lang.Long unk70;
 	Object unk71;
 	Object unk72;
@@ -120,8 +120,8 @@ public class _81
 		unk24 = ClassUtils.getFieldMember(java.lang.Long.class,obj, 24);
 		unk25 = ClassUtils.list(_1656.class,obj,25);
 		unk26 = ClassUtils.getFieldMember(Object.class,obj, 26);
-		unk27 = ClassUtils.getFieldMember(ID.class,obj, 27);
-		unk28 = ClassUtils.getFieldMember(ID.class,obj, 28);
+		unk27 = ClassUtils.getFieldMember(TextEntry.class,obj, 27);
+		unk28 = ClassUtils.getFieldMember(TextEntry.class,obj, 28);
 		unk29 = ClassUtils.getFieldMember(Object.class,obj, 29);
 		unk30 = ClassUtils.list(java.lang.Long.class,obj,30);
 		unk31 = ClassUtils.list(java.lang.Long.class,obj,31);
@@ -143,7 +143,7 @@ public class _81
 		unk47 = ClassUtils.list(java.lang.Long.class,obj,47);
 		unk48 = ClassUtils.list(java.lang.Long.class,obj,48);
 		unk49 = ClassUtils.getFieldMember(Object.class,obj, 49);
-		unk50 = ClassUtils.getFieldMember(ID.class,obj, 50);
+		unk50 = ClassUtils.getFieldMember(TextEntry.class,obj, 50);
 		unk51 = ClassUtils.getFieldMember(java.lang.Boolean.class,obj, 51);
 		unk52 = ClassUtils.getFieldMember(java.lang.Long.class,obj, 52);
 		unk53 = ClassUtils.getFieldMember(java.lang.Float.class,obj, 53);
@@ -152,7 +152,7 @@ public class _81
 		unk56 = ClassUtils.getFieldMember(Object.class,obj, 56);
 		unk57 = ClassUtils.list(java.lang.Long.class,obj,57);
 		unk58 = ClassUtils.getFieldMember(java.lang.Long.class,obj, 58);
-		unk59 = ClassUtils.getFieldMember(ID.class,obj, 59);
+		unk59 = ClassUtils.getFieldMember(TextEntry.class,obj, 59);
 		unk60 = ClassUtils.getFieldMember(java.lang.Long.class,obj, 60);
 		unk61 = ClassUtils.getFieldMember(java.lang.Float.class,obj, 61);
 		unk62 = ClassUtils.getFieldMember(java.lang.Boolean.class,obj, 62);
@@ -162,7 +162,7 @@ public class _81
 		unk66 = ClassUtils.getFieldMember(java.lang.Long.class,obj, 66);
 		unk67 = ClassUtils.getFieldMember(java.lang.Long.class,obj, 67);
 		unk68 = ClassUtils.getFieldMember(Object.class,obj, 68);
-		unk69 = ClassUtils.getFieldMember(ID.class,obj, 69);
+		unk69 = ClassUtils.getFieldMember(TextEntry.class,obj, 69);
 		unk70 = ClassUtils.getFieldMember(java.lang.Long.class,obj, 70);
 		unk71 = ClassUtils.getFieldMember(Object.class,obj, 71);
 		unk72 = ClassUtils.getFieldMember(Object.class,obj, 72);

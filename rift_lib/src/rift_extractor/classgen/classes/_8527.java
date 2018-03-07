@@ -33,8 +33,8 @@ public class _8527
 	Object unk21;
 	public java.lang.Long unk22;
 	public java.lang.Long unk23;
-	public ID unk24;
-	public ID unk25;
+	public TextEntry unk24;
+	public TextEntry unk25;
 	Object unk26;
 	public java.lang.Long unk27;
 	Object unk28;
@@ -50,7 +50,7 @@ public class _8527
 	Object unk38;
 	public _8655 unk39;
 	public _8655 unk40;
-	public ID unk41;
+	public TextEntry unk41;
 
 	public void parse(CObject obj)
 	{
@@ -80,8 +80,8 @@ public class _8527
 		unk21 = ClassUtils.getFieldMember(Object.class,obj, 21);
 		unk22 = ClassUtils.getFieldMember(java.lang.Long.class,obj, 22);
 		unk23 = ClassUtils.getFieldMember(java.lang.Long.class,obj, 23);
-		unk24 = ClassUtils.getFieldMember(ID.class,obj, 24);
-		unk25 = ClassUtils.getFieldMember(ID.class,obj, 25);
+		unk24 = ClassUtils.getFieldMember(TextEntry.class,obj, 24);
+		unk25 = ClassUtils.getFieldMember(TextEntry.class,obj, 25);
 		unk26 = ClassUtils.getFieldMember(Object.class,obj, 26);
 		unk27 = ClassUtils.getFieldMember(java.lang.Long.class,obj, 27);
 		unk28 = ClassUtils.getFieldMember(Object.class,obj, 28);
@@ -97,6 +97,6 @@ public class _8527
 		unk38 = ClassUtils.getFieldMember(Object.class,obj, 38);
 		unk39 = ClassUtils.getFieldMember(_8655.class,obj, 39);
 		unk40 = ClassUtils.getFieldMember(_8655.class,obj, 40);
-		unk41 = ClassUtils.getFieldMember(ID.class,obj, 41);
+		unk41 = ClassUtils.getFieldMember(TextEntry.class,obj, 41);
 	}
 }

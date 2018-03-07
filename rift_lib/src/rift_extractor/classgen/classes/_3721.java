@@ -183,7 +183,7 @@ public class _3721
 	public _13147 unk172;
 	public _3932 unk173;
 	public java.util.HashMap<java.lang.Long,_1869> unk174;
-	public ID unk175;
+	public TextEntry unk175;
 	public java.lang.Long unk176;
 	public java.lang.Boolean unk177;
 	public rift_extractor.classgen.Vector3 unk178;
@@ -380,7 +380,7 @@ public class _3721
 		unk172 = ClassUtils.getFieldMember(_13147.class,obj, 172);
 		unk173 = ClassUtils.getFieldMember(_3932.class,obj, 173);
 		unk174 = ClassUtils.getFieldMember(java.util.HashMap.class,obj, 174);
-		unk175 = ClassUtils.getFieldMember(ID.class,obj, 175);
+		unk175 = ClassUtils.getFieldMember(TextEntry.class,obj, 175);
 		unk176 = ClassUtils.getFieldMember(java.lang.Long.class,obj, 176);
 		unk177 = ClassUtils.getFieldMember(java.lang.Boolean.class,obj, 177);
 		unk178 = ClassUtils.vector3(obj,178);

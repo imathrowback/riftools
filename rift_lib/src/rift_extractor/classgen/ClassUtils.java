@@ -194,8 +194,9 @@ public class ClassUtils
 					}
 				} catch (Exception ex)
 				{
-					System.err.println("Unable to convert o[" + o.type + "][" + o.toString() + "] to " + clazz);
-					ex.printStackTrace();
+					System.err.println("WARN: Unable to convert o[" + o.type + "][" + o.toString() + "] to " + clazz);
+					//ex.printStackTrace();
+					//throw ex;
 				}
 				//System.out.println("return type:" + t.getClass());
 				return (T) t;

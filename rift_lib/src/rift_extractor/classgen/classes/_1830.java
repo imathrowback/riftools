@@ -10,7 +10,7 @@ public class _1830
 	public _1830(){}
 	Object unk0;
 	java.lang.Long unk1;
-	ID unk2;
+	TextEntry unk2;
 	java.lang.Float unk3;
 	java.lang.Long unk4;
 	Object unk5;
@@ -29,7 +29,7 @@ public class _1830
 
 		unk0 = ClassUtils.getFieldMember(Object.class,obj, 0);
 		unk1 = ClassUtils.getFieldMember(java.lang.Long.class,obj, 1);
-		unk2 = ClassUtils.getFieldMember(ID.class,obj, 2);
+		unk2 = ClassUtils.getFieldMember(TextEntry.class,obj, 2);
 		unk3 = ClassUtils.getFieldMember(java.lang.Float.class,obj, 3);
 		unk4 = ClassUtils.getFieldMember(java.lang.Long.class,obj, 4);
 		unk5 = ClassUtils.getFieldMember(Object.class,obj, 5);

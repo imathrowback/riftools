@@ -9,7 +9,7 @@ public class _3596
 {
 	public _3596(){}
 	java.lang.String unk0;
-	ID unk1;
+	TextEntry unk1;
 	java.util.List<_3507> unk2;
 	Object unk3;
 	Object unk4;
@@ -23,7 +23,7 @@ public class _3596
 		ClassUtils.assertType(obj, 3596);
 
 		unk0 = ClassUtils.getFieldMember(java.lang.String.class,obj, 0);
-		unk1 = ClassUtils.getFieldMember(ID.class,obj, 1);
+		unk1 = ClassUtils.getFieldMember(TextEntry.class,obj, 1);
 		unk2 = ClassUtils.list(_3507.class,obj,2);
 		unk3 = ClassUtils.getFieldMember(Object.class,obj, 3);
 		unk4 = ClassUtils.getFieldMember(Object.class,obj, 4);

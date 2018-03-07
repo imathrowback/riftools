@@ -14,7 +14,7 @@ public class _633
 	java.lang.String unk3;
 	java.lang.String unk4;
 	java.util.HashMap<java.lang.Long,_729> unk5;
-	ID unk6;
+	TextEntry unk6;
 	java.util.List<java.lang.Long> unk7;
 	java.lang.Float unk8;
 	java.lang.Long unk9;
@@ -74,7 +74,7 @@ public class _633
 		unk3 = ClassUtils.getFieldMember(java.lang.String.class,obj, 3);
 		unk4 = ClassUtils.getFieldMember(java.lang.String.class,obj, 4);
 		unk5 = ClassUtils.getFieldMember(java.util.HashMap.class,obj, 5);
-		unk6 = ClassUtils.getFieldMember(ID.class,obj, 6);
+		unk6 = ClassUtils.getFieldMember(TextEntry.class,obj, 6);
 		unk7 = ClassUtils.list(java.lang.Long.class,obj,7);
 		unk8 = ClassUtils.getFieldMember(java.lang.Float.class,obj, 8);
 		unk9 = ClassUtils.getFieldMember(java.lang.Long.class,obj, 9);

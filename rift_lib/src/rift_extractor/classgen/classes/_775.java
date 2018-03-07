@@ -9,17 +9,17 @@ public class _775
 {
 	public _775(){}
 	java.lang.String unk0;
-	ID unk1;
+	TextEntry unk1;
 	java.lang.Long unk2;
-	ID unk3;
+	TextEntry unk3;
 
 	public void parse(CObject obj)
 	{
 		ClassUtils.assertType(obj, 775);
 
 		unk0 = ClassUtils.getFieldMember(java.lang.String.class,obj, 0);
-		unk1 = ClassUtils.getFieldMember(ID.class,obj, 1);
+		unk1 = ClassUtils.getFieldMember(TextEntry.class,obj, 1);
 		unk2 = ClassUtils.getFieldMember(java.lang.Long.class,obj, 2);
-		unk3 = ClassUtils.getFieldMember(ID.class,obj, 3);
+		unk3 = ClassUtils.getFieldMember(TextEntry.class,obj, 3);
 	}
 }

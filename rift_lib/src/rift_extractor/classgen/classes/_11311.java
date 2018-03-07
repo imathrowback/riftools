@@ -9,7 +9,7 @@ public class _11311
 {
 	public _11311(){}
 	java.lang.String unk0;
-	ID unk1;
+	TextEntry unk1;
 	java.util.List<java.lang.Long> unk2;
 	java.lang.Long unk3;
 	java.lang.Long unk4;
@@ -31,7 +31,7 @@ public class _11311
 		ClassUtils.assertType(obj, 11311);
 
 		unk0 = ClassUtils.getFieldMember(java.lang.String.class,obj, 0);
-		unk1 = ClassUtils.getFieldMember(ID.class,obj, 1);
+		unk1 = ClassUtils.getFieldMember(TextEntry.class,obj, 1);
 		unk2 = ClassUtils.list(java.lang.Long.class,obj,2);
 		unk3 = ClassUtils.getFieldMember(java.lang.Long.class,obj, 3);
 		unk4 = ClassUtils.getFieldMember(java.lang.Long.class,obj, 4);

@@ -54,7 +54,7 @@ public class _11514
 	public java.lang.Boolean unk43;
 	public java.lang.Float unk44;
 	public java.lang.Float unk45;
-	public ID unk46;
+	public TextEntry unk46;
 	public java.lang.String unk47;
 	public java.lang.Float unk48;
 	public java.lang.Float unk49;
@@ -122,7 +122,7 @@ public class _11514
 		unk43 = ClassUtils.getFieldMember(java.lang.Boolean.class,obj, 43);
 		unk44 = ClassUtils.getFieldMember(java.lang.Float.class,obj, 44);
 		unk45 = ClassUtils.getFieldMember(java.lang.Float.class,obj, 45);
-		unk46 = ClassUtils.getFieldMember(ID.class,obj, 46);
+		unk46 = ClassUtils.getFieldMember(TextEntry.class,obj, 46);
 		unk47 = ClassUtils.getFieldMember(java.lang.String.class,obj, 47);
 		unk48 = ClassUtils.getFieldMember(java.lang.Float.class,obj, 48);
 		unk49 = ClassUtils.getFieldMember(java.lang.Float.class,obj, 49);

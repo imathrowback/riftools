@@ -189,6 +189,7 @@ public class Manifest
 						new ByteArrayInputStream(manifestData, start, entrySize)))
 				{
 					ManifestEntry entry = new ManifestEntry(dis2);
+
 					//System.out.println(entry);
 					manifestEntries.add(entry);
 

@@ -17,7 +17,7 @@ public class _8277
 	Object unk6;
 	java.lang.Boolean unk7;
 	Object unk8;
-	ID unk9;
+	TextEntry unk9;
 	java.util.HashMap<java.lang.Long,_304> unk10;
 
 	public void parse(CObject obj)
@@ -33,7 +33,7 @@ public class _8277
 		unk6 = ClassUtils.getFieldMember(Object.class,obj, 6);
 		unk7 = ClassUtils.getFieldMember(java.lang.Boolean.class,obj, 7);
 		unk8 = ClassUtils.getFieldMember(Object.class,obj, 8);
-		unk9 = ClassUtils.getFieldMember(ID.class,obj, 9);
+		unk9 = ClassUtils.getFieldMember(TextEntry.class,obj, 9);
 		unk10 = ClassUtils.getFieldMember(java.util.HashMap.class,obj, 10);
 	}
 }

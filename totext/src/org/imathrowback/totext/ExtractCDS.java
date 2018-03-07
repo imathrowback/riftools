@@ -5,6 +5,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.CountingInputStream;
 import org.imathrowback.datparser.CObject;
 import org.imathrowback.datparser.DatParser;
@@ -49,13 +50,14 @@ public class ExtractCDS
 			int byteOffsetFromStartOfEntries = Leb128.readUnsignedLeb128_X(diss).get();
 			entries.add(new CDEntry(key, byteOffsetFromStartOfEntries));
 		}
-
+		int writeCount = 0;
 		HuffmanReader reader = new HuffmanReader(freqData);
 		System.out.println("Writing text entries to " + cdstxt);
 		// Read each chunk of data
 		try (PrintWriter writer = new PrintWriter(
 				new OutputStreamWriter(new FileOutputStream(cdstxt), Charset.forName("UTF-8"))))
 		{
+
 			for (int i = 0; i < entryCount; i++)
 			{
 				CDEntry entry = entries.get(i);
@@ -76,15 +78,25 @@ public class ExtractCDS
 					_7707 c = new _7707();
 					c.parse(obj);
 					entry.obj = c;
+					writeCount++;
 					for (_7709 o : c.map.values())
+					{
 						writer.println(entry.key + ":" + o.name);
+					}
 				} catch (Exception ex)
 				{
-					return;
+					System.err.println("Unable to process 7707 for entry[" + i + "] ->" + ex.getMessage());
+					File tfile = File.createTempFile("failed", ".dat");
+					try (FileOutputStream fos = new FileOutputStream(tfile))
+					{
+						IOUtils.write(dataOut, fos);
+					}
+					System.err.println("wrote debug data to " + tfile);
+					//throw ex;
 				}
 			}
 
 		}
-		System.out.println("done");
+		System.out.println("done, wrote " + writeCount);
 	}
 }

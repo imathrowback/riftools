@@ -10,8 +10,8 @@ public class _6025
 	public _6025(){}
 	@com.thoughtworks.xstream.annotations.XStreamAsAttribute
 	java.util.List<java.lang.Long> unk0;
-	ID unk1;
-	ID unk2;
+	TextEntry unk1;
+	TextEntry unk2;
 	java.lang.Float unk3;
 
 	public void parse(CObject obj)
@@ -19,8 +19,8 @@ public class _6025
 		ClassUtils.assertType(obj, 6025);
 
 		unk0 = ClassUtils.list(java.lang.Long.class,obj,0);
-		unk1 = ClassUtils.getFieldMember(ID.class,obj, 1);
-		unk2 = ClassUtils.getFieldMember(ID.class,obj, 2);
+		unk1 = ClassUtils.getFieldMember(TextEntry.class,obj, 1);
+		unk2 = ClassUtils.getFieldMember(TextEntry.class,obj, 2);
 		unk3 = ClassUtils.getFieldMember(java.lang.Float.class,obj, 3);
 	}
 }

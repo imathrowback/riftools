@@ -19,10 +19,10 @@ public class _1879
 	Object unk8;
 	Object unk9;
 	Object unk10;
-	public ID unk11;
+	public TextEntry unk11;
 	public java.lang.Long unk12;
-	public ID unk13;
-	public ID unk14;
+	public TextEntry unk13;
+	public TextEntry unk14;
 
 	public void parse(CObject obj)
 	{
@@ -39,9 +39,9 @@ public class _1879
 		unk8 = ClassUtils.getFieldMember(Object.class,obj, 8);
 		unk9 = ClassUtils.getFieldMember(Object.class,obj, 9);
 		unk10 = ClassUtils.getFieldMember(Object.class,obj, 10);
-		unk11 = ClassUtils.getFieldMember(ID.class,obj, 11);
+		unk11 = ClassUtils.getFieldMember(TextEntry.class,obj, 11);
 		unk12 = ClassUtils.getFieldMember(java.lang.Long.class,obj, 12);
-		unk13 = ClassUtils.getFieldMember(ID.class,obj, 13);
-		unk14 = ClassUtils.getFieldMember(ID.class,obj, 14);
+		unk13 = ClassUtils.getFieldMember(TextEntry.class,obj, 13);
+		unk14 = ClassUtils.getFieldMember(TextEntry.class,obj, 14);
 	}
 }

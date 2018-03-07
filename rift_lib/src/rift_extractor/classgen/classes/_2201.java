@@ -9,8 +9,8 @@ public class _2201
 {
 	public _2201(){}
 	Object unk0;
-	ID unk1;
-	ID unk2;
+	TextEntry unk1;
+	TextEntry unk2;
 	java.lang.Long unk3;
 	java.lang.Long unk4;
 	java.util.List<_2202> unk5;
@@ -43,8 +43,8 @@ public class _2201
 		ClassUtils.assertType(obj, 2201);
 
 		unk0 = ClassUtils.getFieldMember(Object.class,obj, 0);
-		unk1 = ClassUtils.getFieldMember(ID.class,obj, 1);
-		unk2 = ClassUtils.getFieldMember(ID.class,obj, 2);
+		unk1 = ClassUtils.getFieldMember(TextEntry.class,obj, 1);
+		unk2 = ClassUtils.getFieldMember(TextEntry.class,obj, 2);
 		unk3 = ClassUtils.getFieldMember(java.lang.Long.class,obj, 3);
 		unk4 = ClassUtils.getFieldMember(java.lang.Long.class,obj, 4);
 		unk5 = ClassUtils.list(_2202.class,obj,5);

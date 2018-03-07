@@ -8,14 +8,14 @@ import rift_extractor.classgen.ClassUtils;
 public class _152 
 {
 	public _152(){}
-	ID unk0;
+	TextEntry unk0;
 	java.util.HashMap<java.lang.Long,_151> unk1;
 
 	public void parse(CObject obj)
 	{
 		ClassUtils.assertType(obj, 152);
 
-		unk0 = ClassUtils.getFieldMember(ID.class,obj, 0);
+		unk0 = ClassUtils.getFieldMember(TextEntry.class,obj, 0);
 		unk1 = ClassUtils.getFieldMember(java.util.HashMap.class,obj, 1);
 	}
 }

@@ -15,10 +15,10 @@ public class _7711
 	public java.lang.String command;
 	public java.lang.String name;
 	Object unk2;
-	public ID unk3;
+	public TextEntry unk3;
 	public java.lang.Boolean userAllowedMaybe = false;
-	public ID unk5;
-	public ID unk6;
+	public TextEntry unk5;
+	public TextEntry unk6;
 
 	public void parse(final CObject obj)
 	{
@@ -27,9 +27,9 @@ public class _7711
 		command = ClassUtils.getFieldMember(java.lang.String.class, obj, 0);
 		name = ClassUtils.getFieldMember(java.lang.String.class, obj, 1);
 		unk2 = ClassUtils.getFieldMember(Object.class, obj, 2);
-		unk3 = ClassUtils.getFieldMember(ID.class, obj, 3);
+		unk3 = ClassUtils.getFieldMember(TextEntry.class, obj, 3);
 		userAllowedMaybe = ClassUtils.getFieldMember(java.lang.Boolean.class, obj, 4);
-		unk5 = ClassUtils.getFieldMember(ID.class, obj, 5);
-		unk6 = ClassUtils.getFieldMember(ID.class, obj, 6);
+		unk5 = ClassUtils.getFieldMember(TextEntry.class, obj, 5);
+		unk6 = ClassUtils.getFieldMember(TextEntry.class, obj, 6);
 	}
 }

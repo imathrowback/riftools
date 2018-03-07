@@ -8,14 +8,14 @@ import rift_extractor.classgen.ClassUtils;
 public class _1741 extends _999554
 {
 	public _1741(){}
-	ID unk0;
+	TextEntry unk0;
 	java.lang.Boolean unk1;
 
 	public void parse(CObject obj)
 	{
 		ClassUtils.assertType(obj, 1741);
 
-		unk0 = ClassUtils.getFieldMember(ID.class,obj, 0);
+		unk0 = ClassUtils.getFieldMember(TextEntry.class,obj, 0);
 		unk1 = ClassUtils.getFieldMember(java.lang.Boolean.class,obj, 1);
 	}
 }

@@ -19,7 +19,7 @@ public class _6010
 	java.lang.Boolean unk7;
 	java.lang.Boolean unk8;
 	java.lang.Boolean unk9;
-	ID unk10;
+	TextEntry unk10;
 
 	public void parse(CObject obj)
 	{
@@ -35,6 +35,6 @@ public class _6010
 		unk7 = ClassUtils.getFieldMember(java.lang.Boolean.class,obj, 7);
 		unk8 = ClassUtils.getFieldMember(java.lang.Boolean.class,obj, 8);
 		unk9 = ClassUtils.getFieldMember(java.lang.Boolean.class,obj, 9);
-		unk10 = ClassUtils.getFieldMember(ID.class,obj, 10);
+		unk10 = ClassUtils.getFieldMember(TextEntry.class,obj, 10);
 	}
 }

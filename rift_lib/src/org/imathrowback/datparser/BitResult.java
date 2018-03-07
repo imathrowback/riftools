@@ -2,6 +2,9 @@ package org.imathrowback.datparser;
 
 public class BitResult
 {
+	public boolean fail = false;
+	public int b;
+
 	public BitResult(final int code, final int memberIndex)
 	{
 		this.code = code;

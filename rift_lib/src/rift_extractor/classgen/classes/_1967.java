@@ -16,7 +16,7 @@ public class _1967
 	java.lang.Long unk5;
 	java.lang.Long unk6;
 	java.lang.Long unk7;
-	ID unk8;
+	TextEntry unk8;
 	java.lang.Long unk9;
 	Object unk10;
 	Object unk11;
@@ -35,7 +35,7 @@ public class _1967
 		unk5 = ClassUtils.getFieldMember(java.lang.Long.class,obj, 5);
 		unk6 = ClassUtils.getFieldMember(java.lang.Long.class,obj, 6);
 		unk7 = ClassUtils.getFieldMember(java.lang.Long.class,obj, 7);
-		unk8 = ClassUtils.getFieldMember(ID.class,obj, 8);
+		unk8 = ClassUtils.getFieldMember(TextEntry.class,obj, 8);
 		unk9 = ClassUtils.getFieldMember(java.lang.Long.class,obj, 9);
 		unk10 = ClassUtils.getFieldMember(Object.class,obj, 10);
 		unk11 = ClassUtils.getFieldMember(Object.class,obj, 11);

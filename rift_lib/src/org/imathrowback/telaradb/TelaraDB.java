@@ -202,6 +202,15 @@ public class TelaraDB implements TelaraDBInterface
 		}
 	}
 
+	/**/
+	public CObject getObject(final Integer datasetid, final Integer key) throws Exception
+	{
+		byte[] data = getData(datasetid, key);
+
+		CObject root = DatParser.processFileAndObject(new ByteArrayInputStream(data));
+		return root;
+	}
+
 	/* (non-Javadoc)
 	 * @see org.imathrowback.telaradb.TelaraDBInterface#getData(java.lang.Integer, java.lang.Integer)
 	 */

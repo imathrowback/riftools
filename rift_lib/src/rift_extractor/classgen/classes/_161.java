@@ -10,8 +10,8 @@ public class _161
 	public _161(){}
 	@com.thoughtworks.xstream.annotations.XStreamAsAttribute
 	java.lang.Long unk0;
-	java.util.List<ID> unk1;
-	ID unk2;
+	java.util.List<TextEntry> unk1;
+	TextEntry unk2;
 	java.lang.Float unk3;
 	java.lang.Float unk4;
 
@@ -20,8 +20,8 @@ public class _161
 		ClassUtils.assertType(obj, 161);
 
 		unk0 = ClassUtils.getFieldMember(java.lang.Long.class,obj, 0);
-		unk1 = ClassUtils.list(ID.class,obj,1);
-		unk2 = ClassUtils.getFieldMember(ID.class,obj, 2);
+		unk1 = ClassUtils.list(TextEntry.class,obj,1);
+		unk2 = ClassUtils.getFieldMember(TextEntry.class,obj, 2);
 		unk3 = ClassUtils.getFieldMember(java.lang.Float.class,obj, 3);
 		unk4 = ClassUtils.getFieldMember(java.lang.Float.class,obj, 4);
 	}

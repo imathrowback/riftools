@@ -8,8 +8,8 @@ import rift_extractor.classgen.ClassUtils;
 public class _153 
 {
 	public _153(){}
-	ID unk0;
-	ID unk1;
+	TextEntry unk0;
+	TextEntry unk1;
 	java.lang.String unk2;
 	java.lang.String unk3;
 	Object unk4;
@@ -19,8 +19,8 @@ public class _153
 	{
 		ClassUtils.assertType(obj, 153);
 
-		unk0 = ClassUtils.getFieldMember(ID.class,obj, 0);
-		unk1 = ClassUtils.getFieldMember(ID.class,obj, 1);
+		unk0 = ClassUtils.getFieldMember(TextEntry.class,obj, 0);
+		unk1 = ClassUtils.getFieldMember(TextEntry.class,obj, 1);
 		unk2 = ClassUtils.getFieldMember(java.lang.String.class,obj, 2);
 		unk3 = ClassUtils.getFieldMember(java.lang.String.class,obj, 3);
 		unk4 = ClassUtils.getFieldMember(Object.class,obj, 4);

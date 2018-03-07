@@ -9,13 +9,13 @@ public class _7712
 {
 	public _7712(){}
 	Object unk0;
-	ID unk1;
+	TextEntry unk1;
 
 	public void parse(CObject obj)
 	{
 		ClassUtils.assertType(obj, 7712);
 
 		unk0 = ClassUtils.getFieldMember(Object.class,obj, 0);
-		unk1 = ClassUtils.getFieldMember(ID.class,obj, 1);
+		unk1 = ClassUtils.getFieldMember(TextEntry.class,obj, 1);
 	}
 }

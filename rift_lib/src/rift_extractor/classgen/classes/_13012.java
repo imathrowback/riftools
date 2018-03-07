@@ -15,8 +15,8 @@ public class _13012
 	java.util.List<java.lang.Long> unk3;
 	java.lang.Long unk4;
 	java.lang.Long unk5;
-	ID unk6;
-	ID unk7;
+	TextEntry unk6;
+	TextEntry unk7;
 	java.lang.Long unk8;
 
 	public void parse(CObject obj)
@@ -29,8 +29,8 @@ public class _13012
 		unk3 = ClassUtils.list(java.lang.Long.class,obj,3);
 		unk4 = ClassUtils.getFieldMember(java.lang.Long.class,obj, 4);
 		unk5 = ClassUtils.getFieldMember(java.lang.Long.class,obj, 5);
-		unk6 = ClassUtils.getFieldMember(ID.class,obj, 6);
-		unk7 = ClassUtils.getFieldMember(ID.class,obj, 7);
+		unk6 = ClassUtils.getFieldMember(TextEntry.class,obj, 6);
+		unk7 = ClassUtils.getFieldMember(TextEntry.class,obj, 7);
 		unk8 = ClassUtils.getFieldMember(java.lang.Long.class,obj, 8);
 	}
 }

@@ -11,7 +11,7 @@ public class _774
 	@com.thoughtworks.xstream.annotations.XStreamAsAttribute
 	java.lang.Long unk0;
 	java.util.List<_3507> unk1;
-	ID unk2;
+	TextEntry unk2;
 
 	public void parse(CObject obj)
 	{
@@ -19,6 +19,6 @@ public class _774
 
 		unk0 = ClassUtils.getFieldMember(java.lang.Long.class,obj, 0);
 		unk1 = ClassUtils.list(_3507.class,obj,1);
-		unk2 = ClassUtils.getFieldMember(ID.class,obj, 2);
+		unk2 = ClassUtils.getFieldMember(TextEntry.class,obj, 2);
 	}
 }

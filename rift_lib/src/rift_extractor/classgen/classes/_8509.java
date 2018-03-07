@@ -24,7 +24,7 @@ public class _8509
 	java.lang.Boolean unk13;
 	java.lang.Boolean unk14;
 	java.lang.Boolean unk15;
-	ID unk16;
+	TextEntry unk16;
 	Object unk17;
 	Object unk18;
 	java.lang.Float unk19;
@@ -75,7 +75,7 @@ public class _8509
 		unk13 = ClassUtils.getFieldMember(java.lang.Boolean.class,obj, 13);
 		unk14 = ClassUtils.getFieldMember(java.lang.Boolean.class,obj, 14);
 		unk15 = ClassUtils.getFieldMember(java.lang.Boolean.class,obj, 15);
-		unk16 = ClassUtils.getFieldMember(ID.class,obj, 16);
+		unk16 = ClassUtils.getFieldMember(TextEntry.class,obj, 16);
 		unk17 = ClassUtils.getFieldMember(Object.class,obj, 17);
 		unk18 = ClassUtils.getFieldMember(Object.class,obj, 18);
 		unk19 = ClassUtils.getFieldMember(java.lang.Float.class,obj, 19);

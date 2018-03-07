@@ -12,7 +12,7 @@ public class _288
 	java.lang.String unk1;
 	java.lang.Long unk2;
 	java.lang.String unk3;
-	ID unk4;
+	TextEntry unk4;
 	java.lang.String unk5;
 
 	public void parse(CObject obj)
@@ -23,7 +23,7 @@ public class _288
 		unk1 = ClassUtils.getFieldMember(java.lang.String.class,obj, 1);
 		unk2 = ClassUtils.getFieldMember(java.lang.Long.class,obj, 2);
 		unk3 = ClassUtils.getFieldMember(java.lang.String.class,obj, 3);
-		unk4 = ClassUtils.getFieldMember(ID.class,obj, 4);
+		unk4 = ClassUtils.getFieldMember(TextEntry.class,obj, 4);
 		unk5 = ClassUtils.getFieldMember(java.lang.String.class,obj, 5);
 	}
 }

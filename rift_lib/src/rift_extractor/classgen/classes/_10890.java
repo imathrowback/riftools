@@ -9,7 +9,7 @@ public class _10890
 {
 	public _10890(){}
 	java.lang.String unk0;
-	ID unk1;
+	TextEntry unk1;
 	java.lang.Boolean unk2;
 	java.lang.String unk3;
 
@@ -18,7 +18,7 @@ public class _10890
 		ClassUtils.assertType(obj, 10890);
 
 		unk0 = ClassUtils.getFieldMember(java.lang.String.class,obj, 0);
-		unk1 = ClassUtils.getFieldMember(ID.class,obj, 1);
+		unk1 = ClassUtils.getFieldMember(TextEntry.class,obj, 1);
 		unk2 = ClassUtils.getFieldMember(java.lang.Boolean.class,obj, 2);
 		unk3 = ClassUtils.getFieldMember(java.lang.String.class,obj, 3);
 	}

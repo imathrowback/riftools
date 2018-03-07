@@ -13,11 +13,11 @@ public class _7622
 	java.lang.String unk1;
 	Object unk2;
 	java.lang.String unk3;
-	ID unk4;
-	ID unk5;
+	TextEntry unk4;
+	TextEntry unk5;
 	java.lang.String unk6;
-	ID unk7;
-	ID unk8;
+	TextEntry unk7;
+	TextEntry unk8;
 
 	public void parse(CObject obj)
 	{
@@ -27,10 +27,10 @@ public class _7622
 		unk1 = ClassUtils.getFieldMember(java.lang.String.class,obj, 1);
 		unk2 = ClassUtils.getFieldMember(Object.class,obj, 2);
 		unk3 = ClassUtils.getFieldMember(java.lang.String.class,obj, 3);
-		unk4 = ClassUtils.getFieldMember(ID.class,obj, 4);
-		unk5 = ClassUtils.getFieldMember(ID.class,obj, 5);
+		unk4 = ClassUtils.getFieldMember(TextEntry.class,obj, 4);
+		unk5 = ClassUtils.getFieldMember(TextEntry.class,obj, 5);
 		unk6 = ClassUtils.getFieldMember(java.lang.String.class,obj, 6);
-		unk7 = ClassUtils.getFieldMember(ID.class,obj, 7);
-		unk8 = ClassUtils.getFieldMember(ID.class,obj, 8);
+		unk7 = ClassUtils.getFieldMember(TextEntry.class,obj, 7);
+		unk8 = ClassUtils.getFieldMember(TextEntry.class,obj, 8);
 	}
 }

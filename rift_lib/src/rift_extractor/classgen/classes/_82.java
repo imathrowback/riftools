@@ -25,7 +25,7 @@ public class _82
 	java.util.List<_1706> unk14;
 	Object unk15;
 	java.lang.Boolean unk16;
-	ID unk17;
+	TextEntry unk17;
 	java.util.List<_1746> unk18;
 	Object unk19;
 	java.util.List<java.lang.Long> unk20;
@@ -59,7 +59,7 @@ public class _82
 		unk14 = ClassUtils.list(_1706.class,obj,14);
 		unk15 = ClassUtils.getFieldMember(Object.class,obj, 15);
 		unk16 = ClassUtils.getFieldMember(java.lang.Boolean.class,obj, 16);
-		unk17 = ClassUtils.getFieldMember(ID.class,obj, 17);
+		unk17 = ClassUtils.getFieldMember(TextEntry.class,obj, 17);
 		unk18 = ClassUtils.list(_1746.class,obj,18);
 		unk19 = ClassUtils.getFieldMember(Object.class,obj, 19);
 		unk20 = ClassUtils.list(java.lang.Long.class,obj,20);

@@ -9,7 +9,7 @@ public class _4044
 {
 	public _4044(){}
 	Object unk0;
-	ID unk1;
+	TextEntry unk1;
 	java.lang.Long unk2;
 	Object unk3;
 	java.lang.Long unk4;
@@ -25,7 +25,7 @@ public class _4044
 		ClassUtils.assertType(obj, 4044);
 
 		unk0 = ClassUtils.getFieldMember(Object.class,obj, 0);
-		unk1 = ClassUtils.getFieldMember(ID.class,obj, 1);
+		unk1 = ClassUtils.getFieldMember(TextEntry.class,obj, 1);
 		unk2 = ClassUtils.getFieldMember(java.lang.Long.class,obj, 2);
 		unk3 = ClassUtils.getFieldMember(Object.class,obj, 3);
 		unk4 = ClassUtils.getFieldMember(java.lang.Long.class,obj, 4);

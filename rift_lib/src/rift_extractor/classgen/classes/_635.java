@@ -11,8 +11,8 @@ public class _635
 	Object unk0;
 	java.lang.Long unk1;
 	Object unk2;
-	ID unk3;
-	ID unk4;
+	TextEntry unk3;
+	TextEntry unk4;
 	java.util.List<_3616> unk5;
 	java.lang.Float unk6;
 	java.lang.Long unk7;
@@ -27,8 +27,8 @@ public class _635
 		unk0 = ClassUtils.getFieldMember(Object.class,obj, 0);
 		unk1 = ClassUtils.getFieldMember(java.lang.Long.class,obj, 1);
 		unk2 = ClassUtils.getFieldMember(Object.class,obj, 2);
-		unk3 = ClassUtils.getFieldMember(ID.class,obj, 3);
-		unk4 = ClassUtils.getFieldMember(ID.class,obj, 4);
+		unk3 = ClassUtils.getFieldMember(TextEntry.class,obj, 3);
+		unk4 = ClassUtils.getFieldMember(TextEntry.class,obj, 4);
 		unk5 = ClassUtils.list(_3616.class,obj,5);
 		unk6 = ClassUtils.getFieldMember(java.lang.Float.class,obj, 6);
 		unk7 = ClassUtils.getFieldMember(java.lang.Long.class,obj, 7);

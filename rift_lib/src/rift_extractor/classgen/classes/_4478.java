@@ -12,18 +12,18 @@ public class _4478
 	}
 
 	public java.lang.String unk0;
-	java.lang.String unk1;
-	rift_extractor.classgen.Vector3 unk2;
-	java.lang.Float unk3;
-	Object unk4;
-	java.lang.String unk5;
-	Object unk6;
-	java.lang.String unk7;
-	java.lang.Long unk8;
-	java.lang.Long unk9;
-	ID unk10;
-	java.lang.Long unk11;
-	java.lang.Long unk12;
+	public java.lang.String unk1;
+	public rift_extractor.classgen.Vector3 unk2;
+	public java.lang.Float unk3;
+	public Object unk4;
+	public java.lang.String unk5;
+	public Object unk6;
+	public java.lang.String unk7;
+	public java.lang.Long unk8;
+	public java.lang.Long unk9;
+	public TextEntry unk10;
+	public java.lang.Long unk11;
+	public java.lang.Long unk12;
 
 	public void parse(final CObject obj)
 	{
@@ -39,7 +39,7 @@ public class _4478
 		unk7 = ClassUtils.getFieldMember(java.lang.String.class, obj, 7);
 		unk8 = ClassUtils.getFieldMember(java.lang.Long.class, obj, 8);
 		unk9 = ClassUtils.getFieldMember(java.lang.Long.class, obj, 9);
-		unk10 = ClassUtils.getFieldMember(ID.class, obj, 10);
+		unk10 = ClassUtils.getFieldMember(TextEntry.class, obj, 10);
 		unk11 = ClassUtils.getFieldMember(java.lang.Long.class, obj, 11);
 		unk12 = ClassUtils.getFieldMember(java.lang.Long.class, obj, 12);
 	}

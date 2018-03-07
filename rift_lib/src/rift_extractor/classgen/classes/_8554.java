@@ -11,7 +11,7 @@ public class _8554
 	Object unk0;
 	java.util.List<java.lang.Long> unk1;
 	java.lang.Boolean unk2;
-	ID unk3;
+	TextEntry unk3;
 	java.lang.Float unk4;
 	java.lang.Long unk5;
 	java.lang.Long unk6;
@@ -26,7 +26,7 @@ public class _8554
 		unk0 = ClassUtils.getFieldMember(Object.class,obj, 0);
 		unk1 = ClassUtils.list(java.lang.Long.class,obj,1);
 		unk2 = ClassUtils.getFieldMember(java.lang.Boolean.class,obj, 2);
-		unk3 = ClassUtils.getFieldMember(ID.class,obj, 3);
+		unk3 = ClassUtils.getFieldMember(TextEntry.class,obj, 3);
 		unk4 = ClassUtils.getFieldMember(java.lang.Float.class,obj, 4);
 		unk5 = ClassUtils.getFieldMember(java.lang.Long.class,obj, 5);
 		unk6 = ClassUtils.getFieldMember(java.lang.Long.class,obj, 6);

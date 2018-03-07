@@ -21,10 +21,10 @@ public class _4308
 	Object unk10;
 	Object unk11;
 	Object unk12;
-	public ID unk13;
-	public ID unk14;
-	public ID unk15;
-	public ID unk16;
+	public TextEntry unk13;
+	public TextEntry unk14;
+	public TextEntry unk15;
+	public TextEntry unk16;
 	Object unk17;
 	Object unk18;
 	public java.lang.Long unk19;
@@ -38,20 +38,20 @@ public class _4308
 	Object unk27;
 	Object unk28;
 	Object unk29;
-	public ID unk30;
-	public ID unk31;
+	public TextEntry unk30;
+	public TextEntry unk31;
 	Object unk32;
 	Object unk33;
-	public ID unk34;
+	public TextEntry unk34;
 	public java.lang.Float unk35;
 	public java.lang.Float unk36;
 	public java.lang.Long unk37;
 	Object unk38;
-	public ID unk39;
+	public TextEntry unk39;
 	public java.lang.Float unk40;
 	Object unk41;
-	public ID unk42;
-	public ID unk43;
+	public TextEntry unk42;
+	public TextEntry unk43;
 
 	public void parse(CObject obj)
 	{
@@ -70,10 +70,10 @@ public class _4308
 		unk10 = ClassUtils.getFieldMember(Object.class,obj, 10);
 		unk11 = ClassUtils.getFieldMember(Object.class,obj, 11);
 		unk12 = ClassUtils.getFieldMember(Object.class,obj, 12);
-		unk13 = ClassUtils.getFieldMember(ID.class,obj, 13);
-		unk14 = ClassUtils.getFieldMember(ID.class,obj, 14);
-		unk15 = ClassUtils.getFieldMember(ID.class,obj, 15);
-		unk16 = ClassUtils.getFieldMember(ID.class,obj, 16);
+		unk13 = ClassUtils.getFieldMember(TextEntry.class,obj, 13);
+		unk14 = ClassUtils.getFieldMember(TextEntry.class,obj, 14);
+		unk15 = ClassUtils.getFieldMember(TextEntry.class,obj, 15);
+		unk16 = ClassUtils.getFieldMember(TextEntry.class,obj, 16);
 		unk17 = ClassUtils.getFieldMember(Object.class,obj, 17);
 		unk18 = ClassUtils.getFieldMember(Object.class,obj, 18);
 		unk19 = ClassUtils.getFieldMember(java.lang.Long.class,obj, 19);
@@ -87,19 +87,19 @@ public class _4308
 		unk27 = ClassUtils.getFieldMember(Object.class,obj, 27);
 		unk28 = ClassUtils.getFieldMember(Object.class,obj, 28);
 		unk29 = ClassUtils.getFieldMember(Object.class,obj, 29);
-		unk30 = ClassUtils.getFieldMember(ID.class,obj, 30);
-		unk31 = ClassUtils.getFieldMember(ID.class,obj, 31);
+		unk30 = ClassUtils.getFieldMember(TextEntry.class,obj, 30);
+		unk31 = ClassUtils.getFieldMember(TextEntry.class,obj, 31);
 		unk32 = ClassUtils.getFieldMember(Object.class,obj, 32);
 		unk33 = ClassUtils.getFieldMember(Object.class,obj, 33);
-		unk34 = ClassUtils.getFieldMember(ID.class,obj, 34);
+		unk34 = ClassUtils.getFieldMember(TextEntry.class,obj, 34);
 		unk35 = ClassUtils.getFieldMember(java.lang.Float.class,obj, 35);
 		unk36 = ClassUtils.getFieldMember(java.lang.Float.class,obj, 36);
 		unk37 = ClassUtils.getFieldMember(java.lang.Long.class,obj, 37);
 		unk38 = ClassUtils.getFieldMember(Object.class,obj, 38);
-		unk39 = ClassUtils.getFieldMember(ID.class,obj, 39);
+		unk39 = ClassUtils.getFieldMember(TextEntry.class,obj, 39);
 		unk40 = ClassUtils.getFieldMember(java.lang.Float.class,obj, 40);
 		unk41 = ClassUtils.getFieldMember(Object.class,obj, 41);
-		unk42 = ClassUtils.getFieldMember(ID.class,obj, 42);
-		unk43 = ClassUtils.getFieldMember(ID.class,obj, 43);
+		unk42 = ClassUtils.getFieldMember(TextEntry.class,obj, 42);
+		unk43 = ClassUtils.getFieldMember(TextEntry.class,obj, 43);
 	}
 }

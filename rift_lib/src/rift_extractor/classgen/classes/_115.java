@@ -8,7 +8,7 @@ import rift_extractor.classgen.ClassUtils;
 public class _115 
 {
 	public _115(){}
-	public ID unk0;
+	public TextEntry unk0;
 	public java.lang.String unk1;
 	Object unk2;
 	public _10003 unk3;
@@ -23,7 +23,7 @@ public class _115
 	public java.util.List<_305> unk12;
 	public java.lang.Boolean unk13;
 	public java.util.List<_304> unk14;
-	public ID unk15;
+	public TextEntry unk15;
 	public java.lang.Long unk16;
 	public java.lang.String unk17;
 	Object unk18;
@@ -31,7 +31,7 @@ public class _115
 	public java.lang.String unk20;
 	Object unk21;
 	Object unk22;
-	public java.util.List<ID> unk23;
+	public java.util.List<TextEntry> unk23;
 	public java.lang.Boolean unk24;
 	public java.lang.Long unk25;
 	public java.lang.Boolean unk26;
@@ -50,7 +50,7 @@ public class _115
 	public java.lang.Long unk39;
 	public java.lang.Long unk40;
 	public java.lang.Long unk41;
-	public ID unk42;
+	public TextEntry unk42;
 	public java.lang.Long unk43;
 	public java.lang.Long unk44;
 	public java.lang.Long unk45;
@@ -59,7 +59,7 @@ public class _115
 	{
 		ClassUtils.assertType(obj, 115);
 
-		unk0 = ClassUtils.getFieldMember(ID.class,obj, 0);
+		unk0 = ClassUtils.getFieldMember(TextEntry.class,obj, 0);
 		unk1 = ClassUtils.getFieldMember(java.lang.String.class,obj, 1);
 		unk2 = ClassUtils.getFieldMember(Object.class,obj, 2);
 		unk3 = ClassUtils.getFieldMember(_10003.class,obj, 3);
@@ -74,7 +74,7 @@ public class _115
 		unk12 = ClassUtils.list(_305.class,obj,12);
 		unk13 = ClassUtils.getFieldMember(java.lang.Boolean.class,obj, 13);
 		unk14 = ClassUtils.list(_304.class,obj,14);
-		unk15 = ClassUtils.getFieldMember(ID.class,obj, 15);
+		unk15 = ClassUtils.getFieldMember(TextEntry.class,obj, 15);
 		unk16 = ClassUtils.getFieldMember(java.lang.Long.class,obj, 16);
 		unk17 = ClassUtils.getFieldMember(java.lang.String.class,obj, 17);
 		unk18 = ClassUtils.getFieldMember(Object.class,obj, 18);
@@ -82,7 +82,7 @@ public class _115
 		unk20 = ClassUtils.getFieldMember(java.lang.String.class,obj, 20);
 		unk21 = ClassUtils.getFieldMember(Object.class,obj, 21);
 		unk22 = ClassUtils.getFieldMember(Object.class,obj, 22);
-		unk23 = ClassUtils.list(ID.class,obj,23);
+		unk23 = ClassUtils.list(TextEntry.class,obj,23);
 		unk24 = ClassUtils.getFieldMember(java.lang.Boolean.class,obj, 24);
 		unk25 = ClassUtils.getFieldMember(java.lang.Long.class,obj, 25);
 		unk26 = ClassUtils.getFieldMember(java.lang.Boolean.class,obj, 26);
@@ -101,7 +101,7 @@ public class _115
 		unk39 = ClassUtils.getFieldMember(java.lang.Long.class,obj, 39);
 		unk40 = ClassUtils.getFieldMember(java.lang.Long.class,obj, 40);
 		unk41 = ClassUtils.getFieldMember(java.lang.Long.class,obj, 41);
-		unk42 = ClassUtils.getFieldMember(ID.class,obj, 42);
+		unk42 = ClassUtils.getFieldMember(TextEntry.class,obj, 42);
 		unk43 = ClassUtils.getFieldMember(java.lang.Long.class,obj, 43);
 		unk44 = ClassUtils.getFieldMember(java.lang.Long.class,obj, 44);
 		unk45 = ClassUtils.getFieldMember(java.lang.Long.class,obj, 45);

@@ -73,8 +73,10 @@ public class DatParser
 	public static BitResult readCodeAndExtract(final LittleEndianDataInputStream dis, final int indent) throws Exception
 	{
 		int byteX = Leb128.readUnsignedLeb128_X(dis).get();
+
 		log("byteX:" + byteX, indent);
 		BitResult result = splitCode(byteX);
+		result.b = byteX;
 		String s = ("READ bytes[" + byteX + "][" + toLeb128(byteX) + "] -> " +
 				result);
 		//log(s, indent);
@@ -348,6 +350,7 @@ public class DatParser
 			}
 			case 8:
 				log("handleCode:" + datacode + ", end of object", indent);
+
 				// END OF OBJECT
 				return false;
 			default:
@@ -387,16 +390,20 @@ public class DatParser
 
 		CObject root = new CObject(code1, null, code1, null);
 		root.type = code1;
-		if (code1 == 8)
-			return root;
 		boolean r;
 		int i = 0;
 		do
 		{
 			BitResult result = DatParser.readCodeAndExtract(dis, 0);
-			if (result == null)
+			/** handle special case enum */
+			if (result == null && code1 == 8 && i == 0)
+			{
+				if (result == null)
+					result = new BitResult(0, 0);
+			} else if (result == null)
 				throw new IllegalStateException("Unable to process result, class code:" + code1);
 			DatParser.log("do member " + (++i) + ": with code:" + result, 0);
+
 			r = DatParser.handleCode(root, dis, result.code, result.data, 1);
 		} while (r);
 

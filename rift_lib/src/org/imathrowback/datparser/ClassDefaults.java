@@ -18,6 +18,8 @@ public class ClassDefaults
 			{
 				switch (parentType)
 				{
+					case 893:
+					case 10885:
 					case 4086:
 					case 4235:
 					case 13154:

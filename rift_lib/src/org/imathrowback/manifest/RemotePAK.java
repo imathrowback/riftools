@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
-
+import java.util.stream.Collectors;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.net.io.CopyStreamEvent;
 import org.apache.commons.net.io.CopyStreamException;
@@ -17,15 +17,19 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.imathrowback.Task;
+import org.imathrowback.TaskProgressEvent;
 import org.tukaani.xz.LZMA2InputStream;
 
 import com.google.common.io.Files;
 import com.google.common.io.LittleEndianDataInputStream;
+import com.thoughtworks.xstream.XStream;
 
 import rift_extractor.assets.Manifest;
 import rift_extractor.assets.ManifestEntry;
 import rift_extractor.assets.PAKFile;
 import rift_extractor.assets.PAKHeader;
+import rift_extractor.util.Util;
 import rift_extractor.assets.ManifestPAKFileEntry;
 
 public class RemotePAK
@@ -72,8 +76,26 @@ public class RemotePAK
 		}
 	}
 
+	private static Map<ReleaseType, Map<Integer, PatchInfo>> patchCache = new TreeMap<>();
+	static File patchCacheFile = new File("patch.cache");
+	static boolean useCache = false;
+
 	public static Map<Integer, PatchInfo> getPatches(final ReleaseType type) throws IOException
 	{
+		if (useCache)
+		{
+		if (patchCache.isEmpty())
+		{
+			if (patchCacheFile.exists())
+			{
+				XStream xstr = new XStream();
+				patchCache = (Map<ReleaseType, Map<Integer, PatchInfo>>) xstr.fromXML(patchCacheFile);
+			}
+		}
+
+		if (patchCache.containsKey(type))
+			return patchCache.get(type);
+		}
 		//PatchInfo currentInfo = getCurrentPatch(type);
 		Map<Integer, TreeSet<PatchInfo>> patches = new TreeMap<>();
 
@@ -131,6 +153,16 @@ public class RemotePAK
 				currentPatches.put(i, p.last());
 			}
 		}
+		if (useCache)
+		{
+		patchCache.put(type, currentPatches);
+		XStream xstr = new XStream();
+		try (FileWriter fw = new FileWriter(patchCacheFile))
+		{
+			xstr.toXML(patchCache, fw);
+		}
+		}
+
 		return currentPatches;
 	}
 
@@ -154,7 +186,19 @@ public class RemotePAK
 		return new PatchInfo[] { sortedPatches.lower(sortedPatches.last()), sortedPatches.last() };
 	}
 
+	public static PatchInfo[] getCurrentPatches(final TreeSet<PatchInfo> sortedPatches)
+	{
+		return new PatchInfo[] { sortedPatches.lower(sortedPatches.last()), sortedPatches.last() };
+	}
+
 	public static byte[] downloadManifest(final ReleaseType type, final PatchInfo patchInfo, final File cache)
+			throws IOException
+	{
+		return downloadManifest(type, patchInfo, cache, null);
+	}
+
+	public static byte[] downloadManifest(final ReleaseType type, final PatchInfo patchInfo, final File cache,
+			final Task task)
 			throws IOException
 	{
 
@@ -190,7 +234,7 @@ public class RemotePAK
 				{
 
 					ByteArrayOutputStream bos = new ByteArrayOutputStream();
-					copyWithProgress(httpEntity.getContentLength(), httpInputStream, bos);
+					copyWithProgress(httpEntity.getContentLength(), httpInputStream, bos, task);
 					System.out.println("done...");
 					if (cache != null)
 						Files.write(bos.toByteArray(), cache);
@@ -260,7 +304,8 @@ public class RemotePAK
 		extract(releaseType, manifest, entry, outputName, currentPatch.index);
 	}
 
-	public static void downloadLatest(final ReleaseType releaseType, final String filename, final String outputName)
+	public static void downloadLatest(final ReleaseType releaseType, final String filename, final String outputName,
+			final int lang)
 			throws IOException
 	{
 		PatchInfo currentPatch = getCurrentPatch(releaseType);
@@ -270,11 +315,17 @@ public class RemotePAK
 
 		Manifest manifest = new Manifest(new ByteArrayInputStream(data), true);
 
-		ManifestEntry entry = manifest.getEnglishEntry(filename);
-		if (entry == null)
-			throw new IllegalArgumentException("Unable to find manifest entry for '" + filename + "'");
-		extract(releaseType, manifest, entry, outputName, currentPatch.index);
-
+		List<ManifestEntry> entries = manifest.getEntriesForNameHash(Util.hashFileName(filename))
+				.collect(Collectors.toList());
+		for (ManifestEntry e : entries)
+		{
+			if ((e.lang == 0 || e.lang == lang) || lang == -1)
+			{
+				extract(releaseType, manifest, e, outputName, currentPatch.index);
+				return;
+			}
+		}
+		throw new IllegalArgumentException("Unable to find manifest entry for '" + filename + "'");
 	}
 
 	/**
@@ -313,11 +364,18 @@ public class RemotePAK
 			final int pindex)
 			throws IOException
 	{
+		extract(type, manifest, e, filename, pindex, null);
+	}
+
+	public static void extract(final ReleaseType type, final Manifest manifest, final ManifestEntry e,
+			final String filename,
+			final int pindex, final Task task)
+			throws IOException
+	{
 
 		int pakIndex = e.pakIndex;
 		ManifestPAKFileEntry pakFile = manifest.getPAK(pakIndex);
 
-		//System.out.println(pakFile);
 		String url = getBaseUrl(type) + "/" + getContentUrl(type) + pindex + "/"
 				+ pakFile.name;
 
@@ -329,11 +387,6 @@ public class RemotePAK
 			System.out.println("Unable to download, pak offset is invalid");
 			return;
 		}
-		//System.out.println(e);
-		//System.out
-		//		.println(url + " - range:" + startBytes + "-" + endBytes + "(" + e.size + "x" + e.compressedSize + ")-"
-		//				+ pakFile.compressionType);
-
 		try (CloseableHttpClient client = HttpClients.createDefault())
 		{
 			HttpGet get = new HttpGet(url);
@@ -345,7 +398,7 @@ public class RemotePAK
 
 				try (InputStream httpInputStream = httpEntity.getContent())
 				{
-					copyWithProgress(e.compressedSize, httpInputStream, bos);
+					copyWithProgress(e.compressedSize, httpInputStream, bos, task);
 				}
 				if (response.getStatusLine().getStatusCode() == 416)
 				{
@@ -353,14 +406,6 @@ public class RemotePAK
 							"\t\t ERROR - Unable to get the bytes we expected. The remote PAK files may not be up to date?");
 					return;
 				}
-				//System.out.println("\t\t" + response.getStatusLine());
-				/*
-				System.out.println("got " + bos.toByteArray().length + " data from stream");
-
-				for (Header h : response.getAllHeaders())
-					System.out.println("\t" + h.getName() + ":" + h.getValue());
-					*/
-
 				try (InputStream fis = new ByteArrayInputStream(bos.toByteArray()))
 				{
 					try (FileOutputStream fos = new FileOutputStream(filename))
@@ -384,17 +429,20 @@ public class RemotePAK
 								+ new File(filename).length() + ", compressed size:" + e.compressedSize
 								+ ", http status was: "
 								+ response.getStatusLine().getStatusCode() + ", bytes retrieved were:" + bos.size());
-						//Files.write(bos.toByteArray(), new File(filename + ".fail"));
 					}
-					//else
-					//	System.out.println("\t\t Size of new file:" + new File(filename).length());
 				}
-
 			}
 		}
 	}
 
 	public static void copyWithProgress(final long totalCount, final InputStream is, final OutputStream os)
+			throws CopyStreamException
+	{
+		copyWithProgress(totalCount, is, os, null);
+	}
+
+	public static void copyWithProgress(final long totalCount, final InputStream is, final OutputStream os,
+			final Task task)
 			throws CopyStreamException
 	{
 
@@ -406,13 +454,19 @@ public class RemotePAK
 					final long streamSize)
 			{
 				int per = (int) (((float) totalBytesTransferred / (float) streamSize) * 100.0f);
-				if (lastP != per)
+				if (task == null)
 				{
-					if ((per % 25) == 0)
-						System.out.print(per + "%");
-					else if ((per % 5) == 0)
-						System.out.print(".");
-					lastP = per;
+					if (lastP != per)
+					{
+						if ((per % 25) == 0)
+							System.out.print(per + "%");
+						else if ((per % 5) == 0)
+							System.out.print(".");
+						lastP = per;
+					}
+				} else
+				{
+					task.getBus().post(new TaskProgressEvent(task, per, 100));
 				}
 			}
 

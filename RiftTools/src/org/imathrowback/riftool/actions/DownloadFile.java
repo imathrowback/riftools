@@ -27,7 +27,7 @@ public class DownloadFile extends RiftAction
 	{
 		try
 		{
-			RemotePAK.downloadLatest(releaseType, filenameOrHash.toString(), filenameOutput.toString());
+			RemotePAK.downloadLatest(releaseType, filenameOrHash.toString(), filenameOutput.toString(), -1);
 			System.out.println("Downloaded file [" + filenameOrHash + " ] to [" + filenameOutput + "]");
 		} catch (Exception ex)
 		{

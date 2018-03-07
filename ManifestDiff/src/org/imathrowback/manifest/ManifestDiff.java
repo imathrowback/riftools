@@ -478,7 +478,7 @@ public class ManifestDiff
 			return "";
 	}
 
-	private static List<ManifestEntry> findEntrysWithName(final ManifestEntry entry, final Manifest manifest)
+	public static List<ManifestEntry> findEntrysWithName(final ManifestEntry entry, final Manifest manifest)
 	{
 		Map<String, List<ManifestEntry>> filenameMap = manifest.fileNameHashesIDMap;
 		if (!filenameMap.containsKey(entry.filenameHashStr))

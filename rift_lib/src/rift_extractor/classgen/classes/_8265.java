@@ -22,7 +22,7 @@ public class _8265
 	java.lang.Boolean unk11;
 	Object unk12;
 	java.lang.Boolean unk13;
-	ID unk14;
+	TextEntry unk14;
 	java.util.HashMap<java.lang.Long,_303> unk15;
 	java.util.HashMap<java.lang.Long,_303> unk16;
 	java.lang.Boolean unk17;
@@ -45,7 +45,7 @@ public class _8265
 		unk11 = ClassUtils.getFieldMember(java.lang.Boolean.class,obj, 11);
 		unk12 = ClassUtils.getFieldMember(Object.class,obj, 12);
 		unk13 = ClassUtils.getFieldMember(java.lang.Boolean.class,obj, 13);
-		unk14 = ClassUtils.getFieldMember(ID.class,obj, 14);
+		unk14 = ClassUtils.getFieldMember(TextEntry.class,obj, 14);
 		unk15 = ClassUtils.getFieldMember(java.util.HashMap.class,obj, 15);
 		unk16 = ClassUtils.getFieldMember(java.util.HashMap.class,obj, 16);
 		unk17 = ClassUtils.getFieldMember(java.lang.Boolean.class,obj, 17);

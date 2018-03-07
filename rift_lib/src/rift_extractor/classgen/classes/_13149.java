@@ -12,8 +12,8 @@ public class _13149
 	Object unk1;
 	Object unk2;
 	java.lang.Boolean unk3;
-	ID unk4;
-	ID unk5;
+	TextEntry unk4;
+	TextEntry unk5;
 	Object unk6;
 	java.lang.String unk7;
 	Object unk8;
@@ -35,8 +35,8 @@ public class _13149
 		unk1 = ClassUtils.getFieldMember(Object.class,obj, 1);
 		unk2 = ClassUtils.getFieldMember(Object.class,obj, 2);
 		unk3 = ClassUtils.getFieldMember(java.lang.Boolean.class,obj, 3);
-		unk4 = ClassUtils.getFieldMember(ID.class,obj, 4);
-		unk5 = ClassUtils.getFieldMember(ID.class,obj, 5);
+		unk4 = ClassUtils.getFieldMember(TextEntry.class,obj, 4);
+		unk5 = ClassUtils.getFieldMember(TextEntry.class,obj, 5);
 		unk6 = ClassUtils.getFieldMember(Object.class,obj, 6);
 		unk7 = ClassUtils.getFieldMember(java.lang.String.class,obj, 7);
 		unk8 = ClassUtils.getFieldMember(Object.class,obj, 8);

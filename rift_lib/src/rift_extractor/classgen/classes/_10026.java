@@ -9,7 +9,7 @@ public class _10026
 {
 	public _10026(){}
 	java.lang.String unk0;
-	ID unk1;
+	TextEntry unk1;
 	java.util.HashMap<java.lang.Long,_10027> unk2;
 	Object unk3;
 	java.lang.Boolean unk4;
@@ -21,7 +21,7 @@ public class _10026
 		ClassUtils.assertType(obj, 10026);
 
 		unk0 = ClassUtils.getFieldMember(java.lang.String.class,obj, 0);
-		unk1 = ClassUtils.getFieldMember(ID.class,obj, 1);
+		unk1 = ClassUtils.getFieldMember(TextEntry.class,obj, 1);
 		unk2 = ClassUtils.getFieldMember(java.util.HashMap.class,obj, 2);
 		unk3 = ClassUtils.getFieldMember(Object.class,obj, 3);
 		unk4 = ClassUtils.getFieldMember(java.lang.Boolean.class,obj, 4);

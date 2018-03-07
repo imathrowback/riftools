@@ -151,8 +151,30 @@ public class CObject
 		}
 	}
 
+	public Integer getInt(final int i, final int def)
+	{
+		try
+		{
+			return Integer.parseInt(getString(i));
+		} catch (Exception ex)
+		{
+			return def;
+		}
+	}
+
 	public boolean hasMember(final int i)
 	{
 		return getAtIndex(i) != null;
+	}
+
+	public boolean getBoolean(final int i, final boolean def)
+	{
+		try
+		{
+			return Boolean.parseBoolean(getString(i));
+		} catch (Exception ex)
+		{
+			return def;
+		}
 	}
 }

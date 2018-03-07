@@ -15,7 +15,7 @@ public class _1866
 	public java.lang.Long unk4;
 	Object unk5;
 	Object unk6;
-	public ID unk7;
+	public TextEntry unk7;
 
 	public void parse(CObject obj)
 	{
@@ -28,6 +28,6 @@ public class _1866
 		unk4 = ClassUtils.getFieldMember(java.lang.Long.class,obj, 4);
 		unk5 = ClassUtils.getFieldMember(Object.class,obj, 5);
 		unk6 = ClassUtils.getFieldMember(Object.class,obj, 6);
-		unk7 = ClassUtils.getFieldMember(ID.class,obj, 7);
+		unk7 = ClassUtils.getFieldMember(TextEntry.class,obj, 7);
 	}
 }

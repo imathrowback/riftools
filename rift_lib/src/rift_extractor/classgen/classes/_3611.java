@@ -9,7 +9,7 @@ public class _3611
 {
 	public _3611(){}
 	java.lang.String unk0;
-	ID unk1;
+	TextEntry unk1;
 	java.lang.Boolean unk2;
 	java.util.List<_3507> unk3;
 	java.lang.Boolean unk4;
@@ -21,7 +21,7 @@ public class _3611
 		ClassUtils.assertType(obj, 3611);
 
 		unk0 = ClassUtils.getFieldMember(java.lang.String.class,obj, 0);
-		unk1 = ClassUtils.getFieldMember(ID.class,obj, 1);
+		unk1 = ClassUtils.getFieldMember(TextEntry.class,obj, 1);
 		unk2 = ClassUtils.getFieldMember(java.lang.Boolean.class,obj, 2);
 		unk3 = ClassUtils.list(_3507.class,obj,3);
 		unk4 = ClassUtils.getFieldMember(java.lang.Boolean.class,obj, 4);

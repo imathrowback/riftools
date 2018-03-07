@@ -5,9 +5,9 @@ import rift_extractor.classgen.ClassUtils;
 
 /** 7703 **/
 @com.thoughtworks.xstream.annotations.XStreamAlias("ID")
-public class ID 
+public class TextEntry 
 {
-	public ID(){}
+	public TextEntry(){}
 	public java.lang.Integer unk0;
 
 	public void parse(CObject obj)

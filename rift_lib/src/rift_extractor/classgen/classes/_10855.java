@@ -10,7 +10,7 @@ public class _10855
 	public _10855(){}
 	java.lang.String unk0;
 	Object unk1;
-	ID unk2;
+	TextEntry unk2;
 	Object unk3;
 	Object unk4;
 	java.lang.String unk5;
@@ -37,7 +37,7 @@ public class _10855
 
 		unk0 = ClassUtils.getFieldMember(java.lang.String.class,obj, 0);
 		unk1 = ClassUtils.getFieldMember(Object.class,obj, 1);
-		unk2 = ClassUtils.getFieldMember(ID.class,obj, 2);
+		unk2 = ClassUtils.getFieldMember(TextEntry.class,obj, 2);
 		unk3 = ClassUtils.getFieldMember(Object.class,obj, 3);
 		unk4 = ClassUtils.getFieldMember(Object.class,obj, 4);
 		unk5 = ClassUtils.getFieldMember(java.lang.String.class,obj, 5);

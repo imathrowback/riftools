@@ -176,6 +176,27 @@ public class Util
 
 	}
 
+	public static int hashFileNameIntFast(final String name)
+	{
+		return FNV1.hash32(getBytesFast(name));
+	}
+
+	public static int hashFileNameIntFaster(final byte[] name)
+	{
+		return FNV1.hash32(name);
+	}
+
+	private static byte[] getBytesFast(final String str)
+	{
+		final char buffer[] = new char[str.length()];
+		final int length = str.length();
+		str.getChars(0, length, buffer, 0);
+		final byte b[] = new byte[length];
+		for (int j = 0; j < length; j++)
+			b[j] = (byte) buffer[j];
+		return b;
+	}
+
 	/** Convert a sequence of bytes to a hex string */
 	public static String bytesToHexString(final byte[] in)
 	{

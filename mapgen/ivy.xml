@@ -29,8 +29,9 @@
 	<dependency org="commons-io" name="commons-io" rev="2.5"/>
   	<dependency org="org.tukaani" name="xz" rev="1.6"/>
 	<dependency org="args4j" name="args4j" rev="2.0.26"/>
+		<dependency org="com.thoughtworks.xstream" name="xstream" rev="1.4.9"/>
 	<!-- https://mvnrepository.com/artifact/commons-net/commons-net -->
 <dependency org="commons-net" name="commons-net" rev="3.6"/>
-	
+	<dependency org="org.xerial" name="sqlite-jdbc" rev="3.16.1"/>
 	</dependencies>
 </ivy-module>

@@ -17,6 +17,9 @@ public class ExtractDBStrings extends RiftAction
 	@Option(name = "-filename", usage = "The filename", required = true)
 	File filename;
 
+	@Option(name = "-outputfilename", usage = "The filename to write strings to", required = false)
+	File stringsTxt = new File("db_strings.txt");
+
 	public ExtractDBStrings()
 	{
 
@@ -25,7 +28,8 @@ public class ExtractDBStrings extends RiftAction
 	@Override
 	public void go()
 	{
-		String stringsTxt = "db_strings.txt";
+		if (stringsTxt == null)
+			stringsTxt = new File("db_strings.txt");
 		try
 		{
 			TelaraDB telaraDB = new TelaraDB(DriverManager.getConnection("jdbc:sqlite:" + filename.getPath()));
