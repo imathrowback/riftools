@@ -76,7 +76,7 @@ public class RiftTool extends RiftAction
 			case PRINTVERSIONS:
 				printVersions();
 				return;
-			case EXTRACTALL:
+			case EXTRACT:
 				ExtractAll eAll = new ExtractAll();
 				parse(eAll, args);
 				eAll.go();

@@ -40,7 +40,7 @@ public class ToTextMode
 			parser.parseArgument(argsList);
 
 			if (type == FileType.CDS)
-				ExtractCDS.CDStoText(file, outputfile);
+				ExtractCDS.CDStoText(file, outputfile, ":");
 			else
 				new ToTextDB(file, outputfile).go();
 		} catch (CmdLineException e)
