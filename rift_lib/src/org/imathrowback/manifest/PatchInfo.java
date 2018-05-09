@@ -10,10 +10,14 @@ public class PatchInfo implements Comparable<PatchInfo>
 	int index;
 	String version;
 	List<PatchManifestEntry> fileEntries = new LinkedList<>();
-	static Comparator<PatchInfo> c = Comparator.comparingLong(PatchInfo::revMajor)
+	static Comparator<PatchInfo> c = Comparator.comparingLong(PatchInfo::revCommit).thenComparing(PatchInfo::revPatch)
+			.thenComparingInt(PatchInfo::getIndex);
+
+	/*
+			Comparator.comparingLong(PatchInfo::revMajor)
 			.thenComparingLong(PatchInfo::revMinor).thenComparing(PatchInfo::revPatch)
 			.thenComparingLong(PatchInfo::revCommit);
-
+	*/
 	public PatchInfo(final int index, final String version, final List<String> lines)
 	{
 		this.index = index;

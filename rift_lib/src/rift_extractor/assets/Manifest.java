@@ -23,6 +23,7 @@ import rift_extractor.util.Util;
  */
 public class Manifest
 {
+	public UUID guid = UUID.randomUUID();
 	Map<String, String> fileNameHashIDMap = new TreeMap<>();
 	public Map<String, List<ManifestEntry>> fileNameHashesIDMap = new TreeMap<>();
 	Map<String, Set<String>> idToNameNameHashMap = new TreeMap<>();
@@ -315,7 +316,11 @@ public class Manifest
 
 	public ManifestEntry getEnglishEntry(final String filename)
 	{
-		String hash = Util.hashFileName(filename);
+		return getEnglishEntryForNameHash(Util.hashFileName(filename));
+	}
+
+	public ManifestEntry getEnglishEntryForNameHash(final String hash)
+	{
 		for (ManifestEntry e : manifestEntries)
 		{
 			if (e.filenameHashStr.equals(hash))
@@ -324,6 +329,9 @@ public class Manifest
 					return e;
 			}
 		}
+
+		// if we got here, we don't have an "english" entry
+
 		return null;
 	}
 

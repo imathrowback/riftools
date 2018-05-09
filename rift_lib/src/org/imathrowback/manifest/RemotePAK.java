@@ -36,8 +36,10 @@ public class RemotePAK
 {
 
 	/** TODO, get these from the GlyphLibrary.xml file */
-	static String BASE_URL[] = { "http://rift-update.dyn.triongames.com/ch1-live-streaming-client-patch",
-			"http://update2.triongames.com/ch1-live-streaming-client-patch" };
+	static String BASE_URL[] = {
+			"http://rift-update.dyn.triongames.com/ch1-live-streaming-client-patch",
+			"http://update2.triongames.com/ch1-live-streaming-client-patch",
+	};
 	static String VERSIONS_NAME[] = { "public/ch1-live.txt", "public/ch1-pts.txt" };
 	static String CONTENT_URL[] = { "content/patchlive0", "content/patchpts0" };
 	static String VERSIONS_MANIFEST = "recovery64/recovery64.manifest";
@@ -79,28 +81,30 @@ public class RemotePAK
 	private static Map<ReleaseType, Map<Integer, PatchInfo>> patchCache = new TreeMap<>();
 	static File patchCacheFile = new File("patch.cache");
 	static boolean useCache = false;
+	final static int MAX_PATCH_INDEX = 6;
 
 	public static Map<Integer, PatchInfo> getPatches(final ReleaseType type) throws IOException
 	{
+
 		if (useCache)
 		{
-		if (patchCache.isEmpty())
-		{
-			if (patchCacheFile.exists())
+			if (patchCache.isEmpty())
 			{
-				XStream xstr = new XStream();
-				patchCache = (Map<ReleaseType, Map<Integer, PatchInfo>>) xstr.fromXML(patchCacheFile);
+				if (patchCacheFile.exists())
+				{
+					XStream xstr = new XStream();
+					patchCache = (Map<ReleaseType, Map<Integer, PatchInfo>>) xstr.fromXML(patchCacheFile);
+				}
 			}
-		}
 
-		if (patchCache.containsKey(type))
-			return patchCache.get(type);
+			if (patchCache.containsKey(type))
+				return patchCache.get(type);
 		}
 		//PatchInfo currentInfo = getCurrentPatch(type);
 		Map<Integer, TreeSet<PatchInfo>> patches = new TreeMap<>();
 
 		// find the previous patch
-		for (int i = 1; i < 5; i++)
+		for (int i = 1; i < MAX_PATCH_INDEX; i++)
 		{
 			String url = getBaseUrl(type) + "/" + getContentUrl(type) + i + "/" + VERSIONS_MANIFEST;
 			try (InputStream input = getURLAsStream(url))
@@ -144,7 +148,7 @@ public class RemotePAK
 		}
 
 		Map<Integer, PatchInfo> currentPatches = new TreeMap<>();
-		for (int i = 1; i < 5; i++)
+		for (int i = 1; i < MAX_PATCH_INDEX; i++)
 		{
 			if (patches.containsKey(i))
 			{
@@ -155,12 +159,12 @@ public class RemotePAK
 		}
 		if (useCache)
 		{
-		patchCache.put(type, currentPatches);
-		XStream xstr = new XStream();
-		try (FileWriter fw = new FileWriter(patchCacheFile))
-		{
-			xstr.toXML(patchCache, fw);
-		}
+			patchCache.put(type, currentPatches);
+			XStream xstr = new XStream();
+			try (FileWriter fw = new FileWriter(patchCacheFile))
+			{
+				xstr.toXML(patchCache, fw);
+			}
 		}
 
 		return currentPatches;
@@ -417,6 +421,14 @@ public class RemotePAK
 									Math.max(LZMA2InputStream.DICT_SIZE_MIN, e.size * 2)))
 							{
 								IOUtils.copy(in, fos);
+							} catch (Exception ex)
+							{
+								System.err
+										.println("There was an error decompressing the data stream for file[" + filename
+												+ "] from url[" + url
+												+ "] bytes:" + startBytes + "-" + endBytes + " rtype:" + type
+												+ ":index:" + pindex + " using manifest:" + manifest.guid);
+								throw ex;
 							}
 						} else
 						{
@@ -428,7 +440,8 @@ public class RemotePAK
 						System.out.println("\t Size mismatch in written file, expected " + e.size + " , but was:"
 								+ new File(filename).length() + ", compressed size:" + e.compressedSize
 								+ ", http status was: "
-								+ response.getStatusLine().getStatusCode() + ", bytes retrieved were:" + bos.size());
+								+ response.getStatusLine().getStatusCode() + ", bytes retrieved were:" + bos.size()
+								+ " for url:" + url);
 					}
 				}
 			}
