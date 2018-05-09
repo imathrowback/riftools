@@ -102,17 +102,30 @@ public class RiftTool extends RiftAction
 			return true;
 		} catch (CmdLineException e)
 		{
-			System.err.println(e.getMessage());
-			System.err.println("java RiftTool " + args.get(0) + " " + args.get(1) + " [options...] arguments...");
-			// print the list of available options
-			parser.printUsage(new OutputStreamWriter(System.err), null, optionHandlerFilter);
-			System.err.println();
+			if (args.isEmpty() || args.size() <= 2)
+			{
+				System.err.println(e.getMessage());
+				System.err.println("java RiftTool  [options...] arguments...");
+				parser.printUsage(System.err);
+				System.err.println();
 
-			// print option sample. This is useful some time
-			System.err
-					.println("  Example: java RiftTool " + args.get(0) + " " + args.get(1) + ""
-							+ parser.printExample(optionHandlerFilter));
-			return false;
+				// print option sample. This is useful some time
+				System.err
+						.println("  Example: java RiftTool " + parser.printExample(OptionHandlerFilter.ALL));
+				return false;
+			} else
+			{
+				System.err.println(e.getMessage());
+				System.err.println("java RiftTool " + args.get(0) + " " + args.get(1) + " [options...] arguments...");
+				parser.printUsage(new OutputStreamWriter(System.err), null, optionHandlerFilter);
+				System.err.println();
+
+				// print option sample. This is useful some time
+				System.err
+						.println("  Example: java RiftTool " + args.get(0) + " " + args.get(1) + ""
+								+ parser.printExample(optionHandlerFilter));
+				return false;
+			}
 		}
 
 	}
