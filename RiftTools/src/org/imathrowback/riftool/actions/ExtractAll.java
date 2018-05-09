@@ -24,10 +24,10 @@ import rift_extractor.detector.DefaultDetector;
 
 public class ExtractAll extends RiftAction
 {
-	@Option(name = "-outputDir", usage = "The directory to extract to", metaVar = "DIR")
+	@Option(name = "-outputDir", usage = "The directory to extract to (required)", metaVar = "DIR", required = true)
 	File outputDir;
 
-	@Option(name = "-riftDir", usage = "The RIFT directory", metaVar = "DIR")
+	@Option(name = "-riftDir", usage = "The RIFT directory (required)", metaVar = "DIR", required = true)
 	File riftDir;
 
 	@Option(name = "-dryRun", usage = "Simulate an extraction but don't write any files")

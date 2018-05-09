@@ -1,7 +1,7 @@
 package org.imathrowback.riftool;
 
+import java.io.OutputStreamWriter;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -41,14 +41,15 @@ public class RiftTool extends RiftAction
 
 	}
 
-	public void doMain(final Collection<String> args) throws Exception
+	public void doMain(final List<String> args) throws Exception
 	{
 		List<String> largs = args.stream().collect(Collectors.toList());
 		List<String> otherArgs = largs;
 		int index = largs.indexOf("-action");
 		if (index >= 0)
 			otherArgs = largs.subList(index, index + 2);
-		parse(this, otherArgs);
+		if (!parse(this, otherArgs))
+			return;
 
 		// parse common arguments
 		//System.out.println(args);
@@ -58,18 +59,18 @@ public class RiftTool extends RiftAction
 		{
 			case DOWNLOADFILE:
 				DownloadFile df = new DownloadFile();
-				parse(df, args);
-				df.go();
+				if (parse(df, args))
+					df.go();
 				return;
 			case DECRYPTFILE:
 				DecryptDB db = new DecryptDB();
-				parse(db, args);
-				db.go();
+				if (parse(db, args))
+					db.go();
 				return;
 			case EXTRACT_STRINGS:
 				ExtractDBStrings edb = new ExtractDBStrings();
-				parse(edb, args);
-				edb.go();
+				if (parse(edb, args))
+					edb.go();
 				return;
 			case NONE:
 				return;
@@ -78,13 +79,18 @@ public class RiftTool extends RiftAction
 				return;
 			case EXTRACT:
 				ExtractAll eAll = new ExtractAll();
-				parse(eAll, args);
-				eAll.go();
+				if (parse(eAll, args))
+					eAll.go();
 				return;
 		}
 	}
 
-	static private void parse(final Object obj, final Collection<String> args)
+	static OptionHandlerFilter optionHandlerFilter = (o) -> {
+		String name = o.getNameAndMeta(null);
+		return !name.startsWith("-action");
+	};
+
+	static private boolean parse(final Object obj, final List<String> args)
 	{
 		CmdLineParser parser = new CmdLineParser(obj);
 		parser.setUsageWidth(80);
@@ -93,17 +99,20 @@ public class RiftTool extends RiftAction
 
 			// parse the arguments.
 			parser.parseArgument(args);
+			return true;
 		} catch (CmdLineException e)
 		{
 			System.err.println(e.getMessage());
-			System.err.println("java RiftTool [options...] arguments...");
+			System.err.println("java RiftTool " + args.get(0) + " " + args.get(1) + " [options...] arguments...");
 			// print the list of available options
-			parser.printUsage(System.err);
+			parser.printUsage(new OutputStreamWriter(System.err), null, optionHandlerFilter);
 			System.err.println();
 
 			// print option sample. This is useful some time
-			System.err.println("  Example: java RiftTool" + parser.printExample(OptionHandlerFilter.ALL));
-			return;
+			System.err
+					.println("  Example: java RiftTool " + args.get(0) + " " + args.get(1) + ""
+							+ parser.printExample(optionHandlerFilter));
+			return false;
 		}
 
 	}
