@@ -9,11 +9,7 @@ import java.util.stream.Collectors;
 import org.imathrowback.manifest.PatchInfo;
 import org.imathrowback.manifest.ReleaseType;
 import org.imathrowback.manifest.RemotePAK;
-import org.imathrowback.riftool.actions.DecryptDB;
-import org.imathrowback.riftool.actions.DownloadFile;
-import org.imathrowback.riftool.actions.ExtractAll;
-import org.imathrowback.riftool.actions.ExtractDBStrings;
-import org.imathrowback.riftool.actions.RiftAction;
+import org.imathrowback.riftool.actions.*;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.OptionHandlerFilter;
@@ -71,6 +67,11 @@ public class RiftTool extends RiftAction
 				ExtractDBStrings edb = new ExtractDBStrings();
 				if (parse(edb, args))
 					edb.go();
+				return;
+			case EXTRACT_LANG:
+				ExtractLanguageDB ldb = new ExtractLanguageDB();
+				if (parse(ldb, args))
+					ldb.go();
 				return;
 			case NONE:
 				return;
