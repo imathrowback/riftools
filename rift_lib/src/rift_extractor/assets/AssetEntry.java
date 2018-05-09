@@ -33,6 +33,11 @@ public class AssetEntry
 	final public String strID;
 	final public int sizeD;
 
+	public int getSize()
+	{
+		return size;
+	}
+
 	@Override
 	public String toString()
 	{
