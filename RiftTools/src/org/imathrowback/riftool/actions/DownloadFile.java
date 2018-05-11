@@ -2,6 +2,7 @@ package org.imathrowback.riftool.actions;
 
 import java.io.File;
 
+import org.imathrowback.manifest.PatchInfo;
 import org.imathrowback.manifest.ReleaseType;
 import org.imathrowback.manifest.RemotePAK;
 import org.kohsuke.args4j.Option;
@@ -17,6 +18,12 @@ public class DownloadFile extends RiftAction
 	@Option(name = "-release", usage = "Release to download from", required = true)
 	ReleaseType releaseType;
 
+	@Option(name = "-lang", usage = "Language, defaults to english")
+	int lang = -1;
+
+	@Option(name = "-pIndex", usage = "Patch Index")
+	int patchIndex = -1;
+
 	public DownloadFile()
 	{
 
@@ -27,7 +34,14 @@ public class DownloadFile extends RiftAction
 	{
 		try
 		{
-			RemotePAK.downloadLatest(releaseType, filenameOrHash.toString(), filenameOutput.toString(), -1);
+			if (patchIndex == -1)
+				RemotePAK.downloadLatest(releaseType, filenameOrHash.toString(), filenameOutput.toString(), lang);
+			else
+			{
+				PatchInfo patch = RemotePAK.getPatches(releaseType).get(patchIndex);
+				RemotePAK.downloadLatest(releaseType, patch, filenameOrHash.toString(),
+						filenameOutput.toString(), lang);
+			}
 			System.out.println("Downloaded file [" + filenameOrHash + " ] to [" + filenameOutput + "]");
 		} catch (Exception ex)
 		{
