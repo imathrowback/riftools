@@ -30,7 +30,8 @@ public class ExtractCDS
 		int offset;
 	}
 
-	public static void CDStoText(final File file, final File cdstxt, final String delim) throws Exception
+	public static void CDStoText(final File file, final File cdstxt, final String delim, final boolean convertNewLines)
+			throws Exception
 	{
 		long size = file.length();
 		CountingInputStream cis = new CountingInputStream(new FileInputStream(file));
@@ -81,7 +82,10 @@ public class ExtractCDS
 					writeCount++;
 					for (_7709 o : c.map.values())
 					{
-						writer.println(entry.key + delim + o.name);
+						String text = o.name;
+						if (convertNewLines)
+							text = text.replaceAll("\n", " ").replaceAll("\r", " ");
+						writer.println(entry.key + delim + text);
 					}
 				} catch (Exception ex)
 				{

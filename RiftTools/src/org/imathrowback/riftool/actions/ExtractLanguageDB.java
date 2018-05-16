@@ -17,12 +17,15 @@ public class ExtractLanguageDB extends RiftAction
 	@Option(name = "-delim", usage = "Delimiter to use in the output, default is :")
 	String delim = ":";
 
+	@Option(name = "-convertNewLines", usage = "Convert newlines to a 'space' instead")
+	boolean convertNewLines = false;
+
 	@Override
 	public void go() throws IOException
 	{
 		try
 		{
-			ExtractCDS.CDStoText(filename, output, delim);
+			ExtractCDS.CDStoText(filename, output, delim, convertNewLines);
 		} catch (Exception ex)
 		{
 			throw new RuntimeException(ex);
