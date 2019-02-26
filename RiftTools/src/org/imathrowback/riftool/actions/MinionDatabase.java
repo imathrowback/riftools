@@ -31,8 +31,10 @@ public class MinionDatabase extends RiftAction
 	{
 		try
 		{
-			aa = File.createTempFile("aa", "db");
-			bb = File.createTempFile("aa", "cds");
+			aa = File.createTempFile("aaminiondb", "db");
+			aa.deleteOnExit();
+			bb = File.createTempFile("bbminiondb", "cds");
+			bb.deleteOnExit();
 
 			RemotePAK.downloadLatest(ReleaseType.PTS, "telara.db", aa.toString(), -1);
 			RemotePAK.downloadLatest(ReleaseType.PTS, "lang_english.cds", bb.toString(), -1);
@@ -42,8 +44,6 @@ public class MinionDatabase extends RiftAction
 			throw new RuntimeException(ex);
 		} finally
 		{
-			aa.delete();
-			bb.delete();
 		}
 	}
 
