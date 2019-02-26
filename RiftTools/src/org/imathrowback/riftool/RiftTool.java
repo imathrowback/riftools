@@ -51,39 +51,39 @@ public class RiftTool extends RiftAction
 		//System.out.println(args);
 		//parse(this, args);
 
+		RiftAction o = null;
 		switch (action)
 		{
+			case EXTRACT_MINIONS:
+				o = new MinionDatabase();
+				break;
 			case DOWNLOADFILE:
-				DownloadFile df = new DownloadFile();
-				if (parse(df, args))
-					df.go();
-				return;
+				o = new DownloadFile();
+				break;
 			case DECRYPTFILE:
-				DecryptDB db = new DecryptDB();
-				if (parse(db, args))
-					db.go();
-				return;
+				o = new DecryptDB();
+				break;
 			case EXTRACT_STRINGS:
-				ExtractDBStrings edb = new ExtractDBStrings();
-				if (parse(edb, args))
-					edb.go();
-				return;
+				o = new ExtractDBStrings();
+				break;
 			case EXTRACT_LANG:
-				ExtractLanguageDB ldb = new ExtractLanguageDB();
-				if (parse(ldb, args))
-					ldb.go();
-				return;
+				o = new ExtractLanguageDB();
+				break;
 			case NONE:
-				return;
+				break;
 			case PRINTVERSIONS:
 				printVersions();
-				return;
+				break;
 			case EXTRACT:
-				ExtractAll eAll = new ExtractAll();
-				if (parse(eAll, args))
-					eAll.go();
-				return;
+				o = new ExtractAll();
+				break;
 		}
+		if (o != null)
+			if (parse(o, args))
+			{
+				o.go();
+			}
+
 	}
 
 	static OptionHandlerFilter optionHandlerFilter = (o) -> {

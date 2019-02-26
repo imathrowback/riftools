@@ -1,6 +1,7 @@
 package org.imathrowback.manifest;
 
 import java.io.*;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
@@ -322,8 +323,10 @@ public class RemotePAK
 			final int lang)
 			throws IOException
 	{
-		File manifestCache = new File(currentPatch.getVersion() + ".manifest.cache");
-		manifestCache.deleteOnExit();
+		String fname = currentPatch.getVersion() + ".manifest.cache";
+		Path tmp = Paths.get(System.getProperty("java.io.tmpdir"), fname);
+		File manifestCache = tmp.toFile();
+		//manifestCache.deleteOnExit();
 
 		byte[] data = downloadManifest(releaseType, currentPatch, manifestCache);
 

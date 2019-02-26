@@ -23,9 +23,6 @@ public class MinionDatabase extends RiftAction
 	@Option(name = "-lang", usage = "language", required = false)
 	int lang = -1;
 
-	@Option(name = "-filenameOut", usage = "The filename to decrypt to, if not specified the file will be decrypted in place", required = false)
-	File filenameOut;
-
 	File aa;
 	File bb;
 
