@@ -25,18 +25,22 @@ public class MinionDatabase extends RiftAction
 
 	File aa;
 	File bb;
+	File output;
 
 	@Override
 	public void go()
 	{
 		try
 		{
+			output = new File("minions.csv");
 			aa = File.createTempFile("aaminiondb", "db");
 			aa.deleteOnExit();
 			bb = File.createTempFile("bbminiondb", "cds");
 			bb.deleteOnExit();
 
+			System.out.println("Download database..");
 			RemotePAK.downloadLatest(ReleaseType.PTS, "telara.db", aa.toString(), -1);
+			System.out.println("Download language file...");
 			RemotePAK.downloadLatest(ReleaseType.PTS, "lang_english.cds", bb.toString(), -1);
 			goA();
 		} catch (Exception ex)
@@ -49,79 +53,82 @@ public class MinionDatabase extends RiftAction
 
 	void goA() throws Exception
 	{
-		PrintWriter pw = new PrintWriter("Minions.csv");
-
-		TelaraDB db = new TelaraDB(aa);
-		EnglishLang lang = new EnglishLang(Files.readAllBytes(bb.toPath()));
-		TreeMap<Integer, _10890> statNames = getStats(db);
-
-		List<_10851> minions = db.getKeys(10850).sorted().map(x -> get(db, 10850, x))
-				.map(x -> ClassUtils.newClass(_10851.class, x)).sorted((a, b) -> {
-					return comp(lang, a.unk2, b.unk2);
-				})
-				.collect(Collectors.toList());
-
-		pw.print("Minion,");
-		for (int i : statNames.keySet())
-			for (int l = 1; l <= 25; l++)
-				pw.print(statNames.get(i).unk0 + ":" + l + ",");
-		for (int l = 1; l <= 25; l++)
-			pw.print("Stam:" + l + ",");
-		pw.print("Attractor");
-		pw.print(",Details");
-		pw.println("");
-
-		for (_10851 minion : minions)
+		try (PrintWriter pw = new PrintWriter(output))
 		{
-			TextEntry te = minion.unk2;
-			if (te != null && te.unk0 != null)
+
+			TelaraDB db = new TelaraDB(aa);
+			EnglishLang lang = new EnglishLang(Files.readAllBytes(bb.toPath()));
+			TreeMap<Integer, _10890> statNames = getStats(db);
+
+			List<_10851> minions = db.getKeys(10850).sorted().map(x -> get(db, 10850, x))
+					.map(x -> ClassUtils.newClass(_10851.class, x)).sorted((a, b) -> {
+						return comp(lang, a.unk2, b.unk2);
+					})
+					.collect(Collectors.toList());
+
+			pw.print("Minion,");
+			for (int i : statNames.keySet())
+				for (int l = 1; l <= 25; l++)
+					pw.print(statNames.get(i).unk0 + ":" + l + ",");
+			for (int l = 1; l <= 25; l++)
+				pw.print("Stam:" + l + ",");
+			pw.print("Attractor");
+			pw.print(",Details");
+			pw.println("");
+
+			for (_10851 minion : minions)
 			{
-				String tex = lang.getText(te.unk0);
-				pw.print("\"" + tex + "\"");
-				pw.print(",");
-				_10853 archetype = get(db, 10852, minion.unk6);
-				// for each stat, print it at max level
-				for (int i : statNames.keySet())
+				TextEntry te = minion.unk2;
+				if (te != null && te.unk0 != null)
 				{
-					for (int l = 1; l <= 25; l++)
-					{
-						pw.print(getStat(db, i, archetype, l));
-						pw.print(",");
-					}
-				}
-
-				try
-				{
-					_10870 stam = get(db, 10869, minion.unk8);
-					HashMap<Long, _303> stamMap = stam.unk1;
-					for (long l = 1; l <= 25; l++)
-					{
-
-						if (stamMap.containsKey(l))
-						{
-							_303 stamgen = stamMap.get(l);
-							pw.print(stamgen.unk0);
-						}
-						pw.print(",");
-					}
-
-				} catch (Exception ex)
-				{
-					System.err.println("Err getting 10869:" + minion.unk8);
-				}
-				pw.print(",");
-				if (minion.unk14 != null && minion.unk14.size() > 0)
-					pw.print(minion.unk14.size() + ",");
-				else
+					String tex = lang.getText(te.unk0);
+					pw.print("\"" + tex + "\"");
 					pw.print(",");
-				pw.print("\"" + getText(lang, minion.unk12) + "\"");
-				pw.println("");
-			} else
-				System.err.println("err no text minion");
-			pw.flush();
-		}
+					_10853 archetype = get(db, 10852, minion.unk6);
+					// for each stat, print it at max level
+					for (int i : statNames.keySet())
+					{
+						for (int l = 1; l <= 25; l++)
+						{
+							pw.print(getStat(db, i, archetype, l));
+							pw.print(",");
+						}
+					}
 
-		pw.close();
+					try
+					{
+						_10870 stam = get(db, 10869, minion.unk8);
+						HashMap<Long, _303> stamMap = stam.unk1;
+						for (long l = 1; l <= 25; l++)
+						{
+
+							if (stamMap.containsKey(l))
+							{
+								_303 stamgen = stamMap.get(l);
+								pw.print(stamgen.unk0);
+							}
+							pw.print(",");
+						}
+
+					} catch (Exception ex)
+					{
+						System.err.println("Err getting 10869:" + minion.unk8);
+					}
+					pw.print(",");
+					if (minion.unk14 != null && minion.unk14.size() > 0)
+						pw.print(minion.unk14.size() + ",");
+					else
+						pw.print(",");
+					pw.print("\"" + getText(lang, minion.unk12) + "\"");
+					pw.println("");
+				} else
+					System.err.println("err no text minion");
+				pw.flush();
+			}
+
+			pw.close();
+		}
+		System.out.println("Minions written to " + output);
 	}
 
 	private static String format(final String s)
