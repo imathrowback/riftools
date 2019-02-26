@@ -20,8 +20,11 @@ import rift_extractor.classgen.classes.*;
 
 public class MinionDatabase extends RiftAction
 {
-	@Option(name = "-lang", usage = "language", required = false)
+	//@Option(name = "-lang", usage = "language (optional), -1 for any", required = false)
 	int lang = -1;
+
+	@Option(name = "-release", usage = "Release to download from", required = true)
+	ReleaseType releaseType;
 
 	File aa;
 	File bb;
@@ -32,16 +35,17 @@ public class MinionDatabase extends RiftAction
 	{
 		try
 		{
-			output = new File("minions.csv");
+			System.out.println("Using release:" + releaseType);
+			output = new File("minions" + releaseType.name() + ".csv");
 			aa = File.createTempFile("aaminiondb", "db");
 			aa.deleteOnExit();
 			bb = File.createTempFile("bbminiondb", "cds");
 			bb.deleteOnExit();
 
 			System.out.println("Download database..");
-			RemotePAK.downloadLatest(ReleaseType.PTS, "telara.db", aa.toString(), -1);
+			RemotePAK.downloadLatest(releaseType, "telara.db", aa.toString(), lang);
 			System.out.println("Download language file...");
-			RemotePAK.downloadLatest(ReleaseType.PTS, "lang_english.cds", bb.toString(), -1);
+			RemotePAK.downloadLatest(releaseType, "lang_english.cds", bb.toString(), lang);
 			goA();
 		} catch (Exception ex)
 		{
@@ -58,13 +62,16 @@ public class MinionDatabase extends RiftAction
 
 			TelaraDB db = new TelaraDB(aa);
 			EnglishLang lang = new EnglishLang(Files.readAllBytes(bb.toPath()));
+			System.out.println("parse stats...");
 			TreeMap<Integer, _10890> statNames = getStats(db);
 
+			System.out.println("parse minions...");
 			List<_10851> minions = db.getKeys(10850).sorted().map(x -> get(db, 10850, x))
 					.map(x -> ClassUtils.newClass(_10851.class, x)).sorted((a, b) -> {
 						return comp(lang, a.unk2, b.unk2);
 					})
 					.collect(Collectors.toList());
+			System.out.println("write details...");
 
 			pw.print("Minion,");
 			for (int i : statNames.keySet())

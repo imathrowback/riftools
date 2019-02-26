@@ -103,7 +103,7 @@ public class RiftTool extends RiftAction
 			return true;
 		} catch (CmdLineException e)
 		{
-			if (args.isEmpty() || args.size() <= 2)
+			if (args.isEmpty() || args.size() <= 1)
 			{
 				System.err.println(e.getMessage());
 				System.err.println("java RiftTool  [options...] arguments...");
@@ -117,7 +117,7 @@ public class RiftTool extends RiftAction
 			} else
 			{
 				System.err.println(e.getMessage());
-				System.err.println("java RiftTool " + args.get(0) + " " + args.get(1) + " [options...] arguments...");
+				System.err.println("java RiftTool " + args.get(0) + " " + args.get(1) + " [options...]");
 				parser.printUsage(new OutputStreamWriter(System.err), null, optionHandlerFilter);
 				System.err.println();
 
