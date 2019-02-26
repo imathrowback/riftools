@@ -141,6 +141,7 @@ public class ClassUtils
 			if (o.index == i)
 			{
 				Object t = o.convert();
+
 				/*System.out.println(
 						"[" + obj.type + "] clazz[" + clazz.getSimpleName() + "], i:" + i + " read actual type:"
 								+ t.getClass()
@@ -199,6 +200,8 @@ public class ClassUtils
 					//throw ex;
 				}
 				//System.out.println("return type:" + t.getClass());
+				if (t.getClass() == Object.class)
+					System.err.println("WARN: Unable to convert o[" + o.type + "][" + o.toString() + "] to " + clazz);
 				return (T) t;
 			}
 		}

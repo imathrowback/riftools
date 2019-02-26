@@ -22,13 +22,18 @@ public class ManifestEntry
 	public final int size;
 	public final short pakIndex;
 	public final short w2;
-	public final short w3;
+	public final byte w3[];
 	public final int w4;
 	public final int lang;
 	public final byte[] shahash;
 	public final int unk;
 	public String shaStr;
 	public short filenameLength;
+
+	public String getFilenameHash()
+	{
+		return filenameHashStr;
+	}
 
 	public int getPakIndex()
 	{
@@ -68,7 +73,8 @@ public class ManifestEntry
 		//if (w1 > 2193)
 		//	System.out.println(w1);
 		w2 = dis.readShort();
-		w3 = dis.readShort();
+		w3 = new byte[2];
+		dis.read(w3);
 		w4 = dis.read();
 		lang = dis.read();
 		shahash = new byte[20];
@@ -97,12 +103,12 @@ public class ManifestEntry
 				+ ":"
 				+ "[PAKIndex]" + StringUtils.leftPad("" + pakIndex, 4, ' ') +
 				":[unkw2]" + StringUtils.leftPad("" + w2, 6, ' ') +
-				":[unkw3]" + StringUtils.leftPad("" + w3, 6, ' ') +
+				":[unkw3]" + StringUtils.leftPad("" + Hex.encodeHexString(w3), 6, ' ') +
 				":[unkw4]" + StringUtils.leftPad("" + w4, 6, ' ') +
 				":[lang]" + lang + ""
 				+ ":[unk]" + unk
 				+ ":[hash]:" + Util.bytesToHexString(shahash) + ":"
-				+ unk + ":[v3]:" + filenameLength + ":" + toBytes(filenameLength));
+				+ unk + ":[filenameLength]:" + filenameLength);
 	}
 
 	public String getV3()

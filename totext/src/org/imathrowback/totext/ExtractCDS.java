@@ -4,6 +4,7 @@ import java.io.*;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.CountingInputStream;
@@ -30,14 +31,13 @@ public class ExtractCDS
 		int offset;
 	}
 
-	public static void CDStoText(final File file, final File cdstxt, final String delim, final boolean convertNewLines)
+	public static void CDStoText(final InputStream input, final Consumer<String> textConsumer, final String delim,
+			final boolean convertNewLines)
 			throws Exception
 	{
-		long size = file.length();
-		CountingInputStream cis = new CountingInputStream(new FileInputStream(file));
+		CountingInputStream cis = new CountingInputStream(input);
 		LittleEndianDataInputStream diss = new LittleEndianDataInputStream(cis);
 		long entryCount = diss.readInt();
-		System.out.println("Reading " + file);
 		System.out.println("found entries:" + entryCount);
 		int t = 0;
 		byte[] freqData = new byte[1024];
@@ -53,54 +53,64 @@ public class ExtractCDS
 		}
 		int writeCount = 0;
 		HuffmanReader reader = new HuffmanReader(freqData);
+		// Read each chunk of data
+
+		for (int i = 0; i < entryCount; i++)
+		{
+			CDEntry entry = entries.get(i);
+
+			int compressedSize = Leb128.readUnsignedLeb128_X(diss).get();
+			int decompressedSize = Leb128.readUnsignedLeb128_X(diss).get();
+			byte[] data = new byte[compressedSize];
+			diss.readFully(data);
+
+			byte[] dataOut = new byte[decompressedSize];
+
+			reader.decompress(data, compressedSize, dataOut, decompressedSize);
+
+			CObject obj = DatParser.processFileAndObject(new ByteArrayInputStream(dataOut));
+
+			try
+			{
+				_7707 c = new _7707();
+				c.parse(obj);
+				entry.obj = c;
+				writeCount++;
+				for (_7709 o : c.map.values())
+				{
+					String text = o.name;
+					if (convertNewLines)
+						text = text.replaceAll("\n", " ").replaceAll("\r", " ");
+					textConsumer.accept(entry.key + delim + text);
+				}
+			} catch (Exception ex)
+			{
+				System.err.println("Unable to process 7707 for entry[" + i + "] ->" + ex.getMessage());
+				File tfile = File.createTempFile("failed", ".dat");
+				try (FileOutputStream fos = new FileOutputStream(tfile))
+				{
+					IOUtils.write(dataOut, fos);
+				}
+				System.err.println("wrote debug data to " + tfile);
+				//throw ex;
+			}
+		}
+	}
+
+	public static void CDStoText(final File file, final File cdstxt, final String delim, final boolean convertNewLines)
+			throws Exception
+	{
+		System.out.println("Reading " + file);
 		System.out.println("Writing text entries to " + cdstxt);
 		// Read each chunk of data
-		try (PrintWriter writer = new PrintWriter(
-				new OutputStreamWriter(new FileOutputStream(cdstxt), Charset.forName("UTF-8"))))
+		try (FileInputStream fis = new FileInputStream(file))
 		{
-
-			for (int i = 0; i < entryCount; i++)
+			try (PrintWriter writer = new PrintWriter(
+					new OutputStreamWriter(new FileOutputStream(cdstxt), Charset.forName("UTF-8"))))
 			{
-				CDEntry entry = entries.get(i);
-
-				int compressedSize = Leb128.readUnsignedLeb128_X(diss).get();
-				int decompressedSize = Leb128.readUnsignedLeb128_X(diss).get();
-				byte[] data = new byte[compressedSize];
-				diss.readFully(data);
-
-				byte[] dataOut = new byte[decompressedSize];
-
-				reader.decompress(data, compressedSize, dataOut, decompressedSize);
-
-				CObject obj = DatParser.processFileAndObject(new ByteArrayInputStream(dataOut));
-
-				try
-				{
-					_7707 c = new _7707();
-					c.parse(obj);
-					entry.obj = c;
-					writeCount++;
-					for (_7709 o : c.map.values())
-					{
-						String text = o.name;
-						if (convertNewLines)
-							text = text.replaceAll("\n", " ").replaceAll("\r", " ");
-						writer.println(entry.key + delim + text);
-					}
-				} catch (Exception ex)
-				{
-					System.err.println("Unable to process 7707 for entry[" + i + "] ->" + ex.getMessage());
-					File tfile = File.createTempFile("failed", ".dat");
-					try (FileOutputStream fos = new FileOutputStream(tfile))
-					{
-						IOUtils.write(dataOut, fos);
-					}
-					System.err.println("wrote debug data to " + tfile);
-					//throw ex;
-				}
+				CDStoText(fis, (s) -> writer.println(s), delim, convertNewLines);
 			}
-
 		}
-		System.out.println("done, wrote " + writeCount);
+		System.out.println("done");
 	}
 }

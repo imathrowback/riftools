@@ -31,6 +31,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.imathrowback.datparser.CObject;
 import org.imathrowback.datparser.DatParser;
@@ -85,6 +86,9 @@ public class TelaraDB implements TelaraDBInterface
 	private static void tryDecrypt(final File encryptedFile) throws Exception
 	{
 		byte[] data = java.nio.file.Files.readAllBytes(encryptedFile.toPath());
+		// don't decrypt if the file is already decrypted
+		if (new String(data, 0, 20).startsWith("SQLite"))
+			return;
 		byte[] decrypted = new byte[data.length];
 		TelaraDBUtil.decrypt(data, data.length, decrypted);
 		Files.write(decrypted, encryptedFile);
@@ -93,6 +97,20 @@ public class TelaraDB implements TelaraDBInterface
 	public TelaraDB(final AssetDatabase adb) throws Exception
 	{
 		this(DriverManager.getConnection("jdbc:sqlite:" + getSQLDB(adb)));
+	}
+
+	public TelaraDB(final File db) throws Exception
+	{
+		this(DriverManager.getConnection("jdbc:sqlite:" + getSQLDB(db)));
+	}
+
+	private static String getSQLDB(final File srcFile) throws Exception
+	{
+		File db = File.createTempFile("1234", ".db");
+		db.deleteOnExit();
+		FileUtils.copyFile(srcFile, db);
+		tryDecrypt(db);
+		return db.getPath();
 	}
 
 	private static String getSQLDB(final AssetDatabase adb) throws Exception

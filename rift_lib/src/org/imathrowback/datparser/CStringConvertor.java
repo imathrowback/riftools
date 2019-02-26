@@ -19,7 +19,13 @@ public class CStringConvertor extends CObjectConverter<String>
 	@Override
 	public String convert(final CObject obj) throws Exception
 	{
-		return new String(obj.data, Charset.forName("UTF-8"));
+		try
+		{
+			return new String(obj.data, Charset.forName("UTF-8"));
+		} catch (OutOfMemoryError e)
+		{
+			return new String("UNK".getBytes(), Charset.forName("UTF-8"));
+		}
 	}
 
 }

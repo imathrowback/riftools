@@ -5,6 +5,7 @@ import rift_extractor.util.Leb128;
 import java.io.*;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Optional;
 import java.util.TreeMap;
 
 import org.apache.commons.codec.binary.Hex;
@@ -98,7 +99,7 @@ public class DatParser
 	static void loge(final String s, final int indent)
 	{
 		String ss = StringUtils.leftPad(s, s.length() + indent, '-');
-		System.out.println(ss);
+		//System.out.println(ss);
 		//UnkMap.log.println(ss);
 		//UnkMap.log.flush();
 
@@ -282,7 +283,7 @@ public class DatParser
 				System.err.flush();
 				System.out.flush();
 				//Thread.dumpStack();
-				System.exit(1);
+				//System.exit(1);
 				return false;
 			}
 			case 11:
@@ -381,12 +382,31 @@ public class DatParser
 		}
 	}
 
-	public static CObject processFileAndObject(final InputStream is, final DataModel dataModel) throws Exception
+	public static CObject processFileAndObject(final InputStream is, final DataModel dataModel)
+			throws Exception
+	{
+		return processFileAndObject(is, dataModel, -1);
+	}
+
+	public static boolean checkForObject(final InputStream is, final int expectedCode) throws Exception
+	{
+		LittleEndianDataInputStream dis = new LittleEndianDataInputStream(is);
+
+		Optional<Integer> res = Leb128.readUnsignedLeb128_X(dis);
+		if (res.isPresent())
+			return (expectedCode == res.get());
+		return false;
+	}
+
+	public static CObject processFileAndObject(final InputStream is, final DataModel dataModel, final int expectedCode)
+			throws Exception
 	{
 		LittleEndianDataInputStream dis = new LittleEndianDataInputStream(is);
 
 		int code1 = Leb128.readUnsignedLeb128_X(dis).get();
 		DatParser.log("class code:[" + DatParser.toLeb128(code1) + "]" + code1, 0);
+		if (expectedCode > 0 && expectedCode != code1)
+			return null;
 
 		CObject root = new CObject(code1, null, code1, null);
 		root.type = code1;

@@ -316,13 +316,14 @@ public class RemotePAK
 		downloadLatest(releaseType, currentPatch, filename, outputName, lang);
 	}
 
-	public static void downloadLatest(final ReleaseType releaseType, final PatchInfo currentPatch, final String filename,
+	public static void downloadLatest(final ReleaseType releaseType, final PatchInfo currentPatch,
+			final String filename,
 			final String outputName,
 			final int lang)
 			throws IOException
 	{
-
 		File manifestCache = new File(currentPatch.getVersion() + ".manifest.cache");
+		manifestCache.deleteOnExit();
 
 		byte[] data = downloadManifest(releaseType, currentPatch, manifestCache);
 

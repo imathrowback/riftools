@@ -116,12 +116,12 @@ public class Manifest
 			// These two are definitely version numbers
 			short majorV = dis.readShort();
 			short minorV = dis.readShort();
-			//			System.out.println("Manifest version: " + majorV + "." + minorV);
+			System.out.println("Manifest version: " + majorV + "." + minorV);
 
 			int _256tableoffset = dis.readInt();
 			int _256 = dis.readInt();
 
-			//			System.out.println("\tblock table offset:" + _256tableoffset + ", count:" + _256);
+			//System.out.println("\t256 block table offset:" + _256tableoffset + ", count:" + _256);
 			//System.out.println("");
 			TableEntry a = new TableEntry("pak table", dis);
 			TableEntry b = new TableEntry("asset names", dis);
