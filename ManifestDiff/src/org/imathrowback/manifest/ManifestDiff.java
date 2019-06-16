@@ -63,8 +63,11 @@ public class ManifestDiff
 	@Option(name = "-diffCurrent", usage = "Automatically try to diff the current version with the previous version, manifest file paths and version selection options are ignored if this option is specified.", required = false)
 	boolean diffCurrent = false;
 
-	@Option(name = "-release", usage = "The release to diff (required)", required = true)
-	ReleaseType release = ReleaseType.LIVE;
+	@Option(name = "-releaseA", usage = "The release to diff (required)", required = true)
+	ReleaseType releaseA = ReleaseType.LIVE;
+
+	@Option(name = "-releaseB", usage = "The release to diff for B, optional, will use same as A if left out", required = false)
+	ReleaseType releaseB;
 
 	@Option(name = "-onlyLang", usage = "Only process a single language, english = 1", required = false)
 	int onlyLang = -1;
@@ -141,17 +144,30 @@ public class ManifestDiff
 		}
 
 		Function<ManifestEntry, String> hname = (n) -> NameDB.getNameForHash(n.filenameHashStr, "");
+		if (releaseB == null)
+			releaseB = releaseA;
 
-		ReleaseType releaseType = release;
-		Map<Integer, PatchInfo> patches = RemotePAK.getPatches(releaseType);
+		ReleaseType releaseTypeA = releaseA;
+		ReleaseType releaseTypeB = releaseB;
+		Map<Integer, PatchInfo> patchesA = RemotePAK.getPatches(releaseTypeA);
+		Map<Integer, PatchInfo> patchesB = RemotePAK.getPatches(releaseTypeB);
+
+		TreeSet<PatchInfo> sortedPatches = new TreeSet<>();
+		sortedPatches.addAll(patchesA.values());
+		sortedPatches.addAll(patchesB.values());
 
 		PatchInfo patchAInfo = null;
 		PatchInfo patchBInfo = null;
-
+		/*
+		for (PatchInfo p : sortedPatches)
+		{
+			System.out.println(p);
+		}
+		if (true)
+			return;
+		*/
 		if (printVersions || printVersion)
 		{
-			TreeSet<PatchInfo> sortedPatches = new TreeSet<>();
-			sortedPatches.addAll(patches.values());
 
 			patchBInfo = sortedPatches.last();
 			patchAInfo = sortedPatches.lower(sortedPatches.last());
@@ -169,9 +185,10 @@ public class ManifestDiff
 			}
 			return;
 		}
-		System.out.println("using release:" + releaseType);
+		System.out.println("using releaseA:" + releaseTypeA);
+		System.out.println("using releaseB:" + releaseTypeB);
 
-		for (PatchInfo p : patches.values())
+		for (PatchInfo p : patchesA.values())
 		{
 			if (p.version.equals(versionA))
 				patchAInfo = p;
@@ -185,9 +202,6 @@ public class ManifestDiff
 					"Attempting to diff current and previous version, note that this may fail if a version was 'unreleased', in this case you will have to manually set versions to compare.");
 			manifestBFile = new File("");
 			manifestAFile = new File("");
-
-			TreeSet<PatchInfo> sortedPatches = new TreeSet<>();
-			sortedPatches.addAll(patches.values());
 
 			patchBInfo = sortedPatches.last();
 			patchAInfo = sortedPatches.lower(sortedPatches.last());
@@ -204,9 +218,11 @@ public class ManifestDiff
 			return;
 		}
 		System.out.println(
-				"Detected remote patchA index[" + patchAInfo.index + "] as version:" + patchAInfo.version);
+				"Detected remote patchA release[" + patchAInfo.release + "], index[" + patchAInfo.index
+						+ "] as version:" + patchAInfo.version);
 		System.out.println(
-				"Detected remote patchB index[" + patchBInfo.index + "] as version:" + patchBInfo.version);
+				"Detected remote patchB release[" + patchBInfo.release + "], index[" + patchBInfo.index
+						+ "] as version:" + patchBInfo.version);
 
 		InputStream manifestAStream = null;
 		InputStream manifestBStream = null;
@@ -228,7 +244,7 @@ public class ManifestDiff
 			if (cacheManifest)
 				cacheA = Paths.get(outDir.toString(), "assets64.manifestA").toFile();
 
-			byte[] data = RemotePAK.downloadManifest(releaseType, patchAInfo, cacheA);
+			byte[] data = RemotePAK.downloadManifest(patchAInfo, cacheA);
 			manifestAStream = new ByteArrayInputStream(data);
 
 		}
@@ -248,7 +264,7 @@ public class ManifestDiff
 			if (cacheManifest)
 				cacheB = Paths.get(outDir.toString(), "assets64.manifestB").toFile();
 
-			byte[] data = RemotePAK.downloadManifest(releaseType, patchBInfo, cacheB);
+			byte[] data = RemotePAK.downloadManifest(patchBInfo, cacheB);
 			manifestBStream = new ByteArrayInputStream(data);
 		}
 
@@ -294,9 +310,9 @@ public class ManifestDiff
 					if (extractChanged && shouldExtract(aEntry, manifestA))
 					{
 						if (!onlyB || alwaysDownload(aEntry))
-							extractEntry(releaseType, aEntry, manifestA, patchAInfo.index, 'A', hname);
+							extractEntry(releaseTypeA, aEntry, manifestA, patchAInfo.index, 'A', hname);
 						for (ManifestEntry bEntry : bentries)
-							extractEntry(releaseType, bEntry, manifestB, patchBInfo.index, 'B', hname);
+							extractEntry(releaseTypeB, bEntry, manifestB, patchBInfo.index, 'B', hname);
 					}
 
 				}
@@ -348,7 +364,7 @@ public class ManifestDiff
 
 			// extract the added file
 			if (extractAdded && shouldExtract(add, manifestB))
-				extractEntry(releaseType, add, manifestB, patchBInfo.index, 'B', hname);
+				extractEntry(releaseTypeB, add, manifestB, patchBInfo.index, 'B', hname);
 
 			if (!pakHashesProcessed.contains(pEntry.combHash))
 			{

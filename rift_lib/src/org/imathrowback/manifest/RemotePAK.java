@@ -81,7 +81,7 @@ public class RemotePAK
 
 	private static Map<ReleaseType, Map<Integer, PatchInfo>> patchCache = new TreeMap<>();
 	static File patchCacheFile = new File("patch.cache");
-	static boolean useCache = false;
+	static boolean useCache = true;
 	final static int MAX_PATCH_INDEX = 6;
 
 	public static Map<Integer, PatchInfo> getPatches(final ReleaseType type) throws IOException
@@ -129,7 +129,7 @@ public class RemotePAK
 							else
 								pLines.add(line);
 						} while (!line.equals("f"));
-						p.add(new PatchInfo(i, version, pLines));
+						p.add(new PatchInfo(type, i, version, pLines));
 					} else
 					{
 						if (line.contains("File not found"))
@@ -200,6 +200,12 @@ public class RemotePAK
 			throws IOException
 	{
 		return downloadManifest(type, patchInfo, cache, null);
+	}
+
+	public static byte[] downloadManifest(final PatchInfo patchInfo, final File cache)
+			throws IOException
+	{
+		return downloadManifest(patchInfo.release, patchInfo, cache, null);
 	}
 
 	public static byte[] downloadManifest(final ReleaseType type, final PatchInfo patchInfo, final File cache,

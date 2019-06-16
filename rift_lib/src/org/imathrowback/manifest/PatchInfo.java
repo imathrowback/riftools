@@ -7,19 +7,28 @@ import java.util.Optional;
 
 public class PatchInfo implements Comparable<PatchInfo>
 {
+	ReleaseType release;
+
+	public ReleaseType getRelease()
+	{
+		return release;
+	}
+
 	int index;
 	String version;
 	List<PatchManifestEntry> fileEntries = new LinkedList<>();
-	static Comparator<PatchInfo> c = Comparator.comparingLong(PatchInfo::revCommit).thenComparing(PatchInfo::revPatch)
-			.thenComparingInt(PatchInfo::getIndex);
+	static Comparator<PatchInfo> c = Comparator.comparingLong(PatchInfo::revCommit)
+			.thenComparing(PatchInfo::revPatch)
+			.thenComparingInt(PatchInfo::getIndex).thenComparing(PatchInfo::getRelease);
 
 	/*
 			Comparator.comparingLong(PatchInfo::revMajor)
 			.thenComparingLong(PatchInfo::revMinor).thenComparing(PatchInfo::revPatch)
 			.thenComparingLong(PatchInfo::revCommit);
 	*/
-	public PatchInfo(final int index, final String version, final List<String> lines)
+	public PatchInfo(final ReleaseType release, final int index, final String version, final List<String> lines)
 	{
+		this.release = release;
 		this.index = index;
 		this.version = version;
 		for (String line : lines)
