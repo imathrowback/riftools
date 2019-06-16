@@ -15,8 +15,14 @@ public class Vector3
 
 	public Vector3(final float x, final float y, final float z)
 	{
-		this.v1 = x;
-		this.v2 = y;
-		this.v3 = z;
+		v1 = x;
+		v2 = y;
+		v3 = z;
+	}
+
+	@Override
+	public String toString()
+	{
+		return v1 + "," + v2 + "," + v3;
 	}
 }

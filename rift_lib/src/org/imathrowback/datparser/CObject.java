@@ -125,6 +125,22 @@ public class CObject
 		return map;
 	}
 
+	public boolean hasClass(final int i)
+	{
+		for (CObject o : members)
+			if (o.type == i)
+				return true;
+		return false;
+	}
+
+	public CObject getFirstClass(final int i)
+	{
+		for (CObject o : members)
+			if (o.type == i)
+				return o;
+		return null;
+	}
+
 	public CObject getAtIndex(final int i)
 	{
 		for (CObject o : members)
@@ -177,4 +193,5 @@ public class CObject
 			return def;
 		}
 	}
+
 }
