@@ -22,31 +22,51 @@ public class MinionDatabase extends RiftAction
 {
 	//@Option(name = "-lang", usage = "language (optional), -1 for any", required = false)
 	int lang = -1;
+	@Option(name = "-db", usage = "Optional filename of the database, if set, -lang must also be set", required = false)
+	File db;
+	@Option(name = "-langdb", usage = "Optional filename of the language database, if set, must also use -db", required = false)
+	File langdb;
 
-	@Option(name = "-release", usage = "Release to download from", required = true)
+	@Option(name = "-output", usage = "Write the output to this file, if not set, will be written to minions.csv", required = false)
+	File output;
+
+	@Option(name = "-release", usage = "Release to download from", required = false)
 	ReleaseType releaseType;
 	@Option(name = "-64")
 	boolean is64 = true;
 	File aa;
 	File bb;
-	File output;
 
 	@Override
 	public void go()
 	{
 		try
 		{
-			System.out.println("Using release:" + releaseType);
-			output = new File("minions" + releaseType.name() + ".csv");
-			aa = File.createTempFile("aaminiondb", "db");
-			aa.deleteOnExit();
-			bb = File.createTempFile("bbminiondb", "cds");
-			bb.deleteOnExit();
 
-			System.out.println("Download database..");
-			RemotePAK.downloadLatest(releaseType, "telara.db", aa.toString(), lang, is64);
-			System.out.println("Download language file...");
-			RemotePAK.downloadLatest(releaseType, "lang_english.cds", bb.toString(), lang, is64);
+			if (db == null || !db.exists())
+			{
+				if (releaseType == null)
+					throw new IllegalArgumentException("Release type cannot be empty and no db set");
+				System.out.println("Using release:" + releaseType);
+				output = new File("minions" + releaseType.name() + ".csv");
+
+				aa = File.createTempFile("aaminiondb", "db");
+				aa.deleteOnExit();
+				bb = File.createTempFile("bbminiondb", "cds");
+				bb.deleteOnExit();
+
+				System.out.println("Download database..");
+				RemotePAK.downloadLatest(releaseType, "telara.db", aa.toString(), lang, is64);
+				System.out.println("Download language file...");
+				RemotePAK.downloadLatest(releaseType, "lang_english.cds", bb.toString(), lang, is64);
+			} else
+			{
+				if (output == null)
+					output = new File("minions.csv");
+
+				aa = (db);
+				bb = (langdb);
+			}
 			goA();
 		} catch (Exception ex)
 		{
