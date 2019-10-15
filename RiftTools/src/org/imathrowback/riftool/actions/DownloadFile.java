@@ -23,6 +23,8 @@ public class DownloadFile extends RiftAction
 
 	@Option(name = "-pIndex", usage = "Patch Index")
 	int patchIndex = -1;
+	@Option(name = "-64")
+	boolean is64 = true;
 
 	public DownloadFile()
 	{
@@ -35,10 +37,10 @@ public class DownloadFile extends RiftAction
 		try
 		{
 			if (patchIndex == -1)
-				RemotePAK.downloadLatest(releaseType, filenameOrHash.toString(), filenameOutput.toString(), lang);
+				RemotePAK.downloadLatest(releaseType, filenameOrHash.toString(), filenameOutput.toString(), lang, is64);
 			else
 			{
-				PatchInfo patch = RemotePAK.getPatches(releaseType).get(patchIndex);
+				PatchInfo patch = RemotePAK.getPatches(releaseType, is64).get(patchIndex);
 				RemotePAK.downloadLatest(releaseType, patch, filenameOrHash.toString(),
 						filenameOutput.toString(), lang);
 			}

@@ -23,7 +23,7 @@ public class MainTest
 		}
 		if (true)
 			return;
-		for (Map.Entry<Integer, PatchInfo> x : RemotePAK.getPatches(ReleaseType.PTS).entrySet())
+		for (Map.Entry<Integer, PatchInfo> x : RemotePAK.getPatches(ReleaseType.PTS, true).entrySet())
 		{
 			//if (x.getKey() == 1)
 			{

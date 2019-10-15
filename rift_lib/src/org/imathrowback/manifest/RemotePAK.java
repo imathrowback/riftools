@@ -18,14 +18,13 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.imathrowback.Task;
 import org.imathrowback.TaskProgressEvent;
 import org.tukaani.xz.LZMA2InputStream;
 
 import com.google.common.io.Files;
 import com.google.common.io.LittleEndianDataInputStream;
-import com.thoughtworks.xstream.XStream;
-
 import rift_extractor.assets.Manifest;
 import rift_extractor.assets.ManifestEntry;
 import rift_extractor.assets.PAKFile;
@@ -43,7 +42,8 @@ public class RemotePAK
 	};
 	static String VERSIONS_NAME[] = { "public/ch1-live.txt", "public/ch1-pts.txt" };
 	static String CONTENT_URL[] = { "content/patchlive0", "content/patchpts0" };
-	static String VERSIONS_MANIFEST = "recovery64/recovery64.manifest";
+	static String VERSIONS64_MANIFEST = "recovery64/recovery64.manifest";
+	static String VERSIONS32_MANIFEST = "recovery/recovery.manifest";
 
 	public static String getBaseUrl(final ReleaseType type)
 	{
@@ -69,24 +69,34 @@ public class RemotePAK
 			try (CloseableHttpResponse response = client.execute(get))
 			{
 				HttpEntity httpEntity = response.getEntity();
+
+				return new ByteArrayInputStream(EntityUtils.toByteArray(httpEntity));
+
+				/*
 				try (InputStream httpInputStream = httpEntity.getContent())
 				{
 					ByteArrayOutputStream bos = new ByteArrayOutputStream();
 					IOUtils.copy(httpInputStream, bos);
+					EntityUtils.consume(httpEntity);
 					return new ByteArrayInputStream(bos.toByteArray());
 				}
+				*/
 			}
 		}
 	}
 
-	private static Map<ReleaseType, Map<Integer, PatchInfo>> patchCache = new TreeMap<>();
+	private static Map<ReleaseType, TreeMap<Integer, PatchInfo>> patchCache = new TreeMap<>();
 	static File patchCacheFile = new File("patch.cache");
-	static boolean useCache = true;
+	static boolean useCache = false;
 	final static int MAX_PATCH_INDEX = 6;
 
-	public static Map<Integer, PatchInfo> getPatches(final ReleaseType type) throws IOException
+	public static TreeMap<Integer, PatchInfo> getPatches(final ReleaseType type, final boolean _is64) throws IOException
 	{
+		String VERSIONS_MANIFEST = VERSIONS32_MANIFEST;
+		if (_is64)
+			VERSIONS_MANIFEST = VERSIONS64_MANIFEST;
 
+		/*
 		if (useCache)
 		{
 			if (patchCache.isEmpty())
@@ -97,17 +107,19 @@ public class RemotePAK
 					patchCache = (Map<ReleaseType, Map<Integer, PatchInfo>>) xstr.fromXML(patchCacheFile);
 				}
 			}
-
+		
 			if (patchCache.containsKey(type))
 				return patchCache.get(type);
 		}
+		*/
 		//PatchInfo currentInfo = getCurrentPatch(type);
-		Map<Integer, TreeSet<PatchInfo>> patches = new TreeMap<>();
+		TreeMap<Integer, TreeSet<PatchInfo>> patches = new TreeMap<>();
 
 		// find the previous patch
 		for (int i = 1; i < MAX_PATCH_INDEX; i++)
 		{
 			String url = getBaseUrl(type) + "/" + getContentUrl(type) + i + "/" + VERSIONS_MANIFEST;
+			//System.out.println(url);
 			try (InputStream input = getURLAsStream(url))
 			{
 
@@ -129,7 +141,8 @@ public class RemotePAK
 							else
 								pLines.add(line);
 						} while (!line.equals("f"));
-						p.add(new PatchInfo(type, i, version, pLines));
+						if (!version.equals("0"))
+							p.add(new PatchInfo(type, i, version, pLines));
 					} else
 					{
 						if (line.contains("File not found"))
@@ -148,7 +161,7 @@ public class RemotePAK
 			}
 		}
 
-		Map<Integer, PatchInfo> currentPatches = new TreeMap<>();
+		TreeMap<Integer, PatchInfo> currentPatches = new TreeMap<>();
 		for (int i = 1; i < MAX_PATCH_INDEX; i++)
 		{
 			if (patches.containsKey(i))
@@ -158,6 +171,7 @@ public class RemotePAK
 				currentPatches.put(i, p.last());
 			}
 		}
+		/*
 		if (useCache)
 		{
 			patchCache.put(type, currentPatches);
@@ -167,13 +181,14 @@ public class RemotePAK
 				xstr.toXML(patchCache, fw);
 			}
 		}
+		*/
 
 		return currentPatches;
 	}
 
-	public static PatchInfo getCurrentPatch(final ReleaseType releaseType) throws IOException
+	public static PatchInfo getCurrentPatch(final ReleaseType releaseType, final boolean _is64) throws IOException
 	{
-		Map<Integer, PatchInfo> patches = RemotePAK.getPatches(releaseType);
+		Map<Integer, PatchInfo> patches = RemotePAK.getPatches(releaseType, _is64);
 
 		TreeSet<PatchInfo> sortedPatches = new TreeSet<>();
 		sortedPatches.addAll(patches.values());
@@ -181,9 +196,9 @@ public class RemotePAK
 		return sortedPatches.last();
 	}
 
-	public static PatchInfo[] getCurrentPatches(final ReleaseType releaseType) throws IOException
+	public static PatchInfo[] getCurrentPatches(final ReleaseType releaseType, final boolean _is64) throws IOException
 	{
-		Map<Integer, PatchInfo> patches = RemotePAK.getPatches(releaseType);
+		Map<Integer, PatchInfo> patches = RemotePAK.getPatches(releaseType, _is64);
 
 		TreeSet<PatchInfo> sortedPatches = new TreeSet<>();
 		sortedPatches.addAll(patches.values());
@@ -194,6 +209,13 @@ public class RemotePAK
 	public static PatchInfo[] getCurrentPatches(final TreeSet<PatchInfo> sortedPatches)
 	{
 		return new PatchInfo[] { sortedPatches.lower(sortedPatches.last()), sortedPatches.last() };
+	}
+
+	public static PatchInfo getCurrentPatch(final TreeMap<Integer, PatchInfo> patches)
+	{
+		TreeSet<PatchInfo> sortedPatches = new TreeSet<>();
+		sortedPatches.addAll(patches.values());
+		return sortedPatches.last();
 	}
 
 	public static byte[] downloadManifest(final ReleaseType type, final PatchInfo patchInfo, final File cache)
@@ -309,17 +331,17 @@ public class RemotePAK
 	}
 
 	public static void downloadLatest(final ReleaseType releaseType, final Manifest manifest, final ManifestEntry entry,
-			final String outputName) throws IOException
+			final String outputName, final boolean _is64) throws IOException
 	{
-		PatchInfo currentPatch = getCurrentPatch(releaseType);
+		PatchInfo currentPatch = getCurrentPatch(releaseType, _is64);
 		extract(releaseType, manifest, entry, outputName, currentPatch.index);
 	}
 
 	public static void downloadLatest(final ReleaseType releaseType, final String filename, final String outputName,
-			final int lang)
+			final int lang, final boolean _is64)
 			throws IOException
 	{
-		PatchInfo currentPatch = getCurrentPatch(releaseType);
+		PatchInfo currentPatch = getCurrentPatch(releaseType, _is64);
 		downloadLatest(releaseType, currentPatch, filename, outputName, lang);
 	}
 
@@ -362,9 +384,9 @@ public class RemotePAK
 	 */
 	public static void download(final ReleaseType releaseType, final char patch, final String filename,
 			final String outputFilename,
-			final String outputDir) throws IOException
+			final String outputDir, final boolean _is64) throws IOException
 	{
-		PatchInfo[] currentPatches = getCurrentPatches(releaseType);
+		PatchInfo[] currentPatches = getCurrentPatches(ReleaseType.LIVE, _is64);
 		PatchInfo currentPatch = currentPatches[0];
 		if (patch == 'A')
 			currentPatch = currentPatches[0];

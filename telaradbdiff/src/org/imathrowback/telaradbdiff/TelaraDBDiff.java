@@ -16,6 +16,7 @@ import org.imathrowback.datparser.DatParser;
 import org.imathrowback.datparser.DataModel;
 import org.imathrowback.manifest.ReleaseType;
 import org.imathrowback.manifest.RemotePAK;
+import org.imathrowback.manifest.Versions;
 import org.imathrowback.telaradb.TelaraDB;
 import org.imathrowback.telaradb.TelaraDBUtil;
 import org.kohsuke.args4j.CmdLineException;
@@ -37,8 +38,12 @@ public class TelaraDBDiff
 	@Option(name = "-dbResolve", usage = "Name resolution database", required = false)
 	File dbResolve;
 
-	@Option(name = "-release", usage = "Release type, needed if -autoDownload is specified")
-	ReleaseType releaseType;
+	//@Option(name = "-releaseA", usage = "Release type, needed if -autoDownload is specified")
+	//ReleaseType releaseTypeA;
+
+	//@Option(name = "-releaseB", usage = "Release type, needed if -autoDownload is specified")
+	//ReleaseType releaseTypeB;
+
 	@Option(name = "-dbB", usage = "Second database", required = true)
 	File dbb;
 
@@ -53,6 +58,8 @@ public class TelaraDBDiff
 
 	@Option(name = "-outdir", usage = "Output directory for differences", required = true, metaVar = "DIR")
 	File outdir = null;
+	@Option(name = "-64")
+	boolean is64 = true;
 
 	public static void main(final String[] args)
 	{
@@ -70,8 +77,8 @@ public class TelaraDBDiff
 			parser.parseArgument(args);
 			if (!outdir.isDirectory())
 				throw new CmdLineException(parser, "Output must be a directory");
-			if (autoDownloadLangDB && releaseType == null)
-				throw new CmdLineException(parser, "Release type must be specified in addition to auto download");
+			//if (autoDownloadLangDB && releaseTypeA == null && releaseTypeB == null)
+			//	throw new CmdLineException(parser, "Release type must be specified in addition to auto download");
 
 		} catch (CmdLineException e)
 		{
@@ -155,8 +162,11 @@ public class TelaraDBDiff
 
 		if (autoDownloadLangDB)
 		{
-			RemotePAK.download(releaseType, 'A', "lang_english.cds", "lang_english.cdsA", outdir.toString());
-			RemotePAK.download(releaseType, 'B', "lang_english.cds", "lang_english.cdsB", outdir.toString());
+
+			ReleaseType releaseTypeB = Versions.getVersion(1, is64).getRelease();
+			ReleaseType releaseTypeA = Versions.getVersion(0, is64).getRelease();
+			RemotePAK.download(releaseTypeA, 'A', "lang_english.cds", "lang_english.cdsA", outdir.toString(), is64);
+			RemotePAK.download(releaseTypeB, 'B', "lang_english.cds", "lang_english.cdsB", outdir.toString(), is64);
 		}
 		if (langA != null)
 		{

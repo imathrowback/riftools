@@ -104,24 +104,24 @@ public class PatchInfo implements Comparable<PatchInfo>
 	public Long revMajor()
 	{
 		String[] parts = version.split("-");
-		return Long.parseLong(parts[parts.length - 5]);
+		return Long.parseLong(parts[1]);
 	}
 
 	public Long revMinor()
 	{
 		String[] parts = version.split("-");
-		return Long.parseLong(parts[parts.length - 4]);
+		return Long.parseLong(parts[2]);
 	}
 
 	public String revPatch()
 	{
 		String[] parts = version.split("-");
-		return (parts[parts.length - 3]);
+		return (parts[3]);
 	}
 
 	public Long revCommit()
 	{
 		String[] parts = version.split("-");
-		return Long.parseLong(parts[parts.length - 2]);
+		return Long.parseLong(parts[4]);
 	}
 }

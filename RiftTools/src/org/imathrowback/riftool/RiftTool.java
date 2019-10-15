@@ -3,12 +3,9 @@ package org.imathrowback.riftool;
 import java.io.OutputStreamWriter;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.imathrowback.manifest.PatchInfo;
-import org.imathrowback.manifest.ReleaseType;
-import org.imathrowback.manifest.RemotePAK;
+import org.imathrowback.manifest.Versions;
 import org.imathrowback.riftool.actions.*;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
@@ -24,12 +21,9 @@ public class RiftTool extends RiftAction
 		rt.doMain(Arrays.asList(args));
 	}
 
-	public void printVersions() throws Exception
+	public void printVersions(final boolean _is64) throws Exception
 	{
-		Map<Integer, PatchInfo> patches = RemotePAK.getPatches(ReleaseType.LIVE);
-		System.out.println(patches);
-		patches = RemotePAK.getPatches(ReleaseType.PTS);
-		System.out.println(patches);
+		Versions.printVersions(_is64);
 	}
 
 	public void download() throws Exception
@@ -41,6 +35,7 @@ public class RiftTool extends RiftAction
 	{
 		List<String> largs = args.stream().collect(Collectors.toList());
 		List<String> otherArgs = largs;
+		boolean is64 = largs.contains("-64");
 		int index = largs.indexOf("-action");
 		if (index >= 0)
 			otherArgs = largs.subList(index, index + 2);
@@ -72,7 +67,10 @@ public class RiftTool extends RiftAction
 			case NONE:
 				break;
 			case PRINTVERSIONS:
-				printVersions();
+				printVersions(is64);
+				break;
+			case GETVERSION:
+				o = new GetVersion();
 				break;
 			case EXTRACT:
 				o = new ExtractAll();

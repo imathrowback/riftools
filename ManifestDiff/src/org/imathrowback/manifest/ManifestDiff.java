@@ -63,8 +63,8 @@ public class ManifestDiff
 	@Option(name = "-diffCurrent", usage = "Automatically try to diff the current version with the previous version, manifest file paths and version selection options are ignored if this option is specified.", required = false)
 	boolean diffCurrent = false;
 
-	@Option(name = "-releaseA", usage = "The release to diff (required)", required = true)
-	ReleaseType releaseA = ReleaseType.LIVE;
+	@Option(name = "-releaseA", usage = "The release to diff. Required if diffCurrent is not specified. If diffCurrent is specified, then it will use this release", required = false)
+	ReleaseType releaseA;
 
 	@Option(name = "-releaseB", usage = "The release to diff for B, optional, will use same as A if left out", required = false)
 	ReleaseType releaseB;
@@ -88,7 +88,8 @@ public class ManifestDiff
 
 	@Option(name = "-h", usage = "Print header", required = false)
 	private boolean header;
-
+	@Option(name = "-64")
+	boolean is64 = true;
 	//@Option(name = "-showPak", usage = "Show PAK index", required = false)
 	private final boolean showPak = true;
 
@@ -114,6 +115,9 @@ public class ManifestDiff
 				throw new CmdLineException(parser, "Specified output directory is not a directory");
 			if (!diffCurrent)
 			{
+				if (releaseA == null)
+					throw new CmdLineException(parser,
+							"Release must be specified if diffCurrent is false");
 				if ((extractAdded || extractChanged) && (versionA.isEmpty() || versionB.isEmpty()))
 					throw new CmdLineException(parser,
 							"To extract files you need to specify the remote versionA and versionB, local extraction is not yet supported");
@@ -144,57 +148,10 @@ public class ManifestDiff
 		}
 
 		Function<ManifestEntry, String> hname = (n) -> NameDB.getNameForHash(n.filenameHashStr, "");
-		if (releaseB == null)
-			releaseB = releaseA;
-
-		ReleaseType releaseTypeA = releaseA;
-		ReleaseType releaseTypeB = releaseB;
-		Map<Integer, PatchInfo> patchesA = RemotePAK.getPatches(releaseTypeA);
-		Map<Integer, PatchInfo> patchesB = RemotePAK.getPatches(releaseTypeB);
-
-		TreeSet<PatchInfo> sortedPatches = new TreeSet<>();
-		sortedPatches.addAll(patchesA.values());
-		sortedPatches.addAll(patchesB.values());
-
 		PatchInfo patchAInfo = null;
 		PatchInfo patchBInfo = null;
-		/*
-		for (PatchInfo p : sortedPatches)
-		{
-			System.out.println(p);
-		}
-		if (true)
-			return;
-		*/
-		if (printVersions || printVersion)
-		{
-
-			patchBInfo = sortedPatches.last();
-			patchAInfo = sortedPatches.lower(sortedPatches.last());
-
-			for (PatchInfo p : sortedPatches)
-			{
-				if (printVersion)
-				{
-					System.out.println(p.version);
-					return;
-				} else if (p.version.equals(patchBInfo.version))
-					System.out.println(p + "*");
-				else
-					System.out.println(p);
-			}
-			return;
-		}
-		System.out.println("using releaseA:" + releaseTypeA);
-		System.out.println("using releaseB:" + releaseTypeB);
-
-		for (PatchInfo p : patchesA.values())
-		{
-			if (p.version.equals(versionA))
-				patchAInfo = p;
-			else if (p.version.equals(versionB))
-				patchBInfo = p;
-		}
+		ReleaseType releaseTypeA = releaseA;
+		ReleaseType releaseTypeB = releaseB;
 
 		if (diffCurrent)
 		{
@@ -202,11 +159,61 @@ public class ManifestDiff
 					"Attempting to diff current and previous version, note that this may fail if a version was 'unreleased', in this case you will have to manually set versions to compare.");
 			manifestBFile = new File("");
 			manifestAFile = new File("");
+			TreeSet<PatchInfo> sortedPatches = new TreeSet<>();
+
+			if (releaseTypeA != null)
+			{
+				sortedPatches.addAll(RemotePAK.getPatches(releaseTypeA, is64).values());
+
+			} else
+				for (ReleaseType t : ReleaseType.values())
+					sortedPatches.addAll(RemotePAK.getPatches(t, is64).values());
 
 			patchBInfo = sortedPatches.last();
 			patchAInfo = sortedPatches.lower(sortedPatches.last());
 
+		} else
+		{
+			if (releaseB == null)
+				releaseB = releaseA;
+
+			Map<Integer, PatchInfo> patchesA = RemotePAK.getPatches(releaseTypeA, is64);
+			Map<Integer, PatchInfo> patchesB = RemotePAK.getPatches(releaseTypeB, is64);
+
+			TreeSet<PatchInfo> sortedPatches = new TreeSet<>();
+			sortedPatches.addAll(patchesA.values());
+			sortedPatches.addAll(patchesB.values());
+
+			if (printVersions || printVersion)
+			{
+
+				patchBInfo = sortedPatches.last();
+				patchAInfo = sortedPatches.lower(sortedPatches.last());
+
+				for (PatchInfo p : sortedPatches)
+				{
+					if (printVersion)
+					{
+						System.out.println(p.version);
+						return;
+					} else if (p.version.equals(patchBInfo.version))
+						System.out.println(p + "*");
+					else
+						System.out.println(p);
+				}
+				return;
+			}
+
+			for (PatchInfo p : patchesA.values())
+			{
+				if (p.version.equals(versionA))
+					patchAInfo = p;
+				else if (p.version.equals(versionB))
+					patchBInfo = p;
+			}
+
 		}
+
 		if (patchAInfo == null)
 		{
 			System.err.println("Unable to find patchA " + versionA + ":" + manifestAFile);
@@ -217,6 +224,13 @@ public class ManifestDiff
 			System.err.println("Unable to find patchB " + versionB + ":" + manifestBFile);
 			return;
 		}
+		if (releaseTypeA == null)
+			releaseTypeA = patchAInfo.release;
+		System.out.println("using releaseA:" + releaseTypeA);
+		if (releaseTypeB == null)
+			releaseTypeB = patchBInfo.release;
+		System.out.println("using releaseB:" + releaseTypeB);
+
 		System.out.println(
 				"Detected remote patchA release[" + patchAInfo.release + "], index[" + patchAInfo.index
 						+ "] as version:" + patchAInfo.version);
