@@ -27,7 +27,7 @@ public class Binky
 
 {
 	static TreeSet<String> strs = new TreeSet<>();
-	private static boolean useCache = true;
+	private static boolean useCache = false;
 
 	public static void doVig(final Manifest manifest, final AssetDatabase adb, final File outputDirectory)
 			throws Exception
@@ -85,8 +85,25 @@ public class Binky
 		//hircsOut1.stream().collect(Collectors.toMap(h -> h.id, h -> h));
 
 		TelaraDB db = new TelaraDB(adb);
-		for (Integer id : db.getKeys(10017).collect(Collectors.toList()))
+		List<Integer> ids = db.getKeys(10017).collect(Collectors.toList());
+
+		int totalCount = ids.size();
+		int index = 0;
+		int lastP = -1;
+		System.out.println("Extracting OGG files to " + outputDirectory);
+		for (Integer id : ids)
 		{
+
+			int per = (int) (((float) ++index / (float) totalCount) * 100.0f);
+			if (lastP != per)
+			{
+				if ((per % 25) == 0)
+					System.out.print(per + "%");
+				else if ((per % 5) == 0)
+					System.out.print(".");
+				lastP = per;
+			}
+
 			_10018 obj = ClassUtils.newClass(_10018.class, db.getObject(10017, id));
 			//byte[] data = db.getData(10017, id);
 			//CObject obj = DatParser.processFileAndObject(new ByteArrayInputStream(data), null);
@@ -129,7 +146,7 @@ public class Binky
 													byte[] data = adb.extractUsingFilename(ogg);
 													try (FileOutputStream fos = new FileOutputStream(oggp2.toFile()))
 													{
-														System.out.println("Writing " + oggp2);
+														//System.out.println("Writing " + oggp2);
 														IOUtils.copy(new ByteArrayInputStream(data), fos);
 
 													}
@@ -174,6 +191,7 @@ public class Binky
 				}
 			}
 		}
+		System.out.println();
 	}
 
 	public static void doChatter() throws Exception

@@ -42,9 +42,22 @@ public class ExtractVignettes extends RiftAction
 			Binky.doVig(manifest, adb, outputDir);
 			if (autoConvert)
 			{
-				System.out.println("Doing autoconvert of OGG files to WAV");
-				for (File file : outputDir.listFiles())
+				System.out.println("Doing autoconvert of OGG files to WAV (this may take a while)");
+				File[] files = outputDir.listFiles();
+				int totalCount = files.length;
+				int index = 0;
+				int lastP = -1;
+				for (File file : files)
 				{
+					int per = (int) (((float) ++index / (float) totalCount) * 100.0f);
+					if (lastP != per)
+					{
+						if ((per % 25) == 0)
+							System.out.print(per + "%");
+						else if ((per % 5) == 0)
+							System.out.print(".");
+						lastP = per;
+					}
 					if (file.isFile() && file.getName().endsWith("ogg"))
 					{
 						// autoconvert
