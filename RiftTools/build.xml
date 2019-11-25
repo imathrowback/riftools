@@ -52,9 +52,14 @@
     </target>
 
     <target name="jar" depends="clean,builddeps,ivyresolve,compile,mapgenjar,manifestjar,totextjar,telaradbdiffjar">
-		<copy file="exes/autodiff.bat" todir="build/jar"/>
-      	<copy file="exes/diff.exe" todir="build/jar"/>
+			<copy file="exes/autodiff.bat" todir="build/jar"/>
+      <copy file="exes/diff.exe" todir="build/jar"/>
     	<copy file="exes/montage.exe" todir="build/jar"/>
+    	<copy todir="build/jar">
+    		<fileset dir="exes/">
+    				<include name="vgmstream/**"/>
+    		</fileset> 
+    	</copy>
 
 		<jar destfile="build/jar/RiftTool.jar" basedir="build/classes">
 			<manifest>

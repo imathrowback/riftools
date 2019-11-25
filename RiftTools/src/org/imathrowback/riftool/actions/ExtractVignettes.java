@@ -2,7 +2,6 @@ package org.imathrowback.riftool.actions;
 
 import java.io.File;
 import java.nio.file.Paths;
-
 import org.kohsuke.args4j.Option;
 
 import rift_extractor.Binky;
@@ -12,6 +11,8 @@ import rift_extractor.assets.Manifest;
 
 public class ExtractVignettes extends RiftAction
 {
+	@Option(name = "-convert", usage = "Automatically convert the OGG files to something usuable")
+	boolean autoConvert = false;
 	@Option(name = "-64")
 	boolean is64 = true;
 	@Option(name = "-riftDir", usage = "The RIFT directory (required)", metaVar = "DIR", required = true)
@@ -39,6 +40,29 @@ public class ExtractVignettes extends RiftAction
 			AssetDatabase adb = AssetProcessor.buildDatabase(manifest, assetsDirectory.toString());
 
 			Binky.doVig(manifest, adb, outputDir);
+			if (autoConvert)
+			{
+				System.out.println("Doing autoconvert of OGG files to WAV");
+				for (File file : outputDir.listFiles())
+				{
+					if (file.isFile() && file.getName().endsWith("ogg"))
+					{
+						// autoconvert
+						Process process = Runtime.getRuntime()
+								.exec(new String[] { "vgmstream\\test.exe", file.toString() });
+						int p = process.waitFor();
+						if (p == 0)
+						{
+							//System.out.println("Conversion Success!");
+							file.delete();
+						} else
+						{
+							System.out.println("Conversion failure: " + file);
+
+						}
+					}
+				}
+			}
 
 		} catch (Exception ex)
 		{

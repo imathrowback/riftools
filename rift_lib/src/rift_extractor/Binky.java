@@ -27,10 +27,12 @@ public class Binky
 
 {
 	static TreeSet<String> strs = new TreeSet<>();
+	private static boolean useCache = true;
 
 	public static void doVig(final Manifest manifest, final AssetDatabase adb, final File outputDirectory)
 			throws Exception
 	{
+
 		System.setProperty("org.jooq.no-logo", "true");
 		String bnk = "vo_vignettes.bnk";
 		List<HIRCObj> hircsOut1 = new LinkedList<>();
@@ -46,8 +48,25 @@ public class Binky
 		{
 			System.out.println(
 					"Error: vo_vignettes.bnk was not located in the local assets. Attempting to download from LIVE server...");
+			if (useCache)
+			{
+				String cFile = "vig.dat";
+				File cFilef = new File(cFile);
+				Path cPathf = cFilef.toPath();
+				if (!cFilef.exists())
+				{
+					vigStream = RemotePAK.getLatestAsStream(ReleaseType.LIVE, manifest, manifest.getEnglishEntry(bnk),
+							true);
 
-			vigStream = RemotePAK.getLatestAsStream(ReleaseType.LIVE, manifest, manifest.getEnglishEntry(bnk), true);
+					try (FileOutputStream fos = new FileOutputStream(cFile))
+					{
+						IOUtils.copy(vigStream, fos);
+					}
+				} else
+					vigStream = new FileInputStream(cFilef);
+			} else
+				vigStream = RemotePAK.getLatestAsStream(ReleaseType.LIVE, manifest, manifest.getEnglishEntry(bnk),
+						true);
 		}
 
 		processBNK(vigStream, null, hircsOut1);
@@ -112,6 +131,7 @@ public class Binky
 													{
 														System.out.println("Writing " + oggp2);
 														IOUtils.copy(new ByteArrayInputStream(data), fos);
+
 													}
 												} catch (Exception ex)
 												{
