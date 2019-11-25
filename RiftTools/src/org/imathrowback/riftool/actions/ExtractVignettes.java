@@ -13,11 +13,11 @@ public class ExtractVignettes extends RiftAction
 {
 	@Option(name = "-convert", usage = "Automatically convert the OGG files to something usuable")
 	boolean autoConvert = false;
-	@Option(name = "-64")
-	boolean is64 = true;
-	@Option(name = "-riftDir", usage = "The RIFT directory (required)", metaVar = "DIR", required = true)
+	@Option(name = "-32")
+	boolean is32 = false;
+	@Option(name = "-riftDir", usage = "The RIFT directory (required)", metaVar = "RIFTDIR", required = true)
 	File riftDir;
-	@Option(name = "-outputDir", usage = "The directory to extract to (required)", metaVar = "DIR", required = true)
+	@Option(name = "-outputDir", usage = "The directory to extract to (required)", metaVar = "OUTPUTDIR", required = true)
 	File outputDir;
 
 	public ExtractVignettes()
@@ -31,8 +31,14 @@ public class ExtractVignettes extends RiftAction
 		try
 		{
 			String manifestStr = "assets.manifest";
-			if (is64)
+			if (!is32)
+			{
 				manifestStr = "assets64.manifest";
+				System.out.println("==> Using 64bit manifest, if you have 32bit RIFT installed, use the -32 flag");
+			}
+			else
+				System.out.println("==> Using 32bit manifest");
+
 			File assetsManifest = Paths.get(riftDir.toString(), manifestStr).toFile();
 
 			File assetsDirectory = Paths.get(riftDir.toString(), "assets").toFile();
