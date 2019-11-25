@@ -86,6 +86,8 @@ public class CObject
 
 	@XStreamImplicit
 	public List<CObject> members = new LinkedList<>();
+	public Integer key;
+	public Integer dataset;
 
 	public void addMember(final CObject newObj)
 	{

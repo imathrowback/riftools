@@ -226,6 +226,8 @@ public class TelaraDB implements TelaraDBInterface
 		byte[] data = getData(datasetid, key);
 
 		CObject root = DatParser.processFileAndObject(new ByteArrayInputStream(data));
+		root.key = key;
+		root.dataset = datasetid;
 		return root;
 	}
 
