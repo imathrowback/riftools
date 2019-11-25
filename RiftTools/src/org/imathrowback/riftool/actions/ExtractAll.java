@@ -29,7 +29,8 @@ public class ExtractAll extends RiftAction
 
 	@Option(name = "-riftDir", usage = "The RIFT directory (required)", metaVar = "DIR", required = true)
 	File riftDir;
-
+	@Option(name = "-64")
+	boolean is64 = true;
 	@Option(name = "-dryRun", usage = "Simulate an extraction but don't write any files")
 	boolean dryRun = false;
 
@@ -47,7 +48,10 @@ public class ExtractAll extends RiftAction
 		if (dryRun)
 			System.out.println("NOTICE: Dry run mode, no files will be written");
 		DefaultDetector dd = new DefaultDetector(null);
-		File assetsManifest = Paths.get(riftDir.toString(), "assets64.manifest").toFile();
+		String manifestStr = "assets.manifest";
+		if (is64)
+			manifestStr = "assets64.manifest";
+		File assetsManifest = Paths.get(riftDir.toString(), manifestStr).toFile();
 		File assetsDirectory = Paths.get(riftDir.toString(), "assets").toFile();
 		Manifest manifest = new Manifest(assetsManifest.toString());
 		AssetDatabase adb = AssetProcessor.buildDatabase(manifest, assetsDirectory.toString());

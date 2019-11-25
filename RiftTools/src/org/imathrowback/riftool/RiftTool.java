@@ -52,6 +52,9 @@ public class RiftTool extends RiftAction
 			case EXTRACT_MINIONS:
 				o = new MinionDatabase();
 				break;
+			case EXTRACT_VIG:
+				o = new ExtractVignettes();
+				break;
 			case DOWNLOADFILE:
 				o = new DownloadFile();
 				break;

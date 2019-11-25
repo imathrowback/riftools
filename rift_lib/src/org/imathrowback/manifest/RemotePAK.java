@@ -25,12 +25,9 @@ import org.tukaani.xz.LZMA2InputStream;
 
 import com.google.common.io.Files;
 import com.google.common.io.LittleEndianDataInputStream;
-import rift_extractor.assets.Manifest;
-import rift_extractor.assets.ManifestEntry;
-import rift_extractor.assets.PAKFile;
-import rift_extractor.assets.PAKHeader;
+
+import rift_extractor.assets.*;
 import rift_extractor.util.Util;
-import rift_extractor.assets.ManifestPAKFileEntry;
 
 public class RemotePAK
 {
@@ -107,7 +104,7 @@ public class RemotePAK
 					patchCache = (Map<ReleaseType, Map<Integer, PatchInfo>>) xstr.fromXML(patchCacheFile);
 				}
 			}
-		
+
 			if (patchCache.containsKey(type))
 				return patchCache.get(type);
 		}
@@ -337,6 +334,13 @@ public class RemotePAK
 		extract(releaseType, manifest, entry, outputName, currentPatch.index);
 	}
 
+	public static void downloadLatest(final ReleaseType releaseType, final Manifest manifest, final ManifestEntry entry,
+			final OutputStream os, final boolean _is64) throws IOException
+	{
+		PatchInfo currentPatch = getCurrentPatch(releaseType, _is64);
+		extract(releaseType, manifest, entry, os, currentPatch.index);
+	}
+
 	public static void downloadLatest(final ReleaseType releaseType, final String filename, final String outputName,
 			final int lang, final boolean _is64)
 			throws IOException
@@ -413,7 +417,31 @@ public class RemotePAK
 	}
 
 	public static void extract(final ReleaseType type, final Manifest manifest, final ManifestEntry e,
+			final OutputStream os,
+			final int pindex)
+			throws IOException
+	{
+		extract(type, manifest, e, os, pindex, null);
+	}
+
+	public static void extract(final ReleaseType type, final Manifest manifest, final ManifestEntry e,
 			final String filename,
+			final int pindex, final Task task)
+			throws IOException
+	{
+		try (FileOutputStream fos = new FileOutputStream(filename))
+		{
+			extract(type, manifest, e, fos, pindex, task);
+		}
+		if (new File(filename).length() != e.size)
+		{
+			System.out.println("\t Size mismatch in written file, expected " + e.size + " , but was:"
+					+ new File(filename).length() + ", compressed size:" + e.compressedSize);
+		}
+	}
+
+	public static void extract(final ReleaseType type, final Manifest manifest, final ManifestEntry e,
+			final OutputStream fos,
 			final int pindex, final Task task)
 			throws IOException
 	{
@@ -453,36 +481,24 @@ public class RemotePAK
 				}
 				try (InputStream fis = new ByteArrayInputStream(bos.toByteArray()))
 				{
-					try (FileOutputStream fos = new FileOutputStream(filename))
+					if (e.size != e.compressedSize)
 					{
-						if (e.size != e.compressedSize)
+						fis.skip(1);
+						try (LZMA2InputStream in = new LZMA2InputStream(fis,
+								Math.max(LZMA2InputStream.DICT_SIZE_MIN, e.size * 2)))
 						{
-							fis.skip(1);
-							try (LZMA2InputStream in = new LZMA2InputStream(fis,
-									Math.max(LZMA2InputStream.DICT_SIZE_MIN, e.size * 2)))
-							{
-								IOUtils.copy(in, fos);
-							} catch (Exception ex)
-							{
-								System.err
-										.println("There was an error decompressing the data stream for file[" + filename
-												+ "] from url[" + url
-												+ "] bytes:" + startBytes + "-" + endBytes + " rtype:" + type
-												+ ":index:" + pindex + " using manifest:" + manifest.guid);
-								throw ex;
-							}
-						} else
+							IOUtils.copy(in, fos);
+						} catch (Exception ex)
 						{
-							IOUtils.copy(fis, fos);
+							System.err
+									.println("There was an error decompressing the data stream from url[" + url
+											+ "] bytes:" + startBytes + "-" + endBytes + " rtype:" + type
+											+ ":index:" + pindex + " using manifest:" + manifest.guid);
+							throw ex;
 						}
-					}
-					if (new File(filename).length() != e.size)
+					} else
 					{
-						System.out.println("\t Size mismatch in written file, expected " + e.size + " , but was:"
-								+ new File(filename).length() + ", compressed size:" + e.compressedSize
-								+ ", http status was: "
-								+ response.getStatusLine().getStatusCode() + ", bytes retrieved were:" + bos.size()
-								+ " for url:" + url);
+						IOUtils.copy(fis, fos);
 					}
 				}
 			}
@@ -530,5 +546,14 @@ public class RemotePAK
 			}
 		}, true);
 		System.out.println("");
+	}
+
+	public static ByteArrayInputStream getLatestAsStream(final ReleaseType releaseType, final Manifest manifest,
+			final ManifestEntry manifestEntry, final boolean _is64) throws IOException
+	{
+		ByteArrayOutputStream os = new ByteArrayOutputStream();
+		downloadLatest(releaseType, manifest, manifestEntry, os, _is64);
+		return new ByteArrayInputStream(os.toByteArray());
+
 	}
 }

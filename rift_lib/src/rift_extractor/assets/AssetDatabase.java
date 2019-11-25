@@ -1,5 +1,6 @@
 package rift_extractor.assets;
 
+import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -136,6 +137,12 @@ public class AssetDatabase
 	public byte[] extractUsingFilename(final String filename)
 	{
 		return extract(getEntryForFileName(filename));
+	}
+
+	/** Attempt to extract the asset with the given filename */
+	public ByteArrayInputStream extractAsStream(final String filename)
+	{
+		return new ByteArrayInputStream(extract(getEntryForFileName(filename)));
 	}
 
 	/** Attempt to extract the asset with the given filename */
