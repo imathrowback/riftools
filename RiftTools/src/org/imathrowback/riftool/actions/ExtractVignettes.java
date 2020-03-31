@@ -2,6 +2,8 @@ package org.imathrowback.riftool.actions;
 
 import java.io.File;
 import java.nio.file.Paths;
+
+import org.imathrowback.manifest.ReleaseType;
 import org.kohsuke.args4j.Option;
 
 import rift_extractor.Binky;
@@ -19,6 +21,8 @@ public class ExtractVignettes extends RiftAction
 	File riftDir;
 	@Option(name = "-outputDir", usage = "The directory to extract to (required)", metaVar = "OUTPUTDIR", required = true)
 	File outputDir;
+	@Option(name = "-release", usage = "Release to extract", required = false)
+	ReleaseType releaseType;
 
 	public ExtractVignettes()
 	{
@@ -35,8 +39,7 @@ public class ExtractVignettes extends RiftAction
 			{
 				manifestStr = "assets64.manifest";
 				System.out.println("==> Using 64bit manifest, if you have 32bit RIFT installed, use the -32 flag");
-			}
-			else
+			} else
 				System.out.println("==> Using 32bit manifest");
 
 			File assetsManifest = Paths.get(riftDir.toString(), manifestStr).toFile();
@@ -45,7 +48,7 @@ public class ExtractVignettes extends RiftAction
 			Manifest manifest = new Manifest(assetsManifest.toString());
 			AssetDatabase adb = AssetProcessor.buildDatabase(manifest, assetsDirectory.toString());
 
-			Binky.doVig(manifest, adb, outputDir);
+			Binky.doVig(manifest, adb, releaseType, outputDir);
 			if (autoConvert)
 			{
 				System.out.println("Doing autoconvert of OGG files to WAV (this may take a while)");

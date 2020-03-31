@@ -29,10 +29,13 @@ public class Binky
 	static TreeSet<String> strs = new TreeSet<>();
 	private static boolean useCache = false;
 
-	public static void doVig(final Manifest manifest, final AssetDatabase adb, final File outputDirectory)
+	public static void doVig(final Manifest manifest, final AssetDatabase adb, final ReleaseType release,
+			final File outputDirectory)
 			throws Exception
 	{
 
+		if (!outputDirectory.exists())
+			outputDirectory.mkdir();
 		System.setProperty("org.jooq.no-logo", "true");
 		String bnk = "vo_vignettes.bnk";
 		List<HIRCObj> hircsOut1 = new LinkedList<>();
@@ -47,7 +50,8 @@ public class Binky
 		} catch (Exception ex)
 		{
 			System.out.println(
-					"Error: vo_vignettes.bnk was not located in the local assets. Attempting to download from LIVE server...");
+					"Error: vo_vignettes.bnk was not located in the local assets. Attempting to download from "
+							+ release + " server...");
 			if (useCache)
 			{
 				String cFile = "vig.dat";
@@ -55,7 +59,7 @@ public class Binky
 				Path cPathf = cFilef.toPath();
 				if (!cFilef.exists())
 				{
-					vigStream = RemotePAK.getLatestAsStream(ReleaseType.LIVE, manifest, manifest.getEnglishEntry(bnk),
+					vigStream = RemotePAK.getLatestAsStream(release, manifest, manifest.getEnglishEntry(bnk),
 							true);
 
 					try (FileOutputStream fos = new FileOutputStream(cFile))
@@ -65,7 +69,7 @@ public class Binky
 				} else
 					vigStream = new FileInputStream(cFilef);
 			} else
-				vigStream = RemotePAK.getLatestAsStream(ReleaseType.LIVE, manifest, manifest.getEnglishEntry(bnk),
+				vigStream = RemotePAK.getLatestAsStream(release, manifest, manifest.getEnglishEntry(bnk),
 						true);
 		}
 
@@ -250,7 +254,7 @@ public class Binky
 		Manifest manifest = new Manifest(assetsManifest);
 		AssetDatabase adb = AssetProcessor.buildDatabase(manifest, assetsDirectory);
 
-		doVig(manifest, adb, new File("w:\\rift_stuff\\vig_ogg\\"));
+		doVig(manifest, adb, ReleaseType.LIVE, new File("w:\\rift_stuff\\vig_ogg\\"));
 		//doChatter();
 		return;
 
