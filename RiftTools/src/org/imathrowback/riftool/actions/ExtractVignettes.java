@@ -21,7 +21,7 @@ public class ExtractVignettes extends RiftAction
 	File riftDir;
 	@Option(name = "-outputDir", usage = "The directory to extract to (required)", metaVar = "OUTPUTDIR", required = true)
 	File outputDir;
-	@Option(name = "-release", usage = "Release to extract", required = false)
+	@Option(name = "-release", usage = "Release to extract", required = true)
 	ReleaseType releaseType;
 
 	public ExtractVignettes()
