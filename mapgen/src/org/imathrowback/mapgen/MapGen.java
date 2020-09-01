@@ -230,9 +230,9 @@ public class MapGen
 			mapName = (x, y) -> worldName + "_map_big_revealed_" + x + "_" + y + ".dds";
 		} else
 		{
+			strideX = strideY = 256;
 			widthY *= strideY;
 			widthX *= strideX;
-			strideX = strideY = 256;
 			mapName = (x, y) -> worldName + "_terrain_" + x + "_" + y
 					+ "_mapimage.dds";
 		}
