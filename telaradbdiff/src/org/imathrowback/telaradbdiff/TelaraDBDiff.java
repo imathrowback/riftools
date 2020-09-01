@@ -27,11 +27,15 @@ import org.kohsuke.args4j.OptionHandlerFilter;
 import com.google.common.io.Files;
 import com.sksamuel.diffpatch.DiffMatchPatch.Diff;
 import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.io.json.JsonHierarchicalStreamDriver;
 
 import rift_extractor.EnglishLang;
 
 public class TelaraDBDiff
 {
+	@Option(name = "-json", usage = "Use JSON instead of XML", required = false)
+	boolean json = false;
+
 	@Option(name = "-dbA", usage = "First database", required = true)
 	File dba;
 
@@ -237,6 +241,8 @@ public class TelaraDBDiff
 							transmog(obj, langBdb);
 
 						XStream str = new XStream();
+						if (json)
+							str = new XStream(new JsonHierarchicalStreamDriver());
 						str.processAnnotations(CObject.class);
 						Path dbDir = Paths.get(outdir.toString(), "db", "new");
 						dbDir.toFile().mkdir();
@@ -257,6 +263,8 @@ public class TelaraDBDiff
 						if (!Arrays.equals(dataA, dataB))
 						{
 							XStream str = new XStream();
+							if (json)
+								str = new XStream(new JsonHierarchicalStreamDriver());
 							str.processAnnotations(CObject.class);
 
 							//System.out.println("changed:" + idB);
