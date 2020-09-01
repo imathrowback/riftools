@@ -86,12 +86,14 @@ public class DatParser
 		return result;
 	}
 
+	public static boolean debug = false;
+
 	public static void log(final String s, final int indent)
 	{
 		String ss = StringUtils.leftPad(s, s.length() + indent, '-');
 		//UnkMap.log.println(ss);
-
-		//System.out.println(ss);
+		if (debug)
+			System.out.println(ss);
 		//UnkMap.log.flush();
 
 	}
@@ -99,7 +101,8 @@ public class DatParser
 	static void loge(final String s, final int indent)
 	{
 		String ss = StringUtils.leftPad(s, s.length() + indent, '-');
-		//System.out.println(ss);
+		if (debug)
+			System.out.println(ss);
 		//UnkMap.log.println(ss);
 		//UnkMap.log.flush();
 
@@ -238,6 +241,9 @@ public class DatParser
 				*/
 				return true;
 			case 10:
+
+				//System.err.println("CASE 10>>>>");
+				//System.exit(1);
 			case 9:
 			{
 				CObject obj = new CObject(datacode, null, extraData, null);
@@ -248,13 +254,11 @@ public class DatParser
 				{
 					// NEW OBJECT
 					int objclass = Leb128.readUnsignedLeb128_X(dis).get();
-					//obj.addMember(value);
-					//loge("class type:" + objclass + ":" + (toLeb128(objclass)), indent + 1);
 					obj.type = objclass;
 					if (objclass > 0xFFFF || objclass == 0)
 					{
-						loge("bad value code 10", indent);
-						return false;
+						loge("bad value code 10 - objClass:" + objclass, indent);
+						//return false;
 					}
 				}
 				log("handleCode:" + datacode + ", array: " + obj.type, indent + 1);
@@ -320,7 +324,7 @@ public class DatParser
 				loge("overun while code 11 [i == " + i + ", count=" + count, indent + 1);
 				System.err.flush();
 				System.out.flush();
-				System.exit(1);
+				System.err.println("ERROR: OVERUN");
 				return false;
 
 			}
@@ -347,7 +351,8 @@ public class DatParser
 				loge("overun while code 12", indent + 1);
 				System.err.flush();
 				System.out.flush();
-				System.exit(1);
+				System.err.println("overun while code 12");
+				return false;
 			}
 			case 8:
 				log("handleCode:" + datacode + ", end of object", indent);
@@ -420,6 +425,12 @@ public class DatParser
 			{
 				if (result == null)
 					result = new BitResult(0, 0);
+			}
+			/** handle special case boolean */
+			else if (result == null && i == 0)
+			{
+				if (result == null)
+					result = new BitResult(0, 0);
 			} else if (result == null)
 				throw new IllegalStateException("Unable to process result, class code:" + code1);
 			DatParser.log("do member " + (++i) + ": with code:" + result, 0);
@@ -437,7 +448,7 @@ public class DatParser
 	{
 		Map<Integer, String> fields = new TreeMap<>();
 		Clazz clazz = dataModel.getClazz(node.type.longValue());
-		if (clazz != null)
+		if (clazz != null && node.type > 20)
 		{
 			node.clazzName = clazz.name;
 			fields = clazz.fields;

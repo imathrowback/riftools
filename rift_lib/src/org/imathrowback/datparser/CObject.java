@@ -73,7 +73,29 @@ public class CObject
 		try
 		{
 			if (convertor != null)
+			{
 				objData = convertor.convert(this);
+				// It's extremely unlikely that floats or doubles represent very large or very small numbers. It is more likely they are ints or longs
+				if (objData instanceof Float)
+				{
+					Float f = Math.abs((Float) objData);
+					if (f > 100000000f || f < 0.000001f)
+					{
+						// This is probably a float
+						this.convertor = new CIntConvertor();
+						objData = this.convertor.convert(this);
+					}
+				} else if (objData instanceof Double)
+				{
+					Double f = Math.abs((Double) objData);
+					if (f > 100000000 || f < 0.000001)
+					{
+						// This is probably a long
+						//this.convertor = new CLongConvertor();
+						//objData = this.convertor.convert(this);
+					}
+				}
+			}
 		} catch (Exception e)
 		{
 			// TODO Auto-generated catch block
