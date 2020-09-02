@@ -30,7 +30,8 @@ public class MinionDatabase extends RiftAction
 	@Option(name = "-output", usage = "Write the output to this file, if not set, will be written to minions.csv", required = false)
 	File output;
 
-	@Option(name = "-release", usage = "Release to download from", required = false)
+	@Option(name = "-release", usage = "Release to download from", required = true)
+
 	ReleaseType releaseType;
 	@Option(name = "-64")
 	boolean is64 = true;
@@ -40,6 +41,7 @@ public class MinionDatabase extends RiftAction
 	@Override
 	public void go()
 	{
+
 		try
 		{
 
