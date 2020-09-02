@@ -8,9 +8,9 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.TreeSet;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
-
 import org.apache.commons.io.FilenameUtils;
 import org.imathrowback.datparser.CObject;
 import org.imathrowback.datparser.DatParser;
@@ -40,9 +40,12 @@ public class MapGen
 	@Option(name = "-stylized", usage = "Stylized map with borders and roads", required = false)
 	boolean stylized = false;
 
+	@Option(name = "-listWorlds", usage = "Write list of worlds and exit", required = false)
+	boolean listWorlds = false;
+
 	@Option(name = "-riftDirectory", usage = "RIFT directory", required = true)
 	File riftDir;
-	@Option(name = "-world", usage = "World name, can also be instance name, eg world/world2/world3/world4", required = true)
+	@Option(name = "-world", usage = "World name, can also be instance name, eg world/world2/world3/world4", required = false)
 	String worldName;
 
 	@Option(name = "-outdir", usage = "Output directory for files and final image", required = true)
@@ -102,6 +105,36 @@ public class MapGen
 
 		Manifest manifest = new Manifest(assetsManifest);
 		AssetDatabase adb = AssetProcessor.buildDatabase(manifest, assetsDirectory);
+		TelaraDB tb = new TelaraDB(adb);
+
+		if (listWorlds)
+		{
+			try (PrintWriter fw = new PrintWriter(Paths.get(outputDir.toString(), "worlds.txt").toFile()))
+			{
+				TreeSet<String> worlds = new TreeSet<>();
+				tb.getKeys(4479).forEach(k -> {
+					try
+					{
+						CObject obj = tb.getObject(4479, k);
+						String worldName = obj.getString(0);
+						worlds.add(worldName);
+
+					} catch (Exception e)
+					{
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+
+				});
+				worlds.forEach(s -> {
+					System.out.println(s);
+					fw.println(s);
+				});
+			}
+			return;
+		}
+		if (worldName == null || worldName.length() <= 0)
+			throw new IllegalArgumentException("World name not specified");
 
 		_105 worldDef = ClassUtils.newClass(DatParser
 				.processFileAndObject(new ByteArrayInputStream(adb.extractUsingFilename(worldName + "_map.cdr"))));
