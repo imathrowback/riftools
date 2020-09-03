@@ -7,7 +7,7 @@ set RELEASE=PTS
 
 echo ---Download changed files---
 mkdir output
-"%JAVA_HOME%/bin/java" -Xmx3G -jar ManifestDiff.jar -onlyLang 1 -onlyB -guessExtensions -diffCurrent -ignoreMapTextures -outdir output -extractChanged -extractAdded -cacheManifest -release %RELEASE%
+"%JAVA_HOME%/bin/java" -Xmx3G -jar ManifestDiff.jar -onlyLang 1 -onlyB -guessExtensions -diffCurrent -ignoreMapTextures -outdir output -extractChanged -extractAdded -cacheManifest -releaseA %RELEASE%
 
 echo ---Diff language---
 "%JAVA_HOME%/bin/java" -Xmx3G -jar ToTextMode.jar -fileType CDS -file output\lang_english.cdsA -output lang_english.cdsA.txt
@@ -25,5 +25,5 @@ rem "%JAVA_HOME%/bin/java" -Xmx3G -jar TelaraDBDiff.jar -dbA output\telara.dbA -
 REM Language database is optional, if you use it, names will be replaced in the XML output
 REM We have to make this after the diff language, since that will download the language files for use
 
-"%JAVA_HOME%/bin/java" -Xmx3G -jar TelaraDBDiff.jar -dbA output\telara.dbA -dbB output\telara.dbB -outdir output -autoDownload -release %RELEASE%
+"%JAVA_HOME%/bin/java" -Xmx3G -jar TelaraDBDiff.jar -dbA output\telara.dbA -dbB output\telara.dbB -outdir output -autoDownload
 
