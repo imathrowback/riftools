@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import org.imathrowback.datparser.CObject;
@@ -60,39 +61,41 @@ public class ExtractAbilities extends RiftAction
 							return comp(lang, a.unk27, b.unk27);
 						})
 						.collect(Collectors.toList());
-
-				try (PrintWriter pw = new PrintWriter(
-						Paths.get(outputDir.getAbsolutePath(), "ability_index.txt").toFile()))
+				TreeSet<String> abilityIndex = new TreeSet<>();
+				for (_81 ability : abilities)
 				{
-					for (_81 ability : abilities)
+					try
 					{
-						try
-						{
-							String name = getText(lang, ability.unk27);
-							String text = getText(lang, ability.unk28);
+						String name = getText(lang, ability.unk27);
+						String text = getText(lang, ability.unk28);
 
-							///System.out.println(name + ">>>" + text);
-							Long iconID = ability.unk39;
-							if (iconID != null && iconID > 0)
-							{
-								_6008 icon = (_6008) get(db, 6009, iconID);
-								if (icon != null && icon.unk1 != null)
-								{
-									String iconFileName = icon.unk1;
-									String assetName = new File(iconFileName + ".dds").getName();
-									String outputName = Paths.get(outputDir.getAbsolutePath(), assetName).toString();
-									adb.extractToFilename(assetName, outputName);
-									pw.println(name + "," + assetName);
-									//System.out.println(name + ":" + iconFileName + ":" + exists);
-								}
-							}
-						} catch (Exception ex)
+						///System.out.println(name + ">>>" + text);
+						Long iconID = ability.unk39;
+						if (iconID != null && iconID > 0)
 						{
-							ex.printStackTrace();
+							_6008 icon = (_6008) get(db, 6009, iconID);
+							if (icon != null && icon.unk1 != null)
+							{
+								String iconFileName = icon.unk1;
+								String assetName = new File(iconFileName + ".dds").getName();
+								String outputName = Paths.get(outputDir.getAbsolutePath(), assetName).toString();
+								adb.extractToFilename(assetName, outputName);
+								abilityIndex.add(name + "," + assetName);
+								//System.out.println(name + ":" + iconFileName + ":" + exists);
+							}
 						}
+					} catch (Exception ex)
+					{
+						ex.printStackTrace();
 					}
 				}
 				System.out.println("COMPLETE>>");
+				try (PrintWriter pw = new PrintWriter(
+						Paths.get(outputDir.getAbsolutePath(), "ability_index.txt").toFile()))
+				{
+					for (String s : abilityIndex)
+						pw.println(s);
+				}
 
 			} else
 				throw new IllegalArgumentException("RIFT directory not valid:" + riftDir);
