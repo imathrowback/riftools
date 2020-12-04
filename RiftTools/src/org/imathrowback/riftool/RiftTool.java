@@ -78,6 +78,9 @@ public class RiftTool extends RiftAction
 			case EXTRACT:
 				o = new ExtractAll();
 				break;
+			case EXTRACT_ABILITYICONS:
+				o = new ExtractAbilities();
+				break;
 		}
 		if (o != null)
 			if (parse(o, args))

@@ -9,6 +9,7 @@ import org.imathrowback.datparser.CObject;
 import org.imathrowback.datparser.DatParser;
 import com.google.common.io.LittleEndianDataInputStream;
 import Huffman.magleo.HuffmanReader;
+import rift_extractor.classgen.classes.TextEntry;
 import rift_extractor.util.Leb128;
 
 class CDEntry
@@ -91,5 +92,12 @@ public class EnglishLang
 		}
 		entries = null;
 
+	}
+
+	public String getText(final TextEntry unk28)
+	{
+		if (unk28 == null)
+			return "";
+		return getText(unk28.unk0);
 	}
 }

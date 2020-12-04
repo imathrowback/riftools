@@ -124,7 +124,16 @@ public class ClassUtils
 							throw ex;
 						}
 					} else
-						ary.add(newClass(child));
+					{
+						try
+						{
+							ary.add(newClass(child));
+						} catch (Exception ex)
+						{
+							ary.add(null);
+						}
+					}
+
 				}
 				return ary;
 			}
@@ -132,6 +141,7 @@ public class ClassUtils
 		}
 		return null;//Collections.emptyList();
 		//throw new IllegalStateException("unable to find field [" + memberIndex + "]");
+
 	}
 
 	public static <T> T getFieldMember(final Class<T> clazz, final CObject obj, final int i)
@@ -195,13 +205,15 @@ public class ClassUtils
 					}
 				} catch (Exception ex)
 				{
-					System.err.println("WARN: Unable to convert o[" + o.type + "][" + o.toString() + "] to " + clazz);
+					//System.err.println("WARN: Unable to convert o[" + o.type + "][" + o.toString() + "] to " + clazz);
 					//ex.printStackTrace();
 					//throw ex;
 				}
 				//System.out.println("return type:" + t.getClass());
 				if (t.getClass() == Object.class)
-					System.err.println("WARN: Unable to convert o[" + o.type + "][" + o.toString() + "] to " + clazz);
+				{
+					//System.err.println("WARN: Unable to convert o[" + o.type + "][" + o.toString() + "] to " + clazz);
+				}
 				return (T) t;
 			}
 		}
