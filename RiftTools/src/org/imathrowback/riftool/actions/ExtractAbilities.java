@@ -1,6 +1,7 @@
 package org.imathrowback.riftool.actions;
 
 import java.io.File;
+import java.io.PrintWriter;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -60,30 +61,35 @@ public class ExtractAbilities extends RiftAction
 						})
 						.collect(Collectors.toList());
 
-				for (_81 ability : abilities)
+				try (PrintWriter pw = new PrintWriter(
+						Paths.get(outputDir.getAbsolutePath(), "ability_index.txt").toFile()))
 				{
-					try
+					for (_81 ability : abilities)
 					{
-						String name = getText(lang, ability.unk27);
-						String text = getText(lang, ability.unk28);
-
-						///System.out.println(name + ">>>" + text);
-						Long iconID = ability.unk39;
-						if (iconID != null && iconID > 0)
+						try
 						{
-							_6008 icon = (_6008) get(db, 6009, iconID);
-							if (icon != null && icon.unk1 != null)
+							String name = getText(lang, ability.unk27);
+							String text = getText(lang, ability.unk28);
+
+							///System.out.println(name + ">>>" + text);
+							Long iconID = ability.unk39;
+							if (iconID != null && iconID > 0)
 							{
-								String iconFileName = icon.unk1;
-								String assetName = new File(iconFileName + ".dds").getName();
-								String outputName = Paths.get(outputDir.getAbsolutePath(), assetName).toString();
-								adb.extractToFilename(assetName, outputName);
-								//System.out.println(name + ":" + iconFileName + ":" + exists);
+								_6008 icon = (_6008) get(db, 6009, iconID);
+								if (icon != null && icon.unk1 != null)
+								{
+									String iconFileName = icon.unk1;
+									String assetName = new File(iconFileName + ".dds").getName();
+									String outputName = Paths.get(outputDir.getAbsolutePath(), assetName).toString();
+									adb.extractToFilename(assetName, outputName);
+									pw.println(name + "," + assetName);
+									//System.out.println(name + ":" + iconFileName + ":" + exists);
+								}
 							}
+						} catch (Exception ex)
+						{
+							ex.printStackTrace();
 						}
-					} catch (Exception ex)
-					{
-						ex.printStackTrace();
 					}
 				}
 				System.out.println("COMPLETE>>");
