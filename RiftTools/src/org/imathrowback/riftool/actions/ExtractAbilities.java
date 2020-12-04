@@ -3,10 +3,6 @@ package org.imathrowback.riftool.actions;
 import java.io.File;
 import java.io.PrintWriter;
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.TreeSet;
-import java.util.stream.Collectors;
-
 import org.imathrowback.datparser.CObject;
 import org.imathrowback.telaradb.TelaraDB;
 import org.kohsuke.args4j.Option;
@@ -24,11 +20,16 @@ public class ExtractAbilities extends RiftAction
 {
 	@Option(name = "-riftDir", usage = "Directory where RIFT is installed", required = true)
 	File riftDir;
+	@Option(name = "-overwrite", usage = "True to overwrite existing files, defaults to false", required = false)
+	boolean overwrite = false;
 
 	@Option(name = "-outputDir", usage = "Write any output to this directory", required = true)
 	File outputDir;
 	@Option(name = "-32")
 	boolean is32 = false;
+	TelaraDB db;
+	EnglishLang lang;
+	AssetDatabase adb;
 
 	@Override
 	public void go()
@@ -51,51 +52,28 @@ public class ExtractAbilities extends RiftAction
 
 				File assetsDirectory = Paths.get(riftDir.toString(), "assets").toFile();
 				Manifest manifest = new Manifest(assetsManifest.toString());
-				AssetDatabase adb = AssetProcessor.buildDatabase(manifest, assetsDirectory.toString());
+				adb = AssetProcessor.buildDatabase(manifest, assetsDirectory.toString());
 
-				TelaraDB db = new TelaraDB(adb);
-				EnglishLang lang = new EnglishLang(adb.extractUsingFilename("lang_english.cds"));
-
-				List<_81> abilities = db.getKeys(83).parallel().map(x -> get(db, 83, x))
-						.map(x -> ClassUtils.newClass(_81.class, x)).sorted((a, b) -> {
-							return comp(lang, a.unk27, b.unk27);
-						})
-						.collect(Collectors.toList());
-				TreeSet<String> abilityIndex = new TreeSet<>();
-				for (_81 ability : abilities)
-				{
-					try
-					{
-						String name = getText(lang, ability.unk27);
-						String text = getText(lang, ability.unk28);
-
-						///System.out.println(name + ">>>" + text);
-						Long iconID = ability.unk39;
-						if (iconID != null && iconID > 0)
-						{
-							_6008 icon = (_6008) get(db, 6009, iconID);
-							if (icon != null && icon.unk1 != null)
-							{
-								String iconFileName = icon.unk1;
-								String assetName = new File(iconFileName + ".dds").getName();
-								String outputName = Paths.get(outputDir.getAbsolutePath(), assetName).toString();
-								adb.extractToFilename(assetName, outputName);
-								abilityIndex.add(name + "," + assetName);
-								//System.out.println(name + ":" + iconFileName + ":" + exists);
-							}
-						}
-					} catch (Exception ex)
-					{
-						ex.printStackTrace();
-					}
-				}
-				System.out.println("COMPLETE>>");
-				try (PrintWriter pw = new PrintWriter(
+				db = new TelaraDB(adb);
+				lang = new EnglishLang(adb.extractUsingFilename("lang_english.cds"));
+				try (final PrintWriter pw = new PrintWriter(
 						Paths.get(outputDir.getAbsolutePath(), "ability_index.txt").toFile()))
 				{
-					for (String s : abilityIndex)
-						pw.println(s);
+					db.getKeys(83).parallel().map(x -> get(db, 83, x))
+							.forEach(x -> {
+								try
+								{
+									_81 ee = ClassUtils.newClass(_81.class, x);
+									write(ee);
+									pw.println(x.key + "," + getText(lang, ee.unk27) + "," + getIconName(ee));
+								} catch (Exception ex)
+								{
+
+								}
+							});
+
 				}
+				System.out.println("COMPLETE>>");
 
 			} else
 				throw new IllegalArgumentException("RIFT directory not valid:" + riftDir);
@@ -103,6 +81,53 @@ public class ExtractAbilities extends RiftAction
 		{
 			throw new RuntimeException(ex);
 		}
+	}
+
+	private String getIconName(final _81 ability) throws Exception
+	{
+		Long iconID = ability.unk39;
+		if (iconID != null && iconID > 0)
+		{
+			_6008 icon = (_6008) get(db, 6009, iconID);
+			if (icon != null && icon.unk1 != null)
+			{
+				String iconFileName = icon.unk1;
+				String assetName = new File(iconFileName + ".dds").getName();
+				return assetName;
+			}
+		}
+		return null;
+
+	}
+
+	private String write(final _81 ability)
+	{
+		try
+		{
+			String name = getText(lang, ability.unk27);
+			String text = getText(lang, ability.unk28);
+
+			///System.out.println(name + ">>>" + text);
+			Long iconID = ability.unk39;
+			if (iconID != null && iconID > 0)
+			{
+				_6008 icon = (_6008) get(db, 6009, iconID);
+				if (icon != null && icon.unk1 != null)
+				{
+					String iconFileName = icon.unk1;
+					String assetName = new File(iconFileName + ".dds").getName();
+					String outputName = Paths.get(outputDir.getAbsolutePath(), assetName).toString();
+					if (!new File(outputName).exists() || overwrite)
+						adb.extractToFilename(assetName, outputName);
+					return (name + "," + assetName);
+				}
+			}
+		} catch (Exception ex)
+		{
+			ex.printStackTrace();
+		}
+		return "";
+
 	}
 
 	public static void main(final String[] args) throws Exception
