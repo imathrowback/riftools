@@ -191,6 +191,18 @@ public class CObject
 		}
 	}
 
+	public Long getSignedVarLong(final int i)
+	{
+		try
+		{
+			CObject o = getAtIndex(i);
+			return new CSignedVarLongConvertor().convert(o);
+		} catch (Exception ex)
+		{
+			return null;
+		}
+	}
+
 	public Integer getInt(final int i, final int def)
 	{
 		try
