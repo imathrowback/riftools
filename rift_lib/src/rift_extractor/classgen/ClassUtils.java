@@ -162,6 +162,7 @@ public class ClassUtils
 				try
 				{
 					String toStr = "" + t;
+
 					if (clazz.isAssignableFrom(HashMap.class))
 					{
 						return map(clazz, o);

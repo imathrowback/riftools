@@ -23,6 +23,7 @@ public class ClassDefaults
 					case 4086:
 					case 4235:
 					case 13154:
+					case 898:
 						return new CFileTimeConvertor();
 				}
 				return new CDoubleConvertor();

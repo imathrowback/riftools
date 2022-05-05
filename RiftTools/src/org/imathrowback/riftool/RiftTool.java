@@ -49,6 +49,9 @@ public class RiftTool extends RiftAction
 		RiftAction o = null;
 		switch (action)
 		{
+			case EXTRACT_WORLDQUESTS:
+				o = new ExtractWorldQuests();
+				break;
 			case EXTRACT_MINIONS:
 				o = new MinionDatabase();
 				break;

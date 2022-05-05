@@ -208,6 +208,7 @@ public class DatParser
 
 				if (parent.type != null && (parent.type == 4086))
 				{
+
 					parent.addMember(new CObject(5, d, extraData, new CFileTimeConvertor()));
 					//parent.addMember(readFileTime(diss));
 				} else

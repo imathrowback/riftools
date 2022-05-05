@@ -32,12 +32,16 @@ public class CFileTimeConvertor extends CObjectConverter<Date>
 	 * @return a Date converted from the Windows FILETIME stored in the buffer
 	 * @throws Buffer.BufferException If an underflow occurs by reading the FILETIME (less than 8 bytes available).
 	 */
+	public static Date getDate(final long value)
+	{
+		return new Date((value - WINDOWS_TO_UNIX_EPOCH) / NANO100_TO_MILLI);
+	}
 
 	public static Date readFileTime(final DataInput diss) throws Exception
 	{
-		long lowOrder = diss.readInt();
-		long highOrder = diss.readInt();
-		long windowsTimeStamp = (highOrder << 32) | lowOrder;
-		return new Date((windowsTimeStamp - WINDOWS_TO_UNIX_EPOCH) / NANO100_TO_MILLI);
+		//long lowOrder = diss.readInt();
+		//long highOrder = diss.readInt();
+		//long windowsTimeStamp = (highOrder << 32) | lowOrder;
+		return new Date((diss.readLong() - WINDOWS_TO_UNIX_EPOCH) / NANO100_TO_MILLI);
 	}
 }
