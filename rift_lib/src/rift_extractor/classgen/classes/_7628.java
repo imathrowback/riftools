@@ -13,7 +13,7 @@ public class _7628
 
 	java.lang.String internalName;
 	public TextEntry textName;
-	java.lang.Long renderableTemplate;
+	public java.lang.Long renderableTemplate;
 	java.lang.Long unk3;
 	public java.lang.Long iconID_6009_6008;
 	java.util.List<java.lang.Long> unk5;

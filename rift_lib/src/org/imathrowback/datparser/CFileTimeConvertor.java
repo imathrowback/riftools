@@ -39,9 +39,6 @@ public class CFileTimeConvertor extends CObjectConverter<Date>
 
 	public static Date readFileTime(final DataInput diss) throws Exception
 	{
-		//long lowOrder = diss.readInt();
-		//long highOrder = diss.readInt();
-		//long windowsTimeStamp = (highOrder << 32) | lowOrder;
 		return new Date((diss.readLong() - WINDOWS_TO_UNIX_EPOCH) / NANO100_TO_MILLI);
 	}
 }

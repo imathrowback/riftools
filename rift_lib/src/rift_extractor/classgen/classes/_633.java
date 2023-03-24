@@ -16,7 +16,7 @@ public class _633
 	public java.lang.String unk2;
 	public java.lang.String unk3;
 	java.lang.String unk4;
-	java.util.HashMap<java.lang.Long, _729> unk5;
+	public java.util.HashMap<java.lang.Long, _729> unk5;
 	public TextEntry unk6;
 	java.util.List<java.lang.Long> unk7;
 	java.lang.Float unk8;

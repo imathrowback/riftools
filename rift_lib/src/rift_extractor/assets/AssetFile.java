@@ -28,11 +28,19 @@ public class AssetFile
 	public int endEntryIndex;
 	public int[] prev;
 	public int realCount;
+	FileChannel localFc;
 
 	@Override
 	public String toString()
 	{
 		return file.getName();
+	}
+
+	private FileChannel openFC() throws IOException
+	{
+		if (localFc == null)
+			localFc = FileChannel.open(file.toPath(), StandardOpenOption.READ);
+		return localFc;
 	}
 
 	public AssetFile(final File file) throws IOException
@@ -81,8 +89,7 @@ public class AssetFile
 		if (entry.file != this)
 			throw new IllegalArgumentException(
 					"Extract called on wrong asset file[" + file + "] for asset:" + entry);
-		FileChannel fc;
-		fc = FileChannel.open(file.toPath(), StandardOpenOption.READ);
+		FileChannel fc = openFC();
 		ByteBuffer data = ByteBuffer.allocate(entry.size);
 		long bytesRead = fc.read(data, entry.offset);
 		byte[] b = data.array();
@@ -117,8 +124,7 @@ public class AssetFile
 
 		try
 		{
-			FileChannel fc;
-			fc = FileChannel.open(file.toPath(), StandardOpenOption.READ);
+			FileChannel fc = openFC();
 			if (nodecomp || (entry.compressed == 0))
 			{
 				// if not compressed

@@ -48,7 +48,6 @@ public class AssetDatabase
 			entries = Stream.concat(entries, file.getEntries());
 		}
 		return entries.sorted(Comparator.comparing(e -> e.strID));
-
 	}
 
 	private AssetFile findAssetFileForID(final byte[] id)

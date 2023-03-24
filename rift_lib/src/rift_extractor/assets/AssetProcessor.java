@@ -23,7 +23,8 @@ public class AssetProcessor
 		if (assetFiles == null)
 			throw new IllegalArgumentException("Unable to find files in the asset directory: " + assetDirectory);
 		Stream.of(assetFiles).forEach(file -> {
-
+			if (file.getName().endsWith("999"))
+				return;
 			try
 			{
 				assets.add(buildAssetFileDatabase(manifest, file));

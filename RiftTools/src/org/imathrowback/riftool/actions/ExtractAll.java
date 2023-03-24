@@ -29,8 +29,8 @@ public class ExtractAll extends RiftAction
 
 	@Option(name = "-riftDir", usage = "The RIFT directory (required)", metaVar = "DIR", required = true)
 	File riftDir;
-	@Option(name = "-64")
-	boolean is64 = true;
+	@Option(name = "-64", usage = "Use 64 bit RIFT")
+	boolean is64 = false;
 	@Option(name = "-dryRun", usage = "Simulate an extraction but don't write any files")
 	boolean dryRun = false;
 
@@ -145,24 +145,46 @@ public class ExtractAll extends RiftAction
 					outFile = Paths.get(outDir.toString(), filename);
 					if (ext != null)
 						outFile = Paths.get(outDir.toString(), filename + "." + ext);
+					File fileToWrite = outFile.toFile();
+					int i = 0;
+					while (fileToWrite.exists())
+					{
+						String p = FilenameUtils.getPath(fileToWrite.toString());
+						String n = FilenameUtils.getBaseName(fileToWrite.toString());
+						String e = FilenameUtils.getExtension(fileToWrite.toString());
+						String newName = FilenameUtils.concat(p, n + "-" + (i++) + "." + e);
+						fileToWrite = new File(newName);
+
+					}
+
 					if (!dryRun)
 					{
-						if (!outFile.toFile().exists())
-							try (FileOutputStream fos = new FileOutputStream(outFile.toFile()))
-							{
-								fos.write(data);
-							}
+						try (FileOutputStream fos = new FileOutputStream(fileToWrite))
+						{
+							fos.write(data);
+						}
+
 					}
 				} else
 				{
 					outFile = Paths.get(outDir.toString(), filename);
+					File fileToWrite = outFile.toFile();
+					int i = 0;
+					while (fileToWrite.exists())
+					{
+						String p = FilenameUtils.getPath(fileToWrite.toString());
+						String n = FilenameUtils.getBaseName(fileToWrite.toString());
+						String e = FilenameUtils.getExtension(fileToWrite.toString());
+						String newName = FilenameUtils.concat(p, n + "-" + (i++) + "." + e);
+						fileToWrite = new File(newName);
+					}
+
 					if (!dryRun)
 					{
-						if (!outFile.toFile().exists())
-							try (FileOutputStream fos = new FileOutputStream(outFile.toFile()))
-							{
-								adb.extract(ae, fos);
-							}
+						try (FileOutputStream fos = new FileOutputStream(fileToWrite))
+						{
+							adb.extract(ae, fos);
+						}
 					}
 				}
 			} catch (Exception ex)

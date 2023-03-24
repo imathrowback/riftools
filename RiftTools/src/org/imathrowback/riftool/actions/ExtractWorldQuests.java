@@ -96,31 +96,37 @@ public class ExtractWorldQuests extends RiftAction
 					.map(x -> ClassUtils.newClass(_893.class, x)).collect(Collectors.toList());
 			System.out.println("write world quest details...");
 
-			pw.println("name|tempory text|description|start|end");
+			pw.println("name|tempory text|description|unkBool|start|end");
 			for (_893 quest : quests)
 			{
 				String name = getText(lang, quest.unk0);
 				String tempText = getTempText(lang, quest.unk0);
 				String description = getText(lang, quest.unk2);
 				Date end = quest.getEndTime();
+				boolean unk6 = (quest.unk6 == null) ? Boolean.FALSE : quest.unk6;
 
-				if (quest.unk1 != null)
+				if (unk6)
 				{
-					for (_898 entry : quest.unk1)
+					if (quest.unk1 != null)
 					{
-						if (entry != null)
+						for (_898 entry : quest.unk1)
 						{
-							Date start = entry.getStartTime();
-							pw.println(name + "|" + tempText + "|" + description + "|" + start + "|" + end);
-						} else
-							pw.println(name + "|" + tempText + "|" + description + "|" + "" + "|" + end);
-					}
-				} else
-					pw.println(name + "|" + tempText + "|" + description + "|" + "" + "|" + end);
-
+							if (entry != null)
+							{
+								Date start = entry.getStartTime();
+								pw.println(name + "|" + tempText + "|" + description + "|" + unk6 + "|" + start + "|"
+										+ end);
+							} else
+								pw.println(name + "|" + tempText + "|" + description + "|" + unk6 + "|" + "" + "|"
+										+ end);
+						}
+					} else
+						pw.println(name + "|" + tempText + "|" + description + "|" + "" + "|" + end);
+				}
 			}
 			pw.close();
 		} finally
+
 		{
 		}
 

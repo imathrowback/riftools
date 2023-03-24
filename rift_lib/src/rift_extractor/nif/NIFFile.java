@@ -198,7 +198,7 @@ public class NIFFile
 		} catch (Exception ex)
 		{
 			clazzMap.put(name, null);
-			System.err.println("Unhandled nif type: " + name);
+			//System.err.println("Unhandled nif type: " + name);
 			return null;
 		}
 	}
