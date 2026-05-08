@@ -45,6 +45,8 @@ public class ManifestDiffer
 		if (config.isDetectRenames() && config.getKeyStrategy().supportsRenames())
 			detectRenames(config, mapA, mapB, onlyInA, onlyInB, result);
 
+		fuzzyMatchChanges(config, mapA, mapB, onlyInA, onlyInB, result, manifestA, manifestB);
+
 		for (String key : onlyInA)
 			for (ManifestEntry entry : mapA.get(key))
 				result.addEntry(new DiffEntry(ChangeType.DELETED, entry, null, key, key,
@@ -56,7 +58,8 @@ public class ManifestDiffer
 						EnumSet.noneOf(MetadataFlag.class), resolveName(entry)));
 
 		for (String key : keysBoth)
-			deepCompareKey(config, mapA.get(key), mapB.get(key), key, result);
+			deepCompareKey(config, mapA.get(key), mapB.get(key), key, result,
+					manifestA, manifestB);
 
 		return result;
 	}
@@ -132,6 +135,49 @@ public class ManifestDiffer
 		}
 	}
 
+	private void fuzzyMatchChanges(final DiffConfig config,
+			final Map<String, List<ManifestEntry>> mapA,
+			final Map<String, List<ManifestEntry>> mapB,
+			final Set<String> onlyInA, final Set<String> onlyInB,
+			final DiffResult result,
+			final Manifest manifestA, final Manifest manifestB)
+	{
+		Map<String, List<ManifestEntry>> fuzzyMapA = new HashMap<>();
+		for (String key : onlyInA)
+			for (ManifestEntry e : mapA.get(key))
+				fuzzyMapA.computeIfAbsent(
+						e.filenameHashStr + ":" + e.lang + ":" + normalizedPakName(manifestA, e.pakIndex),
+						k -> new ArrayList<>()).add(e);
+
+		Map<String, List<ManifestEntry>> fuzzyMapB = new HashMap<>();
+		for (String key : onlyInB)
+			for (ManifestEntry e : mapB.get(key))
+				fuzzyMapB.computeIfAbsent(
+						e.filenameHashStr + ":" + e.lang + ":" + normalizedPakName(manifestB, e.pakIndex),
+						k -> new ArrayList<>()).add(e);
+
+		Set<String> common = new HashSet<>(fuzzyMapA.keySet());
+		common.retainAll(fuzzyMapB.keySet());
+
+		for (String fk : common)
+		{
+			List<ManifestEntry> listA = fuzzyMapA.get(fk);
+			List<ManifestEntry> listB = fuzzyMapB.get(fk);
+			int pairs = Math.min(listA.size(), listB.size());
+			for (int i = 0; i < pairs; i++)
+			{
+				ManifestEntry a = listA.get(i);
+				ManifestEntry b = listB.get(i);
+				String oldKey = config.getKeyStrategy().getKey(a);
+				String newKey = config.getKeyStrategy().getKey(b);
+				result.addEntry(new DiffEntry(ChangeType.CHANGED, a, b, oldKey, newKey,
+						EnumSet.noneOf(MetadataFlag.class), resolveName(a)));
+				removeEntry(mapA, oldKey, a, onlyInA);
+				removeEntry(mapB, newKey, b, onlyInB);
+			}
+		}
+	}
+
 	private void removeKey(final Map<String, List<ManifestEntry>> map, final String key, final Set<String> keySet)
 	{
 		List<ManifestEntry> entries = map.get(key);
@@ -145,8 +191,23 @@ public class ManifestDiffer
 		}
 	}
 
+	private void removeEntry(final Map<String, List<ManifestEntry>> map, final String key,
+			final ManifestEntry entry, final Set<String> keySet)
+	{
+		List<ManifestEntry> entries = map.get(key);
+		if (entries == null)
+			return;
+		entries.remove(entry);
+		if (entries.isEmpty())
+		{
+			map.remove(key);
+			keySet.remove(key);
+		}
+	}
+
 	private void deepCompareKey(final DiffConfig config, final List<ManifestEntry> entriesA,
-			final List<ManifestEntry> entriesB, final String key, final DiffResult result)
+			final List<ManifestEntry> entriesB, final String key, final DiffResult result,
+			final Manifest manifestA, final Manifest manifestB)
 	{
 		Map<Integer, ManifestEntry> byLangA = new HashMap<>();
 		for (ManifestEntry e : entriesA)
@@ -167,10 +228,10 @@ public class ManifestDiffer
 				Set<MetadataFlag> flags = EnumSet.noneOf(MetadataFlag.class);
 				ChangeType ct = ChangeType.UNCHANGED;
 
-				if (config.isTrackPakMoves() && aEntry.pakIndex != bEntry.pakIndex)
+				if (config.isTrackPakMoves() && !normalizedPakName(manifestA, aEntry.pakIndex).equals(normalizedPakName(manifestB, bEntry.pakIndex)))
 				{
 					ct = ChangeType.MOVED;
-					flags.add(MetadataFlag.PAK_INDEX_CHANGED);
+					flags.add(MetadataFlag.PAK_CHANGED);
 				}
 				if (config.isTrackSizeChanges())
 				{
@@ -186,8 +247,8 @@ public class ManifestDiffer
 			else
 			{
 				Set<MetadataFlag> flags = EnumSet.noneOf(MetadataFlag.class);
-				if (config.isTrackPakMoves() && aEntry.pakIndex != bEntry.pakIndex)
-					flags.add(MetadataFlag.PAK_INDEX_CHANGED);
+				if (config.isTrackPakMoves() && !normalizedPakName(manifestA, aEntry.pakIndex).equals(normalizedPakName(manifestB, bEntry.pakIndex)))
+					flags.add(MetadataFlag.PAK_CHANGED);
 				if (config.isTrackSizeChanges())
 				{
 					if (aEntry.size != bEntry.size)
@@ -240,5 +301,18 @@ public class ManifestDiffer
 	private static String resolveName(final ManifestEntry entry)
 	{
 		return org.imathrowback.manifest.NameDB.getNameForHash(entry.filenameHashStr, "");
+	}
+
+	private static String pakName(final Manifest manifest, final int pakIndex)
+	{
+		if (manifest == null || manifest.pakFiles == null || pakIndex < 0 || pakIndex >= manifest.pakFiles.size())
+			return String.valueOf(pakIndex);
+		return manifest.pakFiles.get(pakIndex).name;
+	}
+
+	private static String normalizedPakName(final Manifest manifest, final int pakIndex)
+	{
+		String name = pakName(manifest, pakIndex);
+		return name.replaceAll("_\\d+(?=\\.)", "");
 	}
 }

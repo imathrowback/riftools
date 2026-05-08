@@ -46,6 +46,20 @@ public enum DiffKeyStrategy
 			return true;
 		}
 	},
+	FILENAME_HASH_AND_LENGTH_AND_ASSET_ID
+	{
+		@Override
+		public String getKey(final ManifestEntry entry)
+		{
+			return entry.filenameHashStr + ":" + entry.filenameLength + ":" + entry.idStr;
+		}
+
+		@Override
+		public boolean supportsRenames()
+		{
+			return true;
+		}
+	},
 	ASSET_ID
 	{
 		@Override
