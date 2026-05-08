@@ -35,10 +35,11 @@ public class RemotePAK
 	/** TODO, get these from the GlyphLibrary.xml file */
 	static String BASE_URL[] = {
 			"http://rift-update.dyn.triongames.com/ch1-live-streaming-client-patch",
-			"http://update2.triongames.com/ch1-live-streaming-client-patch",
+			"http://rift-update.dyn.triongames.com/pts",
+			//"http://update2.triongames.com/ch1-live-streaming-client-patch",
 	};
-	static String VERSIONS_NAME[] = { "public/ch1-live.txt", "public/ch1-pts.txt" };
-	static String CONTENT_URL[] = { "content/patchlive0", "content/patchpts0" };
+	static String VERSIONS_NAME[] = { "public/ch1-live.txt", "public/ch1-pts64.txt" };
+	static String CONTENT_URL[] = { "content/patchlive", "content/pts" };
 	static String VERSIONS64_MANIFEST = "recovery64/recovery64.manifest";
 	static String VERSIONS32_MANIFEST = "recovery/recovery.manifest";
 
@@ -55,6 +56,45 @@ public class RemotePAK
 	public static String getVersionUrl(final ReleaseType type)
 	{
 		return VERSIONS_NAME[type.ordinal()];
+	}
+
+	public static String getIdxString(final int idx)
+	{
+		if (idx == 0)
+			return "";
+		return "" + idx;
+	}
+
+
+	public static PatchInfo getPatch(final ReleaseType type, final boolean is64, final int index) throws IOException
+	{
+		String VERSIONS_MANIFEST = is64 ? VERSIONS64_MANIFEST : VERSIONS32_MANIFEST;
+		String idx = getIdxString(index);
+		String url = getBaseUrl(type) + "/" + getContentUrl(type) + idx + "/" + VERSIONS_MANIFEST;
+
+		try (InputStream input = getURLAsStream(url))
+		{
+			List<String> lines = IOUtils.readLines(input, "UTF-8");
+			for (int li = 0; li < lines.size(); li++)
+			{
+				String line = lines.get(li).trim();
+				if (line.startsWith("version"))
+				{
+					String version = line.split(" ")[1];
+					List<String> pLines = new LinkedList<>();
+					do
+					{
+						line = lines.get(++li).trim();
+						if (line.equals("f"))
+							break;
+						pLines.add(line);
+					} while (!line.equals("f"));
+					if (!version.equals("0"))
+						return new PatchInfo(type, index, version, pLines);
+				}
+			}
+		}
+		return null;
 	}
 
 	private static InputStream getURLAsStream(final String url) throws IOException
@@ -85,7 +125,7 @@ public class RemotePAK
 	private static Map<ReleaseType, TreeMap<Integer, PatchInfo>> patchCache = new TreeMap<>();
 	static File patchCacheFile = new File("patch.cache");
 	static boolean useCache = false;
-	final static int MAX_PATCH_INDEX = 6;
+	final static int MAX_PATCH_INDEX = 50;
 
 	public static TreeMap<Integer, PatchInfo> getPatches(final ReleaseType type, final boolean _is64) throws IOException
 	{
@@ -113,22 +153,27 @@ public class RemotePAK
 		TreeMap<Integer, TreeSet<PatchInfo>> patches = new TreeMap<>();
 
 		// find the previous patch
-		for (int i = 1; i < MAX_PATCH_INDEX; i++)
+		for (int i = 0; i < MAX_PATCH_INDEX; i++)
 		{
-			String url = getBaseUrl(type) + "/" + getContentUrl(type) + i + "/" + VERSIONS_MANIFEST;
-			//System.out.println(url);
+			String idx = getIdxString(i);
+
+			String url = getBaseUrl(type) + "/" + getContentUrl(type) + idx + "/" + VERSIONS_MANIFEST;
+			System.out.println("attempt getPatch manifest:" + url);
 			try (InputStream input = getURLAsStream(url))
 			{
 
 				TreeSet<PatchInfo> p = new TreeSet<PatchInfo>();
 				List<String> lines = IOUtils.readLines(input, "UTF-8");
+//				System.out.println("\tRead OK");
 
 				for (int li = 0; li < lines.size(); li++)
 				{
 					String line = lines.get(li).trim();
+					//System.out.println("\tFound version line:" + line);
 					if (line.startsWith("version"))
 					{
 						String version = line.split(" ")[1];
+//						System.out.println("\t\tVersion:" + version);
 						List<String> pLines = new LinkedList<>();
 						do
 						{
@@ -152,14 +197,14 @@ public class RemotePAK
 			} catch (Exception ex)
 			{
 				// ignore this, we don't care
-				//System.err.println("failed:" + url);
+//				System.err.println("\tfailed:" + url);
 				//ex.printStackTrace();
 				//break;
 			}
 		}
 
 		TreeMap<Integer, PatchInfo> currentPatches = new TreeMap<>();
-		for (int i = 1; i < MAX_PATCH_INDEX; i++)
+		for (int i = 0; i < MAX_PATCH_INDEX; i++)
 		{
 			if (patches.containsKey(i))
 			{
@@ -249,7 +294,7 @@ public class RemotePAK
 			}
 		}
 
-		String url = getBaseUrl(type) + "/" + getContentUrl(type) + patchInfo.index
+		String url = getBaseUrl(type) + "/" + getContentUrl(type) + getIdxString(patchInfo.index)
 				+ "/recovery64/assets64.manifest";
 		System.out.print("downloading manifest:" + url + "  ");
 
@@ -297,7 +342,7 @@ public class RemotePAK
 			final boolean extractable)
 			throws Exception
 	{
-		String url = getBaseUrl(type) + "/" + getContentUrl(type) + patch.index + "/"
+		String url = getBaseUrl(type) + "/" + getContentUrl(type) + getIdxString(patch.index) + "/"
 				+ pakFile;
 		System.out.println("get pak:" + url);
 		PAKHeader header = getPAKHeader(client, url);
@@ -390,7 +435,7 @@ public class RemotePAK
 			final String outputFilename,
 			final String outputDir, final boolean _is64) throws IOException
 	{
-		PatchInfo[] currentPatches = getCurrentPatches(ReleaseType.LIVE, _is64);
+		PatchInfo[] currentPatches = getCurrentPatches(releaseType, _is64);
 		PatchInfo currentPatch = currentPatches[0];
 		if (patch == 'A')
 			currentPatch = currentPatches[0];
@@ -449,9 +494,9 @@ public class RemotePAK
 		int pakIndex = e.pakIndex;
 		ManifestPAKFileEntry pakFile = manifest.getPAK(pakIndex);
 
-		String url = getBaseUrl(type) + "/" + getContentUrl(type) + pindex + "/"
+		String url = getBaseUrl(type) + "/" + getContentUrl(type) + getIdxString(pindex) + "/"
 				+ pakFile.name;
-
+		System.out.println("Extract from url:" + url);
 		int startBytes = e.pakOffset;
 		int endBytes = (e.pakOffset + e.compressedSize) - 1;
 
