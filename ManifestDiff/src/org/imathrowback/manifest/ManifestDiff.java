@@ -109,8 +109,8 @@ public class ManifestDiff
 	@Option(name = "-64")
 	boolean is64 = true;
 
-	@Option(name = "-keyStrategy", usage = "Diff key strategy: FILENAME_HASH, FILENAME_HASH_AND_LANG, ASSET_ID, SHA", required = false)
-	private DiffKeyStrategy keyStrategy = DiffKeyStrategy.FILENAME_HASH;
+	@Option(name = "-keyStrategy", usage = "Diff key strategy: FILENAME_HASH, FILENAME_HASH_AND_LENGTH, FILENAME_HASH_AND_LANG, ASSET_ID, SHA", required = false)
+	private DiffKeyStrategy keyStrategy = DiffKeyStrategy.FILENAME_HASH_AND_LENGTH;
 
 	@Option(name = "-renameDetection", usage = "Detect renames (same SHA, different key)", required = false)
 	private boolean renameDetection = true;

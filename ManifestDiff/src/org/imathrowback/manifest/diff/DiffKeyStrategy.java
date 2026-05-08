@@ -18,6 +18,20 @@ public enum DiffKeyStrategy
 			return true;
 		}
 	},
+	FILENAME_HASH_AND_LENGTH
+	{
+		@Override
+		public String getKey(final ManifestEntry entry)
+		{
+			return entry.filenameHashStr + ":" + entry.filenameLength;
+		}
+
+		@Override
+		public boolean supportsRenames()
+		{
+			return true;
+		}
+	},
 	FILENAME_HASH_AND_LANG
 	{
 		@Override

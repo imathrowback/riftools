@@ -2,7 +2,7 @@ package org.imathrowback.manifest.diff;
 
 public class DiffConfig
 {
-	private DiffKeyStrategy keyStrategy = DiffKeyStrategy.FILENAME_HASH;
+	private DiffKeyStrategy keyStrategy = DiffKeyStrategy.FILENAME_HASH_AND_LENGTH;
 	private int onlyLang = -1;
 	private boolean detectRenames = true;
 	private boolean trackPakMoves = true;
