@@ -1,11 +1,18 @@
 package org.imathrowback.manifest;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.function.Function;
 
 import org.apache.commons.io.FilenameUtils;
@@ -13,6 +20,16 @@ import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 import org.kohsuke.args4j.OptionHandlerFilter;
+
+import org.imathrowback.manifest.diff.ChangeType;
+import org.imathrowback.manifest.diff.DiffConfig;
+import org.imathrowback.manifest.diff.DiffEntry;
+import org.imathrowback.manifest.diff.DiffKeyStrategy;
+import org.imathrowback.manifest.diff.DiffOutput;
+import org.imathrowback.manifest.diff.DiffOutput.Format;
+import org.imathrowback.manifest.diff.DiffResult;
+import org.imathrowback.manifest.diff.ManifestDiffer;
+import org.imathrowback.manifest.diff.MetadataFlag;
 
 import rift_extractor.assets.Manifest;
 import rift_extractor.assets.ManifestEntry;
@@ -60,10 +77,10 @@ public class ManifestDiff
 	@Option(name = "-versionB", usage = "Version B, to check for additions, changes and deletions relative to A", required = false)
 	String versionB = "";
 
-	@Option(name = "-diffCurrent", usage = "Automatically try to diff the current version with the previous version, manifest file paths and version selection options are ignored if this option is specified.", required = false)
+	@Option(name = "-diffCurrent", usage = "Automatically try to diff the current version with the previous version", required = false)
 	boolean diffCurrent = false;
 
-	@Option(name = "-releaseA", usage = "The release to diff. Required if diffCurrent is not specified. If diffCurrent is specified, then it will use this release", required = false)
+	@Option(name = "-releaseA", usage = "The release to diff", required = false)
 	ReleaseType releaseA;
 
 	@Option(name = "-releaseB", usage = "The release to diff for B, optional, will use same as A if left out", required = false)
@@ -77,10 +94,10 @@ public class ManifestDiff
 	@Option(name = "-extractChanged", usage = "Extract changed entries", required = false)
 	boolean extractChanged = false;
 
-	@Option(name = "-manifestA", usage = "RIFT Manifest file to check for changes from, if empty, download remote. ", metaVar = "FILE", required = false)
+	@Option(name = "-manifestA", usage = "RIFT Manifest file to check for changes from", metaVar = "FILE", required = false)
 	File manifestAFile = new File("");
 
-	@Option(name = "-manifestB", usage = "RIFT Manifest file to check for changes to, if empty, download remote", metaVar = "FILE", required = false)
+	@Option(name = "-manifestB", usage = "RIFT Manifest file to check for changes to", metaVar = "FILE", required = false)
 	private File manifestBFile = new File("");
 
 	@Option(name = "-v", usage = "Verbose output", required = false)
@@ -88,43 +105,61 @@ public class ManifestDiff
 
 	@Option(name = "-h", usage = "Print header", required = false)
 	private boolean header;
+
 	@Option(name = "-64")
 	boolean is64 = true;
-	//@Option(name = "-showPak", usage = "Show PAK index", required = false)
-	private final boolean showPak = true;
+
+	@Option(name = "-keyStrategy", usage = "Diff key strategy: FILENAME_HASH, FILENAME_HASH_AND_LANG, ASSET_ID, SHA", required = false)
+	private DiffKeyStrategy keyStrategy = DiffKeyStrategy.FILENAME_HASH;
+
+	@Option(name = "-renameDetection", usage = "Detect renames (same SHA, different key)", required = false)
+	private boolean renameDetection = true;
+
+	@Option(name = "-trackMoves", usage = "Track PAK index moves", required = false)
+	private boolean trackMoves = true;
+
+	@Option(name = "-format", usage = "Output format: text, json, or html", required = false)
+	private String formatStr = "text";
+
+	@Option(name = "-output", usage = "Write output to file instead of stdout", required = false)
+	private String outputFile = "";
 
 	boolean alwaysDownload(final ManifestEntry e)
 	{
-		String name = (NameDB.getNameForHash(e.filenameHashStr));
+		String name = NameDB.getNameForHash(e.filenameHashStr);
 		return (name.contains(".cds") || name.contains(".db"));
 	}
 
 	public void doMain(final Collection<String> args) throws Exception
 	{
-		//Systme.out.println(Arrays.toString(a))
+		System.out.println("is64:" + is64);
 		CmdLineParser parser = new CmdLineParser(this);
 		parser.setUsageWidth(80);
 		try
 		{
-
-			// parse the arguments.
 			parser.parseArgument(args);
-			//if (arguments.isEmpty())
-			//	throw new CmdLineException(parser, "No argument is given ");
+
+			boolean localOnly = manifestAFile.exists() && manifestBFile.exists();
+
 			if (outDir.exists() && !outDir.isDirectory())
 				throw new CmdLineException(parser, "Specified output directory is not a directory");
-			if (!diffCurrent)
+
+			if (localOnly)
+			{
+				if (extractAdded || extractChanged)
+					System.err.println("Warning: extraction not available in local-only mode (requires remote version info)");
+			} else if (!diffCurrent)
 			{
 				if (releaseA == null)
 					throw new CmdLineException(parser,
 							"Release must be specified if diffCurrent is false");
 				if ((extractAdded || extractChanged) && (versionA.isEmpty() || versionB.isEmpty()))
 					throw new CmdLineException(parser,
-							"To extract files you need to specify the remote versionA and versionB, local extraction is not yet supported");
+							"To extract files you need to specify the remote versionA and versionB");
 				if (versionB.isEmpty() && !manifestBFile.exists() && !printVersions)
 					throw new CmdLineException(parser, "Must specify either versionB or manifestB file");
 				if (versionA.isEmpty() && !manifestAFile.exists() && !printVersions)
-					throw new CmdLineException(parser, "Must specify either versionA or manifesA file");
+					throw new CmdLineException(parser, "Must specify either versionA or manifestA file");
 			}
 			if (diffCurrent && (!versionA.isEmpty() || !versionB.isEmpty()))
 				throw new CmdLineException(parser, "diffCurrent cannot be used at the same time as version selection");
@@ -133,16 +168,10 @@ public class ManifestDiff
 
 		} catch (CmdLineException e)
 		{
-			// if there's a problem in the command line,
-			// you'll get this exception. this will report
-			// an error message.
 			System.err.println(e.getMessage());
 			System.err.println("java ManifestDiff [options...] arguments...");
-			// print the list of available options
 			parser.printUsage(System.err);
 			System.err.println();
-
-			// print option sample. This is useful some time
 			System.err.println("  Example: java ManifestDiff" + parser.printExample(OptionHandlerFilter.ALL));
 			return;
 		}
@@ -153,19 +182,23 @@ public class ManifestDiff
 		ReleaseType releaseTypeA = releaseA;
 		ReleaseType releaseTypeB = releaseB;
 
-		if (diffCurrent)
+		boolean localOnly = manifestAFile.exists() && manifestBFile.exists();
+
+		if (localOnly)
+		{
+			if (verbose)
+				System.out.println("Local-only mode: using manifestA=" + manifestAFile + ", manifestB=" + manifestBFile);
+		} else if (diffCurrent)
 		{
 			System.out.println(
-					"Attempting to diff current and previous version, note that this may fail if a version was 'unreleased', in this case you will have to manually set versions to compare.");
+					"Attempting to diff current and previous version, note that this may fail if a version was 'unreleased'");
 			manifestBFile = new File("");
 			manifestAFile = new File("");
 			TreeSet<PatchInfo> sortedPatches = new TreeSet<>();
 
 			if (releaseTypeA != null)
-			{
 				sortedPatches.addAll(RemotePAK.getPatches(releaseTypeA, is64).values());
-
-			} else
+			else
 				for (ReleaseType t : ReleaseType.values())
 					sortedPatches.addAll(RemotePAK.getPatches(t, is64).values());
 
@@ -186,7 +219,6 @@ public class ManifestDiff
 
 			if (printVersions || printVersion)
 			{
-
 				patchBInfo = sortedPatches.last();
 				patchAInfo = sortedPatches.lower(sortedPatches.last());
 
@@ -211,41 +243,50 @@ public class ManifestDiff
 				else if (p.version.equals(versionB))
 					patchBInfo = p;
 			}
-
+			for (PatchInfo p : patchesB.values())
+			{
+				if (p.version.equals(versionA))
+					patchAInfo = p;
+				else if (p.version.equals(versionB))
+					patchBInfo = p;
+			}
 		}
 
-		if (patchAInfo == null)
+		if (!localOnly)
 		{
-			System.err.println("Unable to find patchA " + versionA + ":" + manifestAFile);
-			return;
-		}
-		if (patchBInfo == null)
-		{
-			System.err.println("Unable to find patchB " + versionB + ":" + manifestBFile);
-			return;
-		}
-		if (releaseTypeA == null)
-			releaseTypeA = patchAInfo.release;
-		System.out.println("using releaseA:" + releaseTypeA);
-		if (releaseTypeB == null)
-			releaseTypeB = patchBInfo.release;
-		System.out.println("using releaseB:" + releaseTypeB);
+			if (patchAInfo == null)
+			{
+				System.err.println("Unable to find patchA " + versionA + ":" + manifestAFile);
+				return;
+			}
+			if (patchBInfo == null)
+			{
+				System.err.println("Unable to find patchB " + versionB + ":" + manifestBFile);
+				return;
+			}
+			if (releaseTypeA == null)
+				releaseTypeA = patchAInfo.release;
+			System.out.println("using releaseA:" + releaseTypeA);
+			if (releaseTypeB == null)
+				releaseTypeB = patchBInfo.release;
+			System.out.println("using releaseB:" + releaseTypeB);
 
-		System.out.println(
-				"Detected remote patchA release[" + patchAInfo.release + "], index[" + patchAInfo.index
-						+ "] as version:" + patchAInfo.version);
-		System.out.println(
-				"Detected remote patchB release[" + patchBInfo.release + "], index[" + patchBInfo.index
-						+ "] as version:" + patchBInfo.version);
+			System.out.println(
+					"Detected remote patchA release[" + patchAInfo.release + "], index[" + patchAInfo.index
+							+ "] as version:" + patchAInfo.version);
+			System.out.println(
+					"Detected remote patchB release[" + patchBInfo.release + "], index[" + patchBInfo.index
+							+ "] as version:" + patchBInfo.version);
+		}
 
-		InputStream manifestAStream = null;
-		InputStream manifestBStream = null;
+		byte[] manifestAData = null;
+		byte[] manifestBData = null;
 		boolean manifestA64 = true;
 		boolean manifestB64 = true;
 
 		if (manifestAFile.exists())
 		{
-			manifestAStream = new FileInputStream(manifestAFile.getPath());
+			manifestAData = Files.readAllBytes(manifestAFile.toPath());
 			manifestA64 = manifestAFile.getName().contains("64");
 			if (verbose)
 				System.out.println("using local manifest A: " + manifestAFile);
@@ -253,186 +294,160 @@ public class ManifestDiff
 		{
 			if (verbose)
 				System.out.println("Local manifest A not specified, using remote version.");
-
 			File cacheA = null;
 			if (cacheManifest)
 				cacheA = Paths.get(outDir.toString(), "assets64.manifestA").toFile();
-
-			byte[] data = RemotePAK.downloadManifest(patchAInfo, cacheA);
-			manifestAStream = new ByteArrayInputStream(data);
-
+			manifestAData = RemotePAK.downloadManifest(patchAInfo, cacheA);
 		}
+
 		if (manifestBFile.exists())
 		{
-			manifestBStream = new FileInputStream(manifestBFile.getPath());
+			manifestBData = Files.readAllBytes(manifestBFile.toPath());
 			manifestB64 = manifestBFile.getName().contains("64");
 			if (verbose)
 				System.out.println("using local manifest B: " + manifestBFile);
 		} else
 		{
-
 			if (verbose)
 				System.out.println("Local manifest B not specified, using remote version.");
-
 			File cacheB = null;
 			if (cacheManifest)
 				cacheB = Paths.get(outDir.toString(), "assets64.manifestB").toFile();
-
-			byte[] data = RemotePAK.downloadManifest(patchBInfo, cacheB);
-			manifestBStream = new ByteArrayInputStream(data);
+			manifestBData = RemotePAK.downloadManifest(patchBInfo, cacheB);
 		}
 
-		Manifest manifestA = new Manifest(manifestAStream, manifestA64);
-		Manifest manifestB = new Manifest(manifestBStream, manifestB64);
-
-		List<ManifestEntry> nothing = new LinkedList<>();
-		List<ManifestEntry> added = new LinkedList<>();
-		List<ManifestEntry> deleted = new LinkedList<>();
-		List<ManifestEntry> changed = new LinkedList<>();
-
-		for (ManifestEntry aEntry : manifestA.manifestEntries)
+		Manifest manifestA;
+		Manifest manifestB;
+		try (InputStream isA = new ByteArrayInputStream(manifestAData);
+				InputStream isB = new ByteArrayInputStream(manifestBData))
 		{
-			if (onlyLang > 0 && aEntry.lang > 0 && aEntry.lang != onlyLang)
-				continue;
-
-			// check if the name for the entry from manifestA exists in manifestB
-			List<ManifestEntry> bentries = findEntrysWithName(aEntry, manifestB);
-			if (bentries.isEmpty())
-			{
-				// no? then it was deleted entirely
-				deleted.add(aEntry);
-			} else
-			{
-				// it exists, now check if the hashes and language match
-				boolean matches = false;
-				for (ManifestEntry bEntry : bentries)
-				{
-					if (bEntry.lang == aEntry.lang)
-					{
-						//if (manifestB.getPAKName(bEntry.pakIndex).equals(manifestA.getPAKName(aEntry.pakIndex)))
-						{
-							if (bEntry.shaStr.equals(aEntry.shaStr))
-							{
-								matches = true;
-							}
-						}
-					}
-				}
-				if (!matches)
-				{
-					changed.add(aEntry);
-					if (extractChanged && shouldExtract(aEntry, manifestA))
-					{
-						if (!onlyB || alwaysDownload(aEntry))
-							extractEntry(releaseTypeA, aEntry, manifestA, patchAInfo.index, 'A', hname);
-						for (ManifestEntry bEntry : bentries)
-							extractEntry(releaseTypeB, bEntry, manifestB, patchBInfo.index, 'B', hname);
-					}
-
-				}
-			}
+			manifestA = new Manifest(isA, manifestA64);
+			manifestB = new Manifest(isB, manifestB64);
 		}
-		for (ManifestEntry bEntry : manifestB.manifestEntries)
-		{
-			List<ManifestEntry> entries = findEntrysWithName(bEntry, manifestA);
-			if (entries.isEmpty())
-				added.add(bEntry);
 
-		}
+		DiffConfig config = new DiffConfig()
+				.setKeyStrategy(keyStrategy)
+				.setOnlyLang(onlyLang)
+				.setDetectRenames(renameDetection)
+				.setTrackPakMoves(trackMoves);
+
+		ManifestDiffer differ = new ManifestDiffer();
+		DiffResult result = differ.diff(manifestA, manifestB, config);
+
 		if (verbose)
 		{
 			System.out.println("manifestA.manifestEntries:" + manifestA.manifestEntries.size());
 			System.out.println("manifestB.manifestEntries:" + manifestB.manifestEntries.size());
-			System.out.println("deleted from B: " + deleted.size());
-			System.out.println("added to B: " + added.size());
-			System.out.println("changed in B: " + changed.size());
+			System.out.println("deleted from B: " + result.getDeleted().size());
+			System.out.println("added to B: " + result.getAdded().size());
+			System.out.println("changed in B: " + result.getChanged().size());
+			System.out.println("renamed: " + result.getRenamed().size());
+			System.out.println("moved: " + result.getMoved().size());
 		}
-		if (header)
-			System.out.println("change|filename|filenamehash|assetid|lang" + (showPak ? "|pakIndex" : ""));
-		Set<String> pakHashesProcessed = new TreeSet<>();
-		Set<ManifestPAKFileEntry> paksToUse = new TreeSet<>((a, b) -> a.name.compareTo(b.name));
-		for (ManifestEntry del : deleted)
+
+		Format format;
+		if ("json".equalsIgnoreCase(formatStr))
+			format = Format.JSON;
+		else if ("html".equalsIgnoreCase(formatStr))
+			format = Format.HTML;
+		else
+			format = Format.TEXT;
+
+		String formatted = DiffOutput.format(result, format, header, true, verbose);
+		if (!outputFile.isEmpty())
 		{
-			if (verbose)
-				System.out.println("[del]:" + hname.apply(del) + "|" + del + ":" + del.pakIndex);
-			else
-				System.out.println(
-						"-|" + hname.apply(del) + "|" + Util.bytesToHexString(del.filenameHash) + ":" + del.idStr + ":"
-								+ del.lang
-								+ getPak(del));
+			Path outPath = Paths.get(outputFile);
+			Files.write(outPath, formatted.getBytes());
+			System.out.println("Report written to " + outPath.toAbsolutePath());
+		} else if (format == Format.HTML)
+		{
+			Path outPath = Paths.get(outDir.toString(), "diff.html");
+			Files.write(outPath, formatted.getBytes());
+			System.out.println("Report written to " + outPath.toAbsolutePath());
+		} else
+		{
+			System.out.print(formatted);
 		}
-		for (ManifestEntry add : added)
+
+		Set<String> pakHashesProcessed = new java.util.TreeSet<>();
+		Set<ManifestPAKFileEntry> paksToUse = new java.util.TreeSet<>((a, b) -> a.name.compareTo(b.name));
+
+		if (patchAInfo != null && patchBInfo != null)
 		{
-			if (onlyLang > 0 && add.lang > 0 && add.lang != onlyLang)
-				continue;
-
-			if (verbose)
-				System.out.println("[add]:" + hname.apply(add) + "|" + add + ":" + add.pakIndex);
-			else
-				System.out.println(
-						"+|" + hname.apply(add) + "|" + Util.bytesToHexString(add.filenameHash) + ":" + add.idStr
-								+ ":"
-								+ add.lang
-								+ getPak(add));
-			ManifestPAKFileEntry pEntry = manifestB.pakFiles.get(add.pakIndex);
-
-			// extract the added file
-			if (extractAdded && shouldExtract(add, manifestB))
-				extractEntry(releaseTypeB, add, manifestB, patchBInfo.index, 'B', hname);
-
-			if (!pakHashesProcessed.contains(pEntry.combHash))
+			for (DiffEntry entry : result.getAdded())
 			{
-				paksToUse.add(pEntry);
-				pakHashesProcessed.add(pEntry.combHash);
+				if (extractAdded && shouldExtract(entry.getEntryNew(), manifestB))
+					extractEntry(releaseTypeB, entry.getEntryNew(), manifestB, patchBInfo.index, 'B', hname);
+
+				ManifestPAKFileEntry pEntry = manifestB.pakFiles.get(entry.getEntryNew().pakIndex);
+				if (!pakHashesProcessed.contains(pEntry.combHash))
+				{
+					paksToUse.add(pEntry);
+					pakHashesProcessed.add(pEntry.combHash);
+				}
 			}
 
-		}
-		for (ManifestEntry change : changed)
-		{
-			if (onlyLang > 0 && change.lang > 0 && change.lang != onlyLang)
-				continue;
+			for (DiffEntry entry : result.getChanged())
+			{
+				if (!extractChanged || !shouldExtract(getDisplayEntry(entry), manifestB))
+					continue;
 
-			if (verbose)
-				System.out.println("[change]:" + hname.apply(change) + "|" + change + ":" + change.pakIndex);
-			else
-				System.out.println(
-						"*|" + hname.apply(change) + "|" + Util.bytesToHexString(change.filenameHash) + ":"
-								+ change.idStr + ":" + change.lang
-								+ getPak(change));
-			paksToUse.add(manifestB.pakFiles.get(change.pakIndex));
+				if (entry.getEntryOld() != null && (!onlyB || alwaysDownload(entry.getEntryOld())))
+					extractEntry(releaseTypeA, entry.getEntryOld(), manifestA, patchAInfo.index, 'A', hname);
+				if (entry.getEntryNew() != null)
+					extractEntry(releaseTypeB, entry.getEntryNew(), manifestB, patchBInfo.index, 'B', hname);
+			}
+
+			for (DiffEntry entry : result.getMoved())
+			{
+				if (extractChanged && shouldExtract(entry.getEntryNew(), manifestB))
+					extractEntry(releaseTypeB, entry.getEntryNew(), manifestB, patchBInfo.index, 'B', hname);
+			}
+
+			for (DiffEntry entry : result.getChanged())
+			{
+				ManifestEntry ne = entry.getEntryNew();
+				if (ne != null)
+					paksToUse.add(manifestB.pakFiles.get(ne.pakIndex));
+			}
+			for (DiffEntry entry : result.getMoved())
+			{
+				ManifestEntry ne = entry.getEntryNew();
+				if (ne != null)
+					paksToUse.add(manifestB.pakFiles.get(ne.pakIndex));
+			}
 		}
 
 		if (guessExtensions)
 		{
-			DefaultDetector dd = new DefaultDetector(null);
-			for (File f : outDir.listFiles())
+			File[] outFiles = outDir.listFiles();
+			if (outFiles != null)
 			{
-				if (f.getName().endsWith(".file") || f.getName().endsWith("B") || f.getName().endsWith("A"))
-					;
+				DefaultDetector dd = new DefaultDetector(null);
+				for (File f : outFiles)
 				{
+					if (!f.isFile())
+						continue;
+					String name = f.getName();
+					if (!name.endsWith(".file") && !name.endsWith("B") && !name.endsWith("A"))
+						continue;
+
 					byte[] data = Files.readAllBytes(f.toPath());
 					String ext = dd.detectExtension(data);
 					if (ext != null)
 					{
-						if (f.getName().endsWith("B") || f.getName().endsWith("A"))
+						if (name.endsWith("B") || name.endsWith("A"))
 						{
-							char last = f.getName().charAt(f.getName().length() - 1);
-							String fext = FilenameUtils.getExtension(f.getName());
-							String base = FilenameUtils.getBaseName(f.getName());
-							fext = fext.substring(0, fext.length());
-
-							String newName = base + "-" + last + "." + fext;
-							Path newPath = Paths.get(outDir.toString(), newName);
-							f.renameTo(newPath.toFile());
+							char last = name.charAt(name.length() - 1);
+							String base = FilenameUtils.getBaseName(name);
+							String newName = base + "-" + last + "." + ext;
+							f.renameTo(Paths.get(outDir.toString(), newName).toFile());
 						} else
 						{
-							String newName = f.getName().replace(".file", "." + ext);
-							Path newPath = Paths.get(outDir.toString(), newName);
-							f.renameTo(newPath.toFile());
+							String newName = name.replace(".file", "." + ext);
+							f.renameTo(Paths.get(outDir.toString(), newName).toFile());
 						}
-
 					}
-
 				}
 			}
 		}
@@ -443,18 +458,19 @@ public class ManifestDiff
 				System.out.println(en);
 
 			long sum = paksToUse.stream().mapToLong(p -> p.getSize()).sum();
-			System.out.println("Total download size: " + MessageFormat.format("{0} bytes", sum));
+			System.out.println(MessageFormat.format("{0} bytes", sum));
 		}
 	}
 
 	private boolean shouldExtract(final ManifestEntry aEntry, final Manifest manifestA)
 	{
-		boolean doExtract = true;
-		String pakName = manifestA.getPAKName(aEntry.pakIndex);
-		if (ignoreMapTextures && pakName.contains("texture_map"))
-			return false;
-
-		return doExtract;
+		if (ignoreMapTextures)
+		{
+			String pakName = manifestA.getPAKName(aEntry.pakIndex);
+			if (pakName != null && pakName.contains("texture_map"))
+				return false;
+		}
+		return true;
 	}
 
 	private void extractEntry(final ReleaseType type, final ManifestEntry entry, final Manifest manifest,
@@ -486,12 +502,9 @@ public class ManifestDiff
 								+ " already exists");
 			else
 			{
-				//if (verbose)
 				System.out.print("\textracting to:" + filename + " from [" + patchIndex + "]" + pEntry.name + " ");
 				if (ptsIndex >= 0)
-				{
 					RemotePAK.extract(type, manifest, entry, filename, ptsIndex);
-				}
 			}
 		} catch (Exception ex)
 		{
@@ -499,22 +512,11 @@ public class ManifestDiff
 		}
 	}
 
-	private String getPak(final ManifestEntry del)
+	private static ManifestEntry getDisplayEntry(final DiffEntry entry)
 	{
-		if (showPak)
-			return ":" + del.pakIndex;
-
-		else
-			return "";
-	}
-
-	public static List<ManifestEntry> findEntrysWithName(final ManifestEntry entry, final Manifest manifest)
-	{
-		Map<String, List<ManifestEntry>> filenameMap = manifest.fileNameHashesIDMap;
-		if (!filenameMap.containsKey(entry.filenameHashStr))
-			return Collections.emptyList();
-		;
-		List<ManifestEntry> entries = filenameMap.get(entry.filenameHashStr);
-		return entries;
+		ManifestEntry ne = entry.getEntryNew();
+		if (ne != null)
+			return ne;
+		return entry.getEntryOld();
 	}
 }
