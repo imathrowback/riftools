@@ -3,6 +3,9 @@ package org.imathrowback.telaradbdiff.diff;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.imathrowback.datparser.CObject;
 import org.imathrowback.telaradbdiff.diff.FieldChange.ChangeType;
@@ -115,6 +118,16 @@ public class DbHtmlFormatter
 		sb.append(".obj-label { color: #8b949e; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin: 8px 0 4px 0; }\n");
 		sb.append(".obj-null { color: #484f58; font-style: italic; }\n");
 		sb.append(".id-num { color: #8b949e; font-weight: normal; }\n");
+		sb.append(".diff-removed { background: #da363311; }\n");
+		sb.append(".diff-removed .obj-type { text-decoration: line-through; color: #f85149; }\n");
+		sb.append(".diff-added { background: #23863611; }\n");
+		sb.append(".diff-added .obj-type { color: #3fb950; }\n");
+		sb.append(".diff-changed { background: #d2992211; }\n");
+		sb.append(".diff-changed .obj-type { color: #d29922; }\n");
+		sb.append(".diff-old-inline { color: #f85149; text-decoration: line-through; margin-right: 4px; }\n");
+		sb.append(".diff-new-inline { color: #3fb950; }\n");
+		sb.append(".diff-arrow { color: #484f58; margin: 0 6px; }\n");
+		sb.append(".diff-prefix { font-weight: bold; margin-right: 4px; }\n");
 
 		sb.append("@media (max-width: 768px) { body { padding: 12px; } ");
 		sb.append(".cards { grid-template-columns: repeat(3, 1fr); } ");
@@ -262,58 +275,8 @@ public class DbHtmlFormatter
 				sb.append("<tr class=\"row-changed\">\n");
 				sb.append("<td colspan=\"3\" style=\"padding: 0;\">\n");
 				sb.append("<div class=\"entry-details\">\n");
-
-				if (e.getObjectOld() != null)
-				{
-					sb.append("<div class=\"obj-label\">Before:</div>\n");
-					emitCObject(sb, e.getObjectOld(), 1);
-				}
-				if (e.getObjectNew() != null)
-				{
-					sb.append("<div class=\"obj-label\">After:</div>\n");
-					emitCObject(sb, e.getObjectNew(), 1);
-				}
-
-				if (!e.getFieldChanges().isEmpty())
-				{
-					sb.append("<div class=\"obj-label\">Changes:</div>\n");
-					sb.append("<table class=\"field-table\">\n");
-
-					for (FieldChange fc : e.getFieldChanges())
-					{
-						String fcls;
-						switch (fc.getChangeType())
-						{
-							case ADDED:
-								fcls = "fc-added";
-								sb.append("<tr><td class=\"fc ").append(fcls).append("\" colspan=\"3\">");
-								sb.append("<span class=\"fc-new\">+</span> ");
-								sb.append(esc(fc.getPath()));
-								sb.append(": <span class=\"fc-new\">").append(esc(valueStr(fc.getNewValue()))).append("</span>");
-								break;
-							case REMOVED:
-								fcls = "fc-removed";
-								sb.append("<tr><td class=\"fc ").append(fcls).append("\" colspan=\"3\">");
-								sb.append("<span class=\"fc-old\">-</span> ");
-								sb.append(esc(fc.getPath()));
-								sb.append(": <span class=\"fc-old\">").append(esc(valueStr(fc.getOldValue()))).append("</span>");
-								break;
-							case CHANGED:
-								fcls = "fc-changed";
-								sb.append("<tr><td class=\"fc ").append(fcls).append("\">");
-								sb.append("<span class=\"fc-changed\">*</span> ");
-								sb.append(esc(fc.getPath()));
-								sb.append("</td>");
-								sb.append("<td class=\"fc fc-old\">").append(esc(valueStr(fc.getOldValue()))).append("</td>");
-								sb.append("<td class=\"fc fc-arrow\">&rarr;</td>");
-								sb.append("<td class=\"fc fc-new\">").append(esc(valueStr(fc.getNewValue()))).append("</td>");
-								break;
-						}
-						sb.append("</td></tr>\n");
-					}
-
-					sb.append("</table>\n");
-				}
+				sb.append("<div class=\"obj-label\">Diff tree (changes inline):</div>\n");
+				emitDiffTree(sb, e);
 				sb.append("</div>\n");
 				sb.append("</td>\n");
 				sb.append("</tr>\n");
@@ -322,6 +285,130 @@ public class DbHtmlFormatter
 			sb.append("</tbody>\n</table>\n");
 		}
 		sb.append("</div>\n");
+	}
+
+	private static void emitDiffTree(final StringBuilder sb, final DbDiffEntry entry)
+	{
+		Map<String, FieldChange> changeMap = new HashMap<>();
+		for (FieldChange fc : entry.getFieldChanges())
+			changeMap.put(fc.getPath(), fc);
+
+		CObject objA = entry.getObjectOld();
+		CObject objB = entry.getObjectNew();
+
+		Set<Integer> allIndices = new TreeSet<>();
+		Map<Integer, CObject> membersA = objA != null && objA.members != null
+				? indexByExtraCode(objA.members) : new TreeMap<>();
+		Map<Integer, CObject> membersB = objB != null && objB.members != null
+				? indexByExtraCode(objB.members) : new TreeMap<>();
+		allIndices.addAll(membersA.keySet());
+		allIndices.addAll(membersB.keySet());
+
+		for (int idx : allIndices)
+		{
+			String path = "[" + idx + "]";
+			emitDiffNode(sb, membersA.get(idx), membersB.get(idx), 1, changeMap, path);
+		}
+	}
+
+	private static void emitDiffNode(final StringBuilder sb,
+			final CObject objA, final CObject objB, final int depth,
+			final Map<String, FieldChange> changeMap, final String path)
+	{
+		FieldChange change = changeMap.get(path);
+		CObject displayObj = objB != null ? objB : objA;
+		if (displayObj == null)
+			return;
+
+		boolean existsInA = objA != null;
+		boolean existsInB = objB != null;
+		String diffClass = "";
+
+		if (change != null)
+		{
+			switch (change.getChangeType())
+			{
+				case CHANGED: diffClass = "diff-changed"; break;
+				case ADDED:   diffClass = "diff-added";   break;
+				case REMOVED: diffClass = "diff-removed"; break;
+			}
+		} else if (!existsInA && existsInB)
+			diffClass = "diff-added";
+		else if (existsInA && !existsInB)
+			diffClass = "diff-removed";
+
+		String label = "[" + displayObj.index + "]";
+		if (displayObj.clazzName != null)
+			label += " " + displayObj.clazzName + " (type=" + displayObj.type + ")";
+		else
+			label += " type=" + displayObj.type;
+
+		sb.append("<div class=\"obj-node ").append(diffClass).append("\" style=\"margin-left: ").append(depth * 16).append("px\">");
+		sb.append("<span class=\"obj-type\">").append(esc(label)).append("</span>");
+
+		if (change != null)
+		{
+			switch (change.getChangeType())
+			{
+				case CHANGED:
+					sb.append(" = <span class=\"diff-old-inline\">").append(esc(valueStr(change.getOldValue()))).append("</span>");
+					sb.append("<span class=\"diff-arrow\">&rarr;</span>");
+					sb.append("<span class=\"diff-new-inline\">").append(esc(valueStr(change.getNewValue()))).append("</span>");
+					break;
+				case ADDED:
+					sb.append(" = <span class=\"diff-new-inline\">").append(esc(valueStr(change.getNewValue()))).append("</span>");
+					break;
+				case REMOVED:
+					sb.append(" = <span class=\"diff-old-inline\">").append(esc(valueStr(change.getOldValue()))).append("</span>");
+					break;
+			}
+		} else if (existsInB)
+		{
+			Object val = getObjValue(displayObj);
+			if (val != null)
+				sb.append(" = <span class=\"obj-val\">").append(esc(truncate(val.toString(), 120))).append("</span>");
+		}
+
+		if (isArrayType(displayObj))
+		{
+			int n = displayObj.members != null ? displayObj.members.size() : 0;
+			sb.append(" <span class=\"obj-array\">[").append(n).append(" elements]</span>");
+		}
+
+		sb.append("</div>\n");
+
+		if (isArrayType(displayObj))
+			return;
+
+		Set<Integer> childIndices = new TreeSet<>();
+		Map<Integer, CObject> childMapA = objA != null && objA.members != null
+				? indexByExtraCode(objA.members) : new TreeMap<>();
+		Map<Integer, CObject> childMapB = objB != null && objB.members != null
+				? indexByExtraCode(objB.members) : new TreeMap<>();
+		childIndices.addAll(childMapA.keySet());
+		childIndices.addAll(childMapB.keySet());
+
+		for (int childIdx : childIndices)
+		{
+			String childPath = path + ".[" + childIdx + "]";
+			emitDiffNode(sb, childMapA.get(childIdx), childMapB.get(childIdx),
+					depth + 1, changeMap, childPath);
+		}
+	}
+
+	private static Map<Integer, CObject> indexByExtraCode(final List<CObject> members)
+	{
+		Map<Integer, CObject> map = new TreeMap<>();
+		if (members == null)
+			return map;
+		for (CObject m : members)
+		{
+			int key = m.index;
+			while (map.containsKey(key))
+				key++;
+			map.put(key, m);
+		}
+		return map;
 	}
 
 	private static String valueStr(final Object v)
