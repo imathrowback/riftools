@@ -223,8 +223,6 @@ public class Manifest
 			File file = new File(assetsManifestFilename);
 			try (RandomAccessFile ra = new RandomAccessFile(file, "rw"))
 			{
-				long seek = rawOffset + 8 + 4 + 4;
-				ra.seek(seek);
 				try (ByteArrayOutputStream bos = new ByteArrayOutputStream())
 				{
 					try (LittleEndianDataOutputStream dos = new LittleEndianDataOutputStream(bos))
@@ -232,10 +230,8 @@ public class Manifest
 						System.out.println("Updating manifest entry at offset:" + rawOffset
 								+ ", writing compressed size[" + dataCompressedSize + "] and decompressed ["
 								+ dataDecompressedSize + "]");
-						if (me.compressedSize != 0)
-							dos.writeInt(dataCompressedSize);
-						else
-							dos.writeInt(0);
+						ra.seek(rawOffset + 16);
+						dos.writeInt(dataCompressedSize);
 						dos.writeInt(dataDecompressedSize);
 					}
 					ra.write(bos.toByteArray());

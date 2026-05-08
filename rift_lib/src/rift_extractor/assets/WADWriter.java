@@ -5,7 +5,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.zip.DeflaterOutputStream;
 
@@ -16,7 +15,7 @@ import rift_extractor.util.Util;
 
 public class WADWriter
 {
-	static class AssetOutEntry
+	public static class AssetOutEntry
 	{
 		public String name;
 		public byte[] data;
@@ -24,26 +23,7 @@ public class WADWriter
 		public int dataDecompressedSize;
 		public byte[] sha1Hash;
 		public byte[] id;
-		public int isCompressed = 1;
-
-	}
-
-	public static void main(final String[] args) throws Exception
-	{
-		String assetsManifest = "L:\\rift\\rift\\assets64.manifest";
-		Manifest manifest = new Manifest(assetsManifest);
-
-		List<AssetOutEntry> entries = new LinkedList<>();
-		entries.add(fromFile(manifest, "PlayerPortrait.gfx", "L:\\rift\\rift\\PlayerPortrait.gfx"));
-
-		entries.add(fromFile(manifest, "TargetPortrait.gfx", "L:\\rift\\rift\\TargetPortrait.gfx"));
-
-		String wad = "L:\\rift\\rift\\Assets\\assets.999";
-		new File(wad).delete();
-		//writeWAD(wad, entries);
-
-		WADWriter.writeWAD(wad, entries, manifest, "assets64.manifest");
-		System.out.println("==> DONE");
+		public int isCompressed = 0;
 	}
 
 	public static AssetOutEntry fromFile(final Manifest manifest, final String originalName, final String path)
@@ -55,30 +35,18 @@ public class WADWriter
 	public static AssetOutEntry fromFile(final Manifest manifest, final String originalName, final byte[] newData)
 			throws Exception
 	{
-		AssetOutEntry ae = new AssetOutEntry();
-
 		ManifestEntry entry = manifest.getEnglishEntry(originalName);
-		byte[] hashOriginal = entry.shahash;
+		if (entry == null)
+			throw new IllegalArgumentException("Asset '" + originalName + "' not found in manifest");
 
+		AssetOutEntry ae = new AssetOutEntry();
+		ae.name = originalName;
 		ae.isCompressed = 0;
-		byte[] data = newData;
-		if (ae.isCompressed == 1)
-		{
-			ByteArrayOutputStream bos = new ByteArrayOutputStream();
-			DeflaterOutputStream dof = new DeflaterOutputStream(bos);
-			dof.write(newData);
-			dof.close();
-			data = bos.toByteArray();
-		}
-
-		ae.data = data;
+		ae.data = newData;
 		ae.dataCompressedSize = ae.data.length;
 		ae.dataDecompressedSize = newData.length;
-
-		ae.sha1Hash = hashOriginal;
+		ae.sha1Hash = entry.shahash;
 		ae.id = entry.id;
-		//ArrayUtils.subarray(hashOriginal, 0, 8);
-
 		return ae;
 	}
 
@@ -87,6 +55,10 @@ public class WADWriter
 			final String assetsManifestFilename)
 			throws Exception
 	{
+		int totalSlots = 1489;
+		int headerSize = 20 + totalSlots * 44;
+		int relOffset = headerSize;
+
 		try (OutputStream fos = new BufferedOutputStream(new FileOutputStream(wadFile)))
 		{
 			try (LittleEndianDataOutputStream dos = new LittleEndianDataOutputStream(fos))
@@ -94,31 +66,24 @@ public class WADWriter
 				dos.write("TWAD".getBytes());
 				dos.writeInt(1);
 				dos.writeInt(20);
-				dos.writeInt(1489);
+				dos.writeInt(totalSlots);
 				dos.writeInt(entries.size());
 
-				int relOffset = 65536;
-				int newIndex = 0;
-				for (int i = 0; i < 1489; i++)
+				for (int i = 0; i < totalSlots; i++)
 				{
 					if (i < entries.size())
 					{
 						AssetOutEntry ae = entries.get(i);
-						System.out
-								.println(
-										"\tWrite entry [" + Util.bytesToHexString(ae.id) + "][" + i + "][" + ae.name
-												+ "] size " + ae.dataCompressedSize + "/"
-												+ ae.dataDecompressedSize);
+
 						dos.write(ae.id);
 						dos.writeInt(relOffset);
 						dos.writeInt(ae.dataCompressedSize);
 						dos.writeInt(ae.dataCompressedSize);
-						dos.writeShort(newIndex++);
+						dos.writeShort(i);
 						dos.writeShort(ae.isCompressed);
 						dos.write(ae.sha1Hash);
 						relOffset += ae.dataCompressedSize;
 
-						// Update the manifest
 						manifest.updateSize(ae.name, ae.id, ae.dataCompressedSize, ae.dataDecompressedSize,
 								assetsManifestFilename);
 					} else
@@ -126,11 +91,8 @@ public class WADWriter
 						dos.write(new byte[44]);
 					}
 				}
-				for (int i = 0; i < entries.size(); i++)
-				{
-					AssetOutEntry ae = entries.get(i);
+				for (AssetOutEntry ae : entries)
 					fos.write(ae.data);
-				}
 			}
 		}
 	}

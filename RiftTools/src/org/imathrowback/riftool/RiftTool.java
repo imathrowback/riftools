@@ -87,6 +87,9 @@ public class RiftTool extends RiftAction
 			case EXTRACT_ABILITYICONS:
 				o = new ExtractAbilities();
 				break;
+			case CREATE_WAD:
+				o = new CreateAssetWAD();
+				break;
 		}
 		if (o != null)
 			if (parse(o, args))
