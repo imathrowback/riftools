@@ -12,13 +12,13 @@ public class _81
 	}
 
 	Object unk0;
-	java.lang.Long unk1;
+	public java.lang.Long unk1;
 	java.lang.Long unk2;
 	java.lang.Float unk3;
 	java.util.List<_1608> unk4;
 	java.lang.Long unk5;
 	Object unk6;
-	java.util.List<java.lang.Long> unk7;
+	public java.util.List<java.lang.Long> unk7;
 	java.lang.Long unk8;
 	java.util.List<java.lang.Long> unk9;
 	java.lang.Boolean unk10;

@@ -29,6 +29,7 @@ public class ManifestEntry
 	public final int unk;
 	public String shaStr;
 	public short filenameLength;
+	public long offsetInManifestFile = 0;
 
 	public String getFilenameHash()
 	{

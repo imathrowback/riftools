@@ -1,17 +1,16 @@
 package rift_extractor.assets;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.file.Files;
 import java.text.MessageFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.compress.utils.IOUtils;
 
 import com.google.common.io.LittleEndianDataInputStream;
+import com.google.common.io.LittleEndianDataOutputStream;
 
 import rift_extractor.util.Util;
 
@@ -190,6 +189,7 @@ public class Manifest
 						new ByteArrayInputStream(manifestData, start, entrySize)))
 				{
 					ManifestEntry entry = new ManifestEntry(dis2);
+					entry.offsetInManifestFile = start;
 
 					//System.out.println(entry);
 					manifestEntries.add(entry);
@@ -208,6 +208,44 @@ public class Manifest
 
 					fileNameHashIDMap.put(entry.filenameHashStr, entry.idStr);
 				}
+			}
+		}
+	}
+
+	public void updateSize(final String filename2, final byte[] id, final int dataCompressedSize,
+			final int dataDecompressedSize,
+			final String assetsManifestFilename)
+	{
+		List<ManifestEntry> entries = getEntries(Util.bytesToHexString(id)).collect(Collectors.toList());
+		for (ManifestEntry me : entries)
+		{
+			long rawOffset = me.offsetInManifestFile;
+			File file = new File(assetsManifestFilename);
+			try (RandomAccessFile ra = new RandomAccessFile(file, "rw"))
+			{
+				long seek = rawOffset + 8 + 4 + 4;
+				ra.seek(seek);
+				try (ByteArrayOutputStream bos = new ByteArrayOutputStream())
+				{
+					try (LittleEndianDataOutputStream dos = new LittleEndianDataOutputStream(bos))
+					{
+						System.out.println("Updating manifest entry at offset:" + rawOffset
+								+ ", writing compressed size[" + dataCompressedSize + "] and decompressed ["
+								+ dataDecompressedSize + "]");
+						if (me.compressedSize != 0)
+							dos.writeInt(dataCompressedSize);
+						else
+							dos.writeInt(0);
+						dos.writeInt(dataDecompressedSize);
+					}
+					ra.write(bos.toByteArray());
+				}
+			} catch (FileNotFoundException e)
+			{
+				e.printStackTrace();
+			} catch (IOException e)
+			{
+				e.printStackTrace();
 			}
 		}
 	}

@@ -33,8 +33,8 @@ public class ExtractWorldQuests extends RiftAction
 	@Option(name = "-release", usage = "Release to download from", required = true)
 
 	ReleaseType releaseType;
-	@Option(name = "-64")
-	boolean is64 = true;
+	@Option(name = "-32")
+	boolean is32 = false;
 
 	File telaraDBTemp;
 	File langDBTemp;
@@ -63,9 +63,9 @@ public class ExtractWorldQuests extends RiftAction
 				langDBTemp.deleteOnExit();
 
 				System.out.println("Download database..");
-				RemotePAK.downloadLatest(releaseType, "telara.db", telaraDBTemp.toString(), lang, is64);
+				RemotePAK.downloadLatest(releaseType, "telara.db", telaraDBTemp.toString(), lang, !is32);
 				System.out.println("Download language file...");
-				RemotePAK.downloadLatest(releaseType, "lang_english.cds", langDBTemp.toString(), lang, is64);
+				RemotePAK.downloadLatest(releaseType, "lang_english.cds", langDBTemp.toString(), lang, !is32);
 			} else
 			{
 				if (output == null)

@@ -35,7 +35,7 @@ public class RiftTool extends RiftAction
 	{
 		List<String> largs = args.stream().collect(Collectors.toList());
 		List<String> otherArgs = largs;
-		boolean is64 = largs.contains("-64");
+		boolean is64 = !largs.contains("-32");
 		int index = largs.indexOf("-action");
 		if (index >= 0)
 			otherArgs = largs.subList(index, index + 2);
@@ -57,6 +57,9 @@ public class RiftTool extends RiftAction
 				break;
 			case EXTRACT_VIG:
 				o = new ExtractVignettes();
+				break;
+			case EXTRACT_PETS:
+				o = new GetPets();
 				break;
 			case DOWNLOADFILE:
 				o = new DownloadFile();

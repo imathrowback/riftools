@@ -34,8 +34,8 @@ public class DownloadFile extends RiftAction
 	@Option(name = "-hash", usage = "Interpret -filename as a raw hash (8 hex chars) instead of a filename")
 	boolean isRawHash = false;
 
-	@Option(name = "-64")
-	boolean is64 = true;
+	@Option(name = "-32")
+	boolean is32 = false;
 
 	public DownloadFile()
 	{
@@ -53,15 +53,15 @@ public class DownloadFile extends RiftAction
 			{
 				PatchInfo patch;
 				if (patchIndex != -1)
-					patch = RemotePAK.getPatch(releaseType, is64, patchIndex);
+					patch = RemotePAK.getPatch(releaseType, !is32, patchIndex);
 				else
-					patch = RemotePAK.getCurrentPatch(releaseType, is64);
+					patch = RemotePAK.getCurrentPatch(releaseType, !is32);
 
 				if (patch == null)
 					throw new RuntimeException("No patch found");
 
 				byte[] manifestData = RemotePAK.downloadManifest(releaseType, patch, null);
-				Manifest manifest = new Manifest(new ByteArrayInputStream(manifestData), is64);
+				Manifest manifest = new Manifest(new ByteArrayInputStream(manifestData), !is32);
 
 				List<ManifestEntry> entries = manifest.getEntriesForNameHash(fname)
 						.collect(Collectors.toList());
@@ -82,7 +82,7 @@ public class DownloadFile extends RiftAction
 
 			if (patchIndex != -1)
 			{
-				PatchInfo patch = RemotePAK.getPatch(releaseType, is64, patchIndex);
+				PatchInfo patch = RemotePAK.getPatch(releaseType, !is32, patchIndex);
 				if (patch == null)
 					throw new RuntimeException("No patch found at index " + patchIndex);
 
@@ -103,7 +103,7 @@ public class DownloadFile extends RiftAction
 				}
 			} else
 			{
-				RemotePAK.downloadLatest(releaseType, fname, filenameOutput.toString(), lang, is64);
+				RemotePAK.downloadLatest(releaseType, fname, filenameOutput.toString(), lang, !is32);
 			}
 			System.out.println("Downloaded file [" + filenameOrHash + " ] to [" + filenameOutput + "]");
 		} catch (Exception ex)

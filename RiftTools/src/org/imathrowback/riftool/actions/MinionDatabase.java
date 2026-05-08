@@ -33,8 +33,8 @@ public class MinionDatabase extends RiftAction
 	@Option(name = "-release", usage = "Release to download from", required = true)
 
 	ReleaseType releaseType;
-	@Option(name = "-64")
-	boolean is64 = true;
+	@Option(name = "-32")
+	boolean is32 = false;
 	File aa;
 	File bb;
 
@@ -58,9 +58,9 @@ public class MinionDatabase extends RiftAction
 				bb.deleteOnExit();
 
 				System.out.println("Download database..");
-				RemotePAK.downloadLatest(releaseType, "telara.db", aa.toString(), lang, is64);
+				RemotePAK.downloadLatest(releaseType, "telara.db", aa.toString(), lang, !is32);
 				System.out.println("Download language file...");
-				RemotePAK.downloadLatest(releaseType, "lang_english.cds", bb.toString(), lang, is64);
+				RemotePAK.downloadLatest(releaseType, "lang_english.cds", bb.toString(), lang, !is32);
 			} else
 			{
 				if (output == null)
