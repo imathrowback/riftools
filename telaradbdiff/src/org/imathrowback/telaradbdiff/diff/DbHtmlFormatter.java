@@ -1,5 +1,6 @@
 package org.imathrowback.telaradbdiff.diff;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -7,6 +8,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import org.imathrowback.datparser.CFileTimeConvertor;
 import org.imathrowback.datparser.CObject;
 import org.imathrowback.telaradbdiff.diff.FieldChange.ChangeType;
 
@@ -128,6 +130,8 @@ public class DbHtmlFormatter
 		sb.append(".diff-new-inline { color: #3fb950; }\n");
 		sb.append(".diff-arrow { color: #484f58; margin: 0 6px; }\n");
 		sb.append(".diff-prefix { font-weight: bold; margin-right: 4px; }\n");
+		sb.append(".obj-tuple { color: #c9d1d9; }\n");
+		sb.append(".obj-date-hint { color: #58a6ff; font-style: italic; font-size: 10px; }\n");
 
 		sb.append("@media (max-width: 768px) { body { padding: 12px; } ");
 		sb.append(".cards { grid-template-columns: repeat(3, 1fr); } ");
@@ -346,38 +350,81 @@ public class DbHtmlFormatter
 		sb.append("<div class=\"obj-node ").append(diffClass).append("\" style=\"margin-left: ").append(depth * 16).append("px\">");
 		sb.append("<span class=\"obj-type\">").append(esc(label)).append("</span>");
 
-		if (change != null)
-		{
-			switch (change.getChangeType())
-			{
-				case CHANGED:
-					sb.append(" = <span class=\"diff-old-inline\">").append(esc(valueStr(change.getOldValue()))).append("</span>");
-					sb.append("<span class=\"diff-arrow\">&rarr;</span>");
-					sb.append("<span class=\"diff-new-inline\">").append(esc(valueStr(change.getNewValue()))).append("</span>");
-					break;
-				case ADDED:
-					sb.append(" = <span class=\"diff-new-inline\">").append(esc(valueStr(change.getNewValue()))).append("</span>");
-					break;
-				case REMOVED:
-					sb.append(" = <span class=\"diff-old-inline\">").append(esc(valueStr(change.getOldValue()))).append("</span>");
-					break;
-			}
-		} else if (existsInB)
-		{
-			Object val = getObjValue(displayObj);
-			if (val != null)
-				sb.append(" = <span class=\"obj-val\">").append(esc(truncate(val.toString(), 120))).append("</span>");
-		}
+		boolean isType11Tuple = displayObj.type != null && displayObj.type == 11
+				&& displayObj.members != null && !displayObj.members.isEmpty()
+				&& allSimpleValues(displayObj.members);
 
-		if (isArrayType(displayObj))
+		if (isType11Tuple)
 		{
-			int n = displayObj.members != null ? displayObj.members.size() : 0;
-			sb.append(" <span class=\"obj-array\">[").append(n).append(" elements]</span>");
+			if (change != null && change.getChangeType() == FieldChange.ChangeType.CHANGED)
+			{
+				sb.append(" = <span class=\"diff-old-inline\">");
+				emitTuple(sb, objA != null ? objA : displayObj);
+				sb.append("</span>");
+				sb.append("<span class=\"diff-arrow\">&rarr;</span>");
+				sb.append("<span class=\"diff-new-inline\">");
+				emitTuple(sb, displayObj);
+				sb.append("</span>");
+			} else
+			{
+				sb.append(" = <span class=\"obj-tuple\">");
+				emitTuple(sb, displayObj);
+				sb.append("</span>");
+			}
+		} else
+		{
+			if (change != null)
+			{
+				switch (change.getChangeType())
+				{
+					case CHANGED:
+						sb.append(" = <span class=\"diff-old-inline\">").append(esc(valueStr(change.getOldValue()))).append("</span>");
+						if (change.getOldValue() instanceof Double)
+						{
+							String h = formatSuspectedDate((Double) change.getOldValue());
+							if (h != null)
+								sb.append(" <span class=\"obj-date-hint\">").append(h).append("</span>");
+						}
+						sb.append("<span class=\"diff-arrow\">&rarr;</span>");
+						sb.append("<span class=\"diff-new-inline\">").append(esc(valueStr(change.getNewValue()))).append("</span>");
+						if (change.getNewValue() instanceof Double)
+						{
+							String h = formatSuspectedDate((Double) change.getNewValue());
+							if (h != null)
+								sb.append(" <span class=\"obj-date-hint\">").append(h).append("</span>");
+						}
+						break;
+					case ADDED:
+						sb.append(" = <span class=\"diff-new-inline\">").append(esc(valueStr(change.getNewValue()))).append("</span>");
+						break;
+					case REMOVED:
+						sb.append(" = <span class=\"diff-old-inline\">").append(esc(valueStr(change.getOldValue()))).append("</span>");
+						break;
+				}
+			} else if (existsInB)
+			{
+				Object val = getObjValue(displayObj);
+				if (val != null)
+					sb.append(" = <span class=\"obj-val\">").append(esc(truncate(val.toString(), 120))).append("</span>");
+
+				if (val instanceof Double)
+				{
+					String hint = formatSuspectedDate((Double) val);
+					if (hint != null)
+						sb.append(" <span class=\"obj-date-hint\">").append(hint).append("</span>");
+				}
+			}
+
+			if (!isType11Tuple && isArrayType(displayObj))
+			{
+				int n = displayObj.members != null ? displayObj.members.size() : 0;
+				sb.append(" <span class=\"obj-array\">[").append(n).append(" elements]</span>");
+			}
 		}
 
 		sb.append("</div>\n");
 
-		if (isArrayType(displayObj))
+		if (isType11Tuple || isArrayType(displayObj))
 			return;
 
 		Set<Integer> childIndices = new TreeSet<>();
@@ -468,19 +515,38 @@ public class DbHtmlFormatter
 		sb.append("<div class=\"obj-node\" style=\"margin-left: ").append(depth * 16).append("px\">");
 		sb.append("<span class=\"obj-type\">").append(esc(label)).append("</span>");
 
-		Object val = getObjValue(obj);
-		if (val != null)
-			sb.append(" = <span class=\"obj-val\">").append(esc(truncate(val.toString(), 120))).append("</span>");
+		boolean isType11Tuple = obj.type != null && obj.type == 11
+				&& obj.members != null && !obj.members.isEmpty()
+				&& allSimpleValues(obj.members);
 
-		if (isArrayType(obj))
+		if (isType11Tuple)
 		{
-			int n = obj.members != null ? obj.members.size() : 0;
-			sb.append(" <span class=\"obj-array\">[").append(n).append(" elements]</span>");
+			sb.append(" = <span class=\"obj-tuple\">");
+			emitTuple(sb, obj);
+			sb.append("</span>");
+		} else
+		{
+			Object val = getObjValue(obj);
+			if (val != null)
+				sb.append(" = <span class=\"obj-val\">").append(esc(truncate(val.toString(), 120))).append("</span>");
+
+			if (val instanceof Double)
+			{
+				String hint = formatSuspectedDate((Double) val);
+				if (hint != null)
+					sb.append(" <span class=\"obj-date-hint\">").append(hint).append("</span>");
+			}
+
+			if (isArrayType(obj))
+			{
+				int n = obj.members != null ? obj.members.size() : 0;
+				sb.append(" <span class=\"obj-array\">[").append(n).append(" elements]</span>");
+			}
 		}
 
 		sb.append("</div>\n");
 
-		if (obj.members != null && !obj.members.isEmpty() && !isArrayType(obj))
+		if (!isType11Tuple && obj.members != null && !obj.members.isEmpty() && !isArrayType(obj))
 		{
 			for (CObject child : obj.members)
 			{
@@ -551,5 +617,72 @@ public class DbHtmlFormatter
 	private static String formatNumber(final int n)
 	{
 		return String.format("%,d", n);
+	}
+
+	private static String formatSuspectedDate(final Double d)
+	{
+		if (d == null)
+			return null;
+		double abs = Math.abs(d);
+		if (abs > 1.0e18 || abs < 1.0e-20)
+		{
+			try
+			{
+				long raw = Double.doubleToLongBits(d);
+				Date date = CFileTimeConvertor.getDate(raw);
+				long t = date.getTime();
+				if (t > -12000000000000L && t < 8000000000000L)
+					return String.format("date? %tF %<tT", date);
+			} catch (Exception e)
+			{
+			}
+		}
+		return null;
+	}
+
+	private static boolean allSimpleValues(final List<CObject> members)
+	{
+		if (members == null || members.isEmpty())
+			return false;
+		for (CObject m : members)
+		{
+			if (m.members != null && !m.members.isEmpty())
+				return false;
+			Object v = getObjValue(m);
+			if (v == null)
+				return false;
+		}
+		return true;
+	}
+
+	private static void emitTuple(final StringBuilder sb, final CObject obj)
+	{
+		sb.append("(");
+		boolean first = true;
+		for (CObject child : obj.members)
+		{
+			if (!first)
+				sb.append(", ");
+			first = false;
+			Object val = getObjValue(child);
+			if (val instanceof Double)
+			{
+				String hint = formatSuspectedDate((Double) val);
+				if (hint != null)
+				{
+					sb.append("<span class=\"diff-old-inline\">").append(esc(truncate(val.toString(), 80))).append("</span>");
+					sb.append(" ").append(hint);
+				} else
+				{
+					sb.append(esc(truncate(val.toString(), 80)));
+				}
+			} else if (val instanceof String)
+				sb.append("\"").append(esc(truncate((String) val, 80))).append("\"");
+			else if (val != null)
+				sb.append(esc(truncate(val.toString(), 80)));
+			else
+				sb.append("?");
+		}
+		sb.append(")");
 	}
 }
