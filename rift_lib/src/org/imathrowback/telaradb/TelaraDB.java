@@ -237,11 +237,14 @@ public class TelaraDB implements TelaraDBInterface
 	@Override
 	public byte[] getData(final Integer datasetid, final Integer key)
 	{
+		return decompressData(datasetid, getCompressedData(datasetid, key));
+	}
 
+	public byte[] decompressData(final Integer datasetid, final byte[] compresseddata)
+	{
 		try
 		{
 			int[] freqData = getFreq(datasetid);
-			byte[] compresseddata = getCompressedData(datasetid, key);
 
 			ByteArrayInputStream instr = new ByteArrayInputStream(compresseddata);
 			LittleEndianDataInputStream dis = new LittleEndianDataInputStream(instr);
@@ -257,19 +260,17 @@ public class TelaraDB implements TelaraDBInterface
 				HuffmanReader reader = new HuffmanReader(freqData);
 				ByteBuffer buffer = ByteBuffer.wrap(inputData);
 				outputdata = reader.read(buffer, inputData.length, outputdata.length);
-
-				//decomp.decompressData(freqData, inputData, inputData.length, outputdata, outputdata.length);
 			}
 			return outputdata;
 		} catch (java.lang.Error ex)
 		{
-			System.err.println("Native DLL error while attempting to get data for " + datasetid + ":" + key + ":"
+			System.err.println("Native DLL error while decompressing data for " + datasetid + ":"
 					+ ex.getMessage());
 			return new byte[0];
 		} catch (Exception ex)
 		{
 			System.err
-					.println("Error while attempting to get data for " + datasetid + ":" + key + ":" + ex.getMessage());
+					.println("Error while decompressing data for " + datasetid + ":" + ex.getMessage());
 			return new byte[0];
 		}
 	}
