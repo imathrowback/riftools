@@ -2,6 +2,7 @@ package org.imathrowback.manifest.diff;
 
 import java.util.List;
 
+import rift_extractor.assets.Manifest;
 import rift_extractor.assets.ManifestEntry;
 import rift_extractor.util.Util;
 
@@ -15,22 +16,24 @@ public class DiffOutput
 	}
 
 	public static String format(final DiffResult result, final Format format, final boolean header,
-			final boolean showPak, final boolean verbose)
+			final boolean showPak, final boolean verbose,
+			final Manifest manifestA, final Manifest manifestB)
 	{
 		switch (format)
 		{
 		case JSON:
-			return formatJson(result);
+			return formatJson(result, manifestA, manifestB);
 		case HTML:
-			return HtmlFormatter.format(result, showPak);
+			return HtmlFormatter.format(result, showPak, manifestA, manifestB);
 		case TEXT:
 		default:
-			return formatText(result, header, showPak, verbose);
+			return formatText(result, header, showPak, verbose, manifestA, manifestB);
 		}
 	}
 
 	private static String formatText(final DiffResult result, final boolean header,
-			final boolean showPak, final boolean verbose)
+			final boolean showPak, final boolean verbose,
+			final Manifest manifestA, final Manifest manifestB)
 	{
 		StringBuilder sb = new StringBuilder();
 
@@ -38,11 +41,11 @@ public class DiffOutput
 			sb.append("change|filename|filenamehash|assetid|lang").append(showPak ? "|pakIndex" : "").append("\n");
 
 		for (DiffEntry entry : result.getDeleted())
-			sb.append(formatLine("-", entry, null, showPak, verbose));
+			sb.append(formatLine("-", entry, null, showPak, verbose, manifestA));
 		for (DiffEntry entry : result.getAdded())
-			sb.append(formatLine("+", entry, null, showPak, verbose));
+			sb.append(formatLine("+", entry, null, showPak, verbose, manifestB));
 		for (DiffEntry entry : result.getChanged())
-			sb.append(formatLine("*", entry, entry.getMetadataFlags().toString(), showPak, verbose));
+			sb.append(formatLine("*", entry, entry.getMetadataFlags().toString(), showPak, verbose, manifestA, manifestB));
 		for (DiffEntry entry : result.getRenamed())
 		{
 			String name = formatName(entry);
@@ -52,26 +55,34 @@ public class DiffOutput
 				sb.append("~|").append(formatName(entry.getEntryOld())).append("->").append(name).append("|")
 						.append(Util.bytesToHexString(entry.getEntryNew().filenameHash)).append(":")
 						.append(entry.getEntryNew().idStr).append(":").append(entry.getEntryNew().lang)
-						.append(getPak(entry.getEntryNew(), showPak)).append("\n");
+						.append(getPak(entry.getEntryNew(), showPak, manifestB)).append("\n");
 		}
 		for (DiffEntry entry : result.getMoved())
-			sb.append(formatLine(">", entry, entry.getMetadataFlags().toString(), showPak, verbose));
+			sb.append(formatLine(">", entry, entry.getMetadataFlags().toString(), showPak, verbose, manifestA, manifestB));
 
 		return sb.toString();
 	}
 
 	private static String formatLine(final String prefix, final DiffEntry entry, final String meta,
-			final boolean showPak, final boolean verbose)
+			final boolean showPak, final boolean verbose,
+			final Manifest manifest)
+	{
+		return formatLine(prefix, entry, meta, showPak, verbose, manifest, manifest);
+	}
+
+	private static String formatLine(final String prefix, final DiffEntry entry, final String meta,
+			final boolean showPak, final boolean verbose,
+			final Manifest manifestA, final Manifest manifestB)
 	{
 		ManifestEntry ne = entry.getEntryNew() != null ? entry.getEntryNew() : entry.getEntryOld();
 		String name = formatName(entry);
 
 		if (verbose)
-			return "[" + prefix + "]:" + name + "|" + ne + ":" + ne.pakIndex
+			return "[" + prefix + "]:" + name + "|" + ne + ":" + pakName(manifestB, ne.pakIndex)
 					+ (meta != null ? " " + meta : "") + "\n";
 
 		String line = prefix + "|" + name + "|" + Util.bytesToHexString(ne.filenameHash) + ":" + ne.idStr + ":"
-				+ ne.lang + getPak(ne, showPak);
+				+ ne.lang + getPak(ne, showPak, manifestB);
 		if (meta != null && !meta.equals("[]"))
 			line += " " + meta;
 		return line + "\n";
@@ -94,12 +105,19 @@ public class DiffOutput
 		return org.imathrowback.manifest.NameDB.getNameForHash(entry.filenameHashStr, "");
 	}
 
-	private static String getPak(final ManifestEntry entry, final boolean showPak)
+	private static String getPak(final ManifestEntry entry, final boolean showPak, final Manifest manifest)
 	{
-		return showPak ? ":" + entry.pakIndex : "";
+		return showPak ? ":" + pakName(manifest, entry.pakIndex) : "";
 	}
 
-	private static String formatJson(final DiffResult result)
+	private static String pakName(final Manifest manifest, final int pakIndex)
+	{
+		if (manifest == null || manifest.pakFiles == null || pakIndex < 0 || pakIndex >= manifest.pakFiles.size())
+			return String.valueOf(pakIndex);
+		return manifest.pakFiles.get(pakIndex).name;
+	}
+
+	private static String formatJson(final DiffResult result, final Manifest manifestA, final Manifest manifestB)
 	{
 		StringBuilder sb = new StringBuilder();
 		sb.append("{\n");
@@ -115,15 +133,15 @@ public class DiffOutput
 		sb.append("  },\n");
 
 		sb.append("  \"added\": [\n");
-		appendJsonEntries(sb, result.getAdded(), "added", true);
+		appendJsonEntries(sb, result.getAdded(), manifestB);
 		sb.append("  ],\n");
 
 		sb.append("  \"deleted\": [\n");
-		appendJsonEntries(sb, result.getDeleted(), "deleted", true);
+		appendJsonEntries(sb, result.getDeleted(), manifestA);
 		sb.append("  ],\n");
 
 		sb.append("  \"changed\": [\n");
-		appendJsonChangedEntries(sb, result.getChanged());
+		appendJsonChangedEntries(sb, result.getChanged(), manifestA, manifestB);
 		sb.append("  ],\n");
 
 		sb.append("  \"renamed\": [\n");
@@ -131,7 +149,7 @@ public class DiffOutput
 		sb.append("  ],\n");
 
 		sb.append("  \"moved\": [\n");
-		appendJsonEntries(sb, result.getMoved(), "moved", true);
+		appendJsonEntries(sb, result.getMoved(), manifestB);
 
 		sb.append("  ]\n");
 		sb.append("}\n");
@@ -139,7 +157,7 @@ public class DiffOutput
 	}
 
 	private static void appendJsonEntries(final StringBuilder sb, final List<DiffEntry> entries,
-			final String type, final boolean leadingComma)
+			final Manifest manifest)
 	{
 		boolean first = true;
 		for (DiffEntry entry : entries)
@@ -155,14 +173,15 @@ public class DiffOutput
 			sb.append(", ");
 			jsonField(sb, "id", ne.idStr);
 			sb.append(", \"lang\": ").append(ne.lang);
-			sb.append(", \"pakIndex\": ").append(ne.pakIndex);
+			sb.append(", \"pak\": \"").append(escapeJson(pakName(manifest, ne.pakIndex))).append("\"");
 			sb.append("}");
 		}
 		if (!first)
 			sb.append("\n");
 	}
 
-	private static void appendJsonChangedEntries(final StringBuilder sb, final List<DiffEntry> entries)
+	private static void appendJsonChangedEntries(final StringBuilder sb, final List<DiffEntry> entries,
+			final Manifest manifestA, final Manifest manifestB)
 	{
 		boolean first = true;
 		for (DiffEntry entry : entries)
@@ -176,13 +195,13 @@ public class DiffOutput
 			{
 				sb.append(", ");
 				jsonField(sb, "oldSha", entry.getEntryOld().shaStr);
-				sb.append(", \"oldPakIndex\": ").append(entry.getEntryOld().pakIndex);
+				sb.append(", \"oldPak\": \"").append(escapeJson(pakName(manifestA, entry.getEntryOld().pakIndex))).append("\"");
 			}
 			if (entry.getEntryNew() != null)
 			{
 				sb.append(", ");
 				jsonField(sb, "newSha", entry.getEntryNew().shaStr);
-				sb.append(", \"newPakIndex\": ").append(entry.getEntryNew().pakIndex);
+				sb.append(", \"newPak\": \"").append(escapeJson(pakName(manifestB, entry.getEntryNew().pakIndex))).append("\"");
 			}
 			if (!entry.getMetadataFlags().isEmpty())
 			{

@@ -2,16 +2,18 @@ package org.imathrowback.manifest.diff;
 
 import java.util.List;
 
+import rift_extractor.assets.Manifest;
 import rift_extractor.assets.ManifestEntry;
 import rift_extractor.util.Util;
 
 public class HtmlFormatter
 {
-	public static String format(final DiffResult result, final boolean showPak)
+	public static String format(final DiffResult result, final boolean showPak,
+			final Manifest manifestA, final Manifest manifestB)
 	{
 		StringBuilder sb = new StringBuilder();
 		emitHead(sb);
-		emitBody(sb, result, showPak);
+		emitBody(sb, result, showPak, manifestA, manifestB);
 		sb.append("</html>\n");
 		return sb.toString();
 	}
@@ -107,7 +109,8 @@ public class HtmlFormatter
 		sb.append("</style>\n");
 	}
 
-	private static void emitBody(final StringBuilder sb, final DiffResult result, final boolean showPak)
+	private static void emitBody(final StringBuilder sb, final DiffResult result, final boolean showPak,
+			final Manifest manifestA, final Manifest manifestB)
 	{
 		sb.append("<body>\n");
 		sb.append("<h1>ManifestDiff Report</h1>\n");
@@ -118,11 +121,11 @@ public class HtmlFormatter
 
 		emitCards(sb, result);
 		emitTabs(sb);
-		emitPanel(sb, "added", "Added", "ADDED", result.getAdded(), showPak);
-		emitPanel(sb, "deleted", "Deleted", "DELETED", result.getDeleted(), showPak);
-		emitPanel(sb, "changed", "Changed", "CHANGED", result.getChanged(), showPak);
-		emitPanel(sb, "renamed", "Renamed", "RENAMED", result.getRenamed(), showPak);
-		emitPanel(sb, "moved", "Moved", "MOVED", result.getMoved(), showPak);
+		emitPanel(sb, "added", "Added", "ADDED", result.getAdded(), showPak, manifestB);
+		emitPanel(sb, "deleted", "Deleted", "DELETED", result.getDeleted(), showPak, manifestA);
+		emitPanel(sb, "changed", "Changed", "CHANGED", result.getChanged(), showPak, manifestA, manifestB);
+		emitPanel(sb, "renamed", "Renamed", "RENAMED", result.getRenamed(), showPak, manifestB);
+		emitPanel(sb, "moved", "Moved", "MOVED", result.getMoved(), showPak, manifestA, manifestB);
 		emitScript(sb, result);
 		sb.append("</body>\n");
 	}
@@ -167,9 +170,16 @@ public class HtmlFormatter
 	}
 
 	private static void emitPanel(final StringBuilder sb, final String id, final String title,
-			final String changeType, final List<DiffEntry> entries, final boolean showPak)
+			final String changeType, final List<DiffEntry> entries, final boolean showPak,
+			final Manifest manifest)
 	{
-		String cls = changeType.toLowerCase();
+		emitPanel(sb, id, title, changeType, entries, showPak, manifest, manifest);
+	}
+
+	private static void emitPanel(final StringBuilder sb, final String id, final String title,
+			final String changeType, final List<DiffEntry> entries, final boolean showPak,
+			final Manifest manifestA, final Manifest manifestB)
+	{
 		sb.append("<div class=\"tab-panel\" id=\"panel-").append(id).append("\">\n");
 		sb.append("<div class=\"search\"><input type=\"text\" id=\"search-").append(id);
 		sb.append("\" placeholder=\"Filter ").append(title.toLowerCase()).append(" entries...\" ");
@@ -215,7 +225,7 @@ public class HtmlFormatter
 			sb.append("</tr>\n</thead>\n<tbody>\n");
 
 			for (DiffEntry entry : entries)
-				emitRow(sb, entry, id, showPak);
+				emitRow(sb, entry, id, showPak, manifestA, manifestB);
 
 			sb.append("</tbody>\n</table>\n");
 		}
@@ -223,7 +233,7 @@ public class HtmlFormatter
 	}
 
 	private static void emitRow(final StringBuilder sb, final DiffEntry entry, final String panelId,
-			final boolean showPak)
+			final boolean showPak, final Manifest manifestA, final Manifest manifestB)
 	{
 		ManifestEntry ne = entry.getEntryNew() != null ? entry.getEntryNew() : entry.getEntryOld();
 		String name = entry.getResolvedFilename();
@@ -246,7 +256,7 @@ public class HtmlFormatter
 			sb.append("<td class=\"hash\">").append(ne.idStr).append("</td>\n");
 			sb.append("<td>").append(ne.lang).append("</td>\n");
 			if (showPak)
-				sb.append("<td>").append(ne.pakIndex).append("</td>\n");
+				sb.append("<td>").append(pakName(manifestB, ne.pakIndex)).append("</td>\n");
 		} else if ("changed".equals(panelId))
 		{
 			String oldSha = entry.getEntryOld() != null ? entry.getEntryOld().shaStr : "-";
@@ -260,19 +270,18 @@ public class HtmlFormatter
 			sb.append("<td>");
 			for (MetadataFlag f : entry.getMetadataFlags())
 			{
-				String fcls = f.name().toLowerCase().replace('_', '-');
 				sb.append("<span class=\"flag\">").append(f.name()).append("</span>");
 			}
 			sb.append("</td>\n");
 			if (showPak)
 			{
-				sb.append("<td>").append(entry.getEntryOld() != null ? entry.getEntryOld().pakIndex : "-").append("</td>\n");
-				sb.append("<td>").append(entry.getEntryNew() != null ? entry.getEntryNew().pakIndex : "-").append("</td>\n");
+				sb.append("<td>").append(entry.getEntryOld() != null ? pakName(manifestA, entry.getEntryOld().pakIndex) : "-").append("</td>\n");
+				sb.append("<td>").append(entry.getEntryNew() != null ? pakName(manifestB, entry.getEntryNew().pakIndex) : "-").append("</td>\n");
 			}
 		} else if ("moved".equals(panelId))
 		{
-			int oldPak = entry.getEntryOld() != null ? entry.getEntryOld().pakIndex : -1;
-			int newPak = entry.getEntryNew() != null ? entry.getEntryNew().pakIndex : -1;
+			String oldPak = entry.getEntryOld() != null ? pakName(manifestA, entry.getEntryOld().pakIndex) : "-";
+			String newPak = entry.getEntryNew() != null ? pakName(manifestB, entry.getEntryNew().pakIndex) : "-";
 			sb.append("<td>").append(esc(name)).append("</td>\n");
 			sb.append("<td class=\"hash\">").append(Util.bytesToHexString(ne.filenameHash)).append("</td>\n");
 			sb.append("<td class=\"hash\">").append(ne.idStr).append("</td>\n");
@@ -288,9 +297,16 @@ public class HtmlFormatter
 			sb.append("<td class=\"hash\">").append(ne.idStr).append("</td>\n");
 			sb.append("<td>").append(ne.lang).append("</td>\n");
 			if (showPak)
-				sb.append("<td>").append(ne.pakIndex).append("</td>\n");
+				sb.append("<td>").append(pakName(manifestA, ne.pakIndex)).append("</td>\n");
 		}
 		sb.append("</tr>\n");
+	}
+
+	private static String pakName(final Manifest manifest, final int pakIndex)
+	{
+		if (manifest == null || manifest.pakFiles == null || pakIndex < 0 || pakIndex >= manifest.pakFiles.size())
+			return String.valueOf(pakIndex);
+		return manifest.pakFiles.get(pakIndex).name;
 	}
 
 	private static void emitScript(final StringBuilder sb, final DiffResult result)

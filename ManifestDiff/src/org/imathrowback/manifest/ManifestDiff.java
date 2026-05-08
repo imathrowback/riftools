@@ -353,7 +353,7 @@ public class ManifestDiff
 		else
 			format = Format.TEXT;
 
-		String formatted = DiffOutput.format(result, format, header, true, verbose);
+		String formatted = DiffOutput.format(result, format, header, true, verbose, manifestA, manifestB);
 		if (!outputFile.isEmpty())
 		{
 			Path outPath = Paths.get(outputFile);
