@@ -338,12 +338,12 @@ public class ManifestDiff
 		{
 			System.out.println("manifestA.manifestEntries:" + manifestA.manifestEntries.size());
 			System.out.println("manifestB.manifestEntries:" + manifestB.manifestEntries.size());
-			System.out.println("deleted from B: " + result.getDeleted().size());
-			System.out.println("added to B: " + result.getAdded().size());
-			System.out.println("changed in B: " + result.getChanged().size());
-			System.out.println("renamed: " + result.getRenamed().size());
-			System.out.println("moved: " + result.getMoved().size());
 		}
+		System.out.println("Added: " + result.getAdded().size());
+		System.out.println("Deleted: " + result.getDeleted().size());
+		System.out.println("Changed: " + result.getChanged().size());
+		System.out.println("Renamed: " + result.getRenamed().size());
+		System.out.println("Moved: " + result.getMoved().size());
 
 		Format format;
 		if ("json".equalsIgnoreCase(formatStr))

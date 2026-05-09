@@ -191,8 +191,23 @@ public class TelaraDBDiff
 		{
 			if (!idsB.contains(idA))
 			{
-				result.addEntry(new DbDiffEntry(idA.getLeft(), idA.getRight(),
-						DbDiffEntry.ChangeType.DELETED, null, null, null, null));
+				int id = idA.getLeft();
+				int key = idA.getRight();
+				byte[] data = fileA.getData(id, key);
+				CObject obj = DatParser.processFileAndObject(new ByteArrayInputStream(data), dataModel);
+				obj.index = id;
+				obj.extracode = key;
+				if (langAdb != null)
+					transmog(obj, langAdb);
+				Path delDir = Paths.get(outdir.toString(), "db", "deleted");
+				delDir.toFile().mkdirs();
+				com.google.common.io.Files.write(data,
+						Paths.get(delDir.toString(), id + "_" + key + ".dat").toFile());
+				synchronized (result)
+				{
+					result.addEntry(new DbDiffEntry(id, key,
+							DbDiffEntry.ChangeType.DELETED, obj, null, null, data));
+				}
 			}
 		}
 
@@ -273,6 +288,11 @@ public class TelaraDBDiff
 		});
 
 		System.out.println("\nwriting report...");
+		System.out.println("Total A: " + result.getTotalOld());
+		System.out.println("Total B: " + result.getTotalNew());
+		System.out.println("Added: " + result.getAdded().size());
+		System.out.println("Deleted: " + result.getDeleted().size());
+		System.out.println("Changed: " + result.getChanged().size());
 
 		DbDiffOutput.Format format;
 		if ("html".equalsIgnoreCase(formatStr))
