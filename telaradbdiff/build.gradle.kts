@@ -25,6 +25,7 @@ sourceSets.main {
 
 tasks.jar {
     archiveBaseName = "telaradbdiff"
+    archiveVersion = ""
     manifest {
         attributes(
             "Main-Class" to "org.imathrowback.telaradbdiff.TelaraDBDiff",

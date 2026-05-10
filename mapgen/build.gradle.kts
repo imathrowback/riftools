@@ -27,6 +27,7 @@ sourceSets.main {
 
 tasks.jar {
     archiveBaseName = "mapgen"
+    archiveVersion = ""
     manifest {
         attributes(
             "Main-Class" to "org.imathrowback.mapgen.MapGen",

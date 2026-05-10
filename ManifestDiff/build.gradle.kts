@@ -25,6 +25,7 @@ sourceSets.main {
 
 tasks.jar {
     archiveBaseName = "ManifestDiff"
+    archiveVersion = ""
     manifest {
         attributes(
             "Main-Class" to "org.imathrowback.manifest.ManifestDiff",

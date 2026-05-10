@@ -24,6 +24,7 @@ sourceSets.main {
 
 tasks.jar {
     archiveBaseName = "totext"
+    archiveVersion = ""
     manifest {
         attributes(
             "Main-Class" to "org.imathrowback.totext.ToTextMode",

@@ -9,10 +9,10 @@ from pathlib import Path
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
 RIFTTOOLS_DIR = ROOT_DIR / "RiftTools"
-RIFTTOOL_JAR = RIFTTOOLS_DIR / "build" / "libs" / "RiftTool-1.0.jar"
-TELARADB_JAR = ROOT_DIR / "telaradbdiff" / "build" / "libs" / "telaradbdiff-1.0.jar"
-MANIFEST_DIFF_JAR = ROOT_DIR / "ManifestDiff" / "build" / "libs" / "ManifestDiff-1.0.jar"
-TOTEXT_JAR = ROOT_DIR / "totext" / "build" / "libs" / "totext-1.0.jar"
+RIFTTOOL_JAR = RIFTTOOLS_DIR / "build" / "libs" / "RiftTool.jar"
+TELARADB_JAR = ROOT_DIR / "telaradbdiff" / "build" / "libs" / "telaradbdiff.jar"
+MANIFEST_DIFF_JAR = ROOT_DIR / "ManifestDiff" / "build" / "libs" / "ManifestDiff.jar"
+TOTEXT_JAR = ROOT_DIR / "totext" / "build" / "libs" / "totext.jar"
 CACHE_DIR = Path.home() / ".riftools_cache"
 SITEGEN_DIR = Path(__file__).resolve().parent
 

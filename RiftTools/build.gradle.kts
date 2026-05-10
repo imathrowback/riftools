@@ -25,6 +25,7 @@ tasks.jar {
 
 tasks.jar {
     archiveBaseName = "RiftTool"
+    archiveVersion = ""
     manifest {
         attributes(
             "Main-Class" to "org.imathrowback.riftool.RiftTool",
@@ -50,16 +51,16 @@ val copySubprojectJars by tasks.registering(Copy::class) {
               project(":totext").tasks.jar,
               project(":mapgen").tasks.jar)
     from(project(":ManifestDiff").layout.buildDirectory.dir("libs")) {
-        include("ManifestDiff-*.jar")
+        include("ManifestDiff.jar")
     }
     from(project(":telaradbdiff").layout.buildDirectory.dir("libs")) {
-        include("telaradbdiff-*.jar")
+        include("telaradbdiff.jar")
     }
     from(project(":totext").layout.buildDirectory.dir("libs")) {
-        include("totext-*.jar")
+        include("totext.jar")
     }
     from(project(":mapgen").layout.buildDirectory.dir("libs")) {
-        include("mapgen-*.jar")
+        include("mapgen.jar")
     }
     into(layout.buildDirectory.dir("libs"))
     duplicatesStrategy = DuplicatesStrategy.INCLUDE

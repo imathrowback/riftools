@@ -34,4 +34,5 @@ tasks.jar {
 
 tasks.jar {
     archiveBaseName = "riftlib"
+    archiveVersion = ""
 }
