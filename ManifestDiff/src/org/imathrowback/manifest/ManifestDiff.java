@@ -103,6 +103,12 @@ public class ManifestDiff
 	@Option(name = "-v", usage = "Verbose output", required = false)
 	private boolean verbose;
 
+	@Option(name = "-patchIndexA", usage = "Patch index for manifest A (for PAK URL construction in HTML preview)", required = false)
+	int patchIndexA = -1;
+
+	@Option(name = "-patchIndexB", usage = "Patch index for manifest B (for PAK URL construction in HTML preview)", required = false)
+	int patchIndexB = -1;
+
 	@Option(name = "-h", usage = "Print header", required = false)
 	private boolean header;
 
@@ -353,7 +359,7 @@ public class ManifestDiff
 		else
 			format = Format.TEXT;
 
-		String formatted = DiffOutput.format(result, format, header, true, verbose, manifestA, manifestB);
+		String formatted = DiffOutput.format(result, format, header, true, verbose, manifestA, manifestB, patchIndexA, patchIndexB);
 		if (!outputFile.isEmpty())
 		{
 			Path outPath = Paths.get(outputFile);

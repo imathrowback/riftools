@@ -8,12 +8,14 @@ import rift_extractor.util.Util;
 
 public class HtmlFormatter
 {
+	private static final String PAK_BASE_URL = "http://rift-update.dyn.triongames.com/ch1-live-streaming-client-patch/content/patchlive";
 	public static String format(final DiffResult result, final boolean showPak,
-			final Manifest manifestA, final Manifest manifestB)
+			final Manifest manifestA, final Manifest manifestB,
+			final int patchIndexA, final int patchIndexB)
 	{
 		StringBuilder sb = new StringBuilder();
 		emitHead(sb);
-		emitBody(sb, result, showPak, manifestA, manifestB);
+		emitBody(sb, result, showPak, manifestA, manifestB, patchIndexA, patchIndexB);
 		sb.append("</html>\n");
 		return sb.toString();
 	}
@@ -103,6 +105,22 @@ public class HtmlFormatter
 		sb.append("background: #30363d; border-radius: 3px; color: #8b949e; margin-right: 2px; }\n");
 		sb.append(".empty { text-align: center; padding: 40px; color: #484f58; font-size: 14px; }\n");
 		sb.append(".arrow { color: #484f58; padding: 0 4px; }\n");
+		sb.append(".preview-btn { padding: 2px 10px; font-size: 11px; cursor: pointer; ");
+		sb.append("background: #238636; color: #fff; border: none; border-radius: 4px; }\n");
+		sb.append(".preview-btn:hover { background: #2ea043; }\n");
+
+		sb.append(".modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; ");
+		sb.append("background: rgba(0,0,0,0.75); z-index: 1000; justify-content: center; align-items: center; }\n");
+		sb.append(".modal-overlay.active { display: flex; }\n");
+		sb.append(".modal-content { background: #161b22; border: 1px solid #30363d; border-radius: 8px; ");
+		sb.append("max-width: 90vw; max-height: 90vh; overflow: auto; padding: 20px; position: relative; }\n");
+		sb.append(".modal-close { position: absolute; top: 8px; right: 12px; color: #8b949e; ");
+		sb.append("cursor: pointer; font-size: 22px; line-height: 1; }\n");
+		sb.append(".modal-close:hover { color: #f0f6fc; }\n");
+		sb.append(".modal-body canvas { display: block; max-width: 100%; height: auto; }\n");
+		sb.append(".modal-body pre { color: #8b949e; font-size: 11px; font-family: 'SFMono-Regular', ");
+		sb.append("Consolas, 'Liberation Mono', monospace; line-height: 1.4; }\n");
+
 		sb.append("@media (max-width: 768px) { body { padding: 12px; } ");
 		sb.append(".cards { grid-template-columns: repeat(3, 1fr); } ");
 		sb.append("td, th { padding: 6px; } }\n");
@@ -110,7 +128,8 @@ public class HtmlFormatter
 	}
 
 	private static void emitBody(final StringBuilder sb, final DiffResult result, final boolean showPak,
-			final Manifest manifestA, final Manifest manifestB)
+			final Manifest manifestA, final Manifest manifestB,
+			final int patchIndexA, final int patchIndexB)
 	{
 		sb.append("<body>\n");
 		sb.append("<h1>ManifestDiff Report</h1>\n");
@@ -121,12 +140,14 @@ public class HtmlFormatter
 
 		emitCards(sb, result);
 		emitTabs(sb);
-		emitPanel(sb, "added", "Added", "ADDED", result.getAdded(), showPak, manifestB);
-		emitPanel(sb, "deleted", "Deleted", "DELETED", result.getDeleted(), showPak, manifestA);
-		emitPanel(sb, "changed", "Changed", "CHANGED", result.getChanged(), showPak, manifestA, manifestB);
-		emitPanel(sb, "renamed", "Renamed", "RENAMED", result.getRenamed(), showPak, manifestB);
-		emitPanel(sb, "moved", "Moved", "MOVED", result.getMoved(), showPak, manifestA, manifestB);
+		emitPanel(sb, "added", "Added", "ADDED", result.getAdded(), showPak, manifestB, patchIndexB);
+		emitPanel(sb, "deleted", "Deleted", "DELETED", result.getDeleted(), showPak, manifestA, patchIndexA);
+		emitPanel(sb, "changed", "Changed", "CHANGED", result.getChanged(), showPak, manifestA, manifestB, patchIndexA, patchIndexB);
+		emitPanel(sb, "renamed", "Renamed", "RENAMED", result.getRenamed(), showPak, manifestB, patchIndexB);
+		emitPanel(sb, "moved", "Moved", "MOVED", result.getMoved(), showPak, manifestA, manifestB, patchIndexA, patchIndexB);
 		emitScript(sb, result);
+		emitPreviewModal(sb);
+		emitPreviewScriptRefs(sb);
 		sb.append("</body>\n");
 	}
 
@@ -171,14 +192,15 @@ public class HtmlFormatter
 
 	private static void emitPanel(final StringBuilder sb, final String id, final String title,
 			final String changeType, final List<DiffEntry> entries, final boolean showPak,
-			final Manifest manifest)
+			final Manifest manifest, final int patchIndex)
 	{
-		emitPanel(sb, id, title, changeType, entries, showPak, manifest, manifest);
+		emitPanel(sb, id, title, changeType, entries, showPak, manifest, manifest, patchIndex, patchIndex);
 	}
 
 	private static void emitPanel(final StringBuilder sb, final String id, final String title,
 			final String changeType, final List<DiffEntry> entries, final boolean showPak,
-			final Manifest manifestA, final Manifest manifestB)
+			final Manifest manifestA, final Manifest manifestB,
+			final int patchIndexA, final int patchIndexB)
 	{
 		sb.append("<div class=\"tab-panel\" id=\"panel-").append(id).append("\">\n");
 		sb.append("<div class=\"search\"><input type=\"text\" id=\"search-").append(id);
@@ -222,10 +244,12 @@ public class HtmlFormatter
 				if (showPak)
 					sb.append("<th onclick=\"sortTable('").append(id).append("', 4)\">PAK</th>\n");
 			}
+			// Preview column header
+			sb.append("<th style=\"cursor:default;width:60px\">Preview</th>\n");
 			sb.append("</tr>\n</thead>\n<tbody>\n");
 
 			for (DiffEntry entry : entries)
-				emitRow(sb, entry, id, showPak, manifestA, manifestB);
+				emitRow(sb, entry, id, showPak, manifestA, manifestB, patchIndexA, patchIndexB);
 
 			sb.append("</tbody>\n</table>\n");
 		}
@@ -233,14 +257,50 @@ public class HtmlFormatter
 	}
 
 	private static void emitRow(final StringBuilder sb, final DiffEntry entry, final String panelId,
-			final boolean showPak, final Manifest manifestA, final Manifest manifestB)
+			final boolean showPak, final Manifest manifestA, final Manifest manifestB,
+			final int patchIndexA, final int patchIndexB)
 	{
 		ManifestEntry ne = entry.getEntryNew() != null ? entry.getEntryNew() : entry.getEntryOld();
 		String name = entry.getResolvedFilename();
 		if (name.isEmpty())
 			name = ne != null ? ne.filenameHashStr : "???";
 
-		sb.append("<tr class=\"row-").append(panelId).append("\">\n");
+		// Determine which manifest and patch index to use for preview
+		boolean useOld = "deleted".equals(panelId);
+		Manifest previewManifest = useOld ? manifestA : manifestB;
+		int previewPatchIndex = useOld ? patchIndexA : patchIndexB;
+		ManifestEntry previewEntry = useOld ? entry.getEntryOld() : entry.getEntryNew();
+		if (previewEntry == null)
+			previewEntry = ne;
+
+		String previewUrl = "";
+		String previewOffset = "";
+		String previewCSize = "";
+		String previewUSize = "";
+		String previewFilename = "";
+		if (previewPatchIndex >= 0 && previewManifest != null
+				&& previewEntry.pakIndex >= 0 && previewEntry.pakIndex < previewManifest.pakFiles.size()
+				&& previewEntry.pakOffset > 0)
+		{
+			String pakName = previewManifest.pakFiles.get(previewEntry.pakIndex).name;
+			String idxStr = previewPatchIndex == 0 ? "" : String.valueOf(previewPatchIndex);
+			previewUrl = "http://rift-update.dyn.triongames.com/ch1-live-streaming-client-patch/content/patchlive" + idxStr + "/" + pakName;
+			previewOffset = String.valueOf(previewEntry.pakOffset);
+			previewCSize = String.valueOf(previewEntry.compressedSize);
+			previewUSize = String.valueOf(previewEntry.size);
+			previewFilename = esc(name);
+		}
+
+		sb.append("<tr class=\"row-").append(panelId).append("\"");
+		if (!previewUrl.isEmpty())
+		{
+			sb.append(" data-pak-url=\"").append(esc(previewUrl)).append("\"");
+			sb.append(" data-pak-offset=\"").append(previewOffset).append("\"");
+			sb.append(" data-pak-csize=\"").append(previewCSize).append("\"");
+			sb.append(" data-pak-usize=\"").append(previewUSize).append("\"");
+			sb.append(" data-filename=\"").append(previewFilename).append("\"");
+		}
+		sb.append(">\n");
 
 		if ("renamed".equals(panelId))
 		{
@@ -299,6 +359,11 @@ public class HtmlFormatter
 			if (showPak)
 				sb.append("<td>").append(pakName(manifestA, ne.pakIndex)).append("</td>\n");
 		}
+		// Preview button cell
+		if (!previewUrl.isEmpty())
+			sb.append("<td><button class=\"preview-btn\" type=\"button\" style=\"padding:2px 8px;font-size:11px;cursor:pointer;background:#238636;color:#fff;border:none;border-radius:4px;\">Preview</button></td>\n");
+		else
+			sb.append("<td></td>\n");
 		sb.append("</tr>\n");
 	}
 
@@ -371,6 +436,87 @@ public class HtmlFormatter
 		sb.append("  });\n");
 		sb.append("  rows.forEach(function(row) { tbody.appendChild(row); });\n");
 		sb.append("}\n");
+		sb.append("</script>\n");
+	}
+
+	private static void emitPreviewModal(final StringBuilder sb)
+	{
+		sb.append("<div class=\"modal-overlay\" id=\"preview-modal\">\n");
+		sb.append("  <div class=\"modal-content\">\n");
+		sb.append("    <span class=\"modal-close\" id=\"modal-close\">&times;</span>\n");
+		sb.append("    <div class=\"modal-body\" id=\"modal-body\"></div>\n");
+		sb.append("  </div>\n");
+		sb.append("</div>\n");
+	}
+
+	private static void emitPreviewScriptRefs(final StringBuilder sb)
+	{
+		sb.append("<script src=\"xzwasm.js\"></script>\n");
+		sb.append("<script type=\"module\">\n");
+		sb.append("import { LZMA2Decoder, DDSRenderer } from './lzma2-dds-viewer.js';\n");
+		sb.append("\n");
+		sb.append("function hexDump(data, maxLen) {\n");
+		sb.append("  var len = Math.min(data.length, maxLen);\n");
+		sb.append("  var out = '';\n");
+		sb.append("  for (var i = 0; i < len; i += 16) {\n");
+		sb.append("    var hex = '';\n");
+		sb.append("    var ascii = '';\n");
+		sb.append("    for (var j = 0; j < 16 && i + j < len; j++) {\n");
+		sb.append("      hex += data[i + j].toString(16).padStart(2, '0') + ' ';\n");
+		sb.append("      var b = data[i + j];\n");
+		sb.append("      ascii += b >= 32 && b < 127 ? String.fromCharCode(b) : '.';\n");
+		sb.append("    }\n");
+		sb.append("    out += i.toString(16).padStart(8, '0') + '  ' + hex.padEnd(48) + '  ' + ascii + '\\n';\n");
+		sb.append("  }\n");
+		sb.append("  return out;\n");
+		sb.append("}\n");
+		sb.append("\n");
+		sb.append("document.addEventListener('click', function(e) {\n");
+		sb.append("  var btn = e.target.closest('.preview-btn');\n");
+		sb.append("  if (!btn) return;\n");
+		sb.append("  var tr = btn.closest('tr');\n");
+		sb.append("  var url = tr.dataset.pakUrl;\n");
+		sb.append("  var offset = parseInt(tr.dataset.pakOffset);\n");
+		sb.append("  var csize = parseInt(tr.dataset.pakCsize);\n");
+		sb.append("  var usize = parseInt(tr.dataset.pakUsize);\n");
+		sb.append("  var filename = tr.dataset.filename || '';\n");
+		sb.append("  var body = document.getElementById('modal-body');\n");
+		sb.append("  body.innerHTML = '<p style=\"color:#8b949e\">Loading...</p>';\n");
+		sb.append("  document.getElementById('preview-modal').classList.add('active');\n");
+		sb.append("\n");
+		sb.append("  (async function() {\n");
+		sb.append("    try {\n");
+		sb.append("      var resp = await fetch(url, { headers: { 'Range': 'bytes=' + offset + '-' + (offset + csize - 1) } });\n");
+		sb.append("      if (!resp.ok) throw new Error('HTTP ' + resp.status);\n");
+		sb.append("      var raw = new Uint8Array(await resp.arrayBuffer());\n");
+		sb.append("      var lzma2Data = raw.slice(1);\n");
+		sb.append("      var ddsBuffer = await LZMA2Decoder.decompress(lzma2Data, usize);\n");
+		sb.append("      var magic = new Uint32Array(ddsBuffer, 0, 1)[0];\n");
+		sb.append("      if (magic === 0x20534444) {\n");
+		sb.append("        var canvas = document.createElement('canvas');\n");
+		sb.append("        DDSRenderer.render(ddsBuffer, canvas);\n");
+		sb.append("        body.innerHTML = '';\n");
+		sb.append("        var info = document.createElement('p');\n");
+		sb.append("        info.style.cssText = 'color:#8b949e;font-size:12px;margin-bottom:8px;';\n");
+		sb.append("        info.textContent = filename + ' (' + canvas.width + 'x' + canvas.height + ')';\n");
+		sb.append("        body.appendChild(info);\n");
+		sb.append("        body.appendChild(canvas);\n");
+		sb.append("      } else {\n");
+		sb.append("        var hex = hexDump(new Uint8Array(ddsBuffer), 512);\n");
+		sb.append("        body.innerHTML = '<p style=\"color:#d29922;font-size:12px;margin-bottom:8px;\">' + filename + ' (not a DDS image, showing hex dump)</p><pre>' + hex + '</pre>';\n");
+		sb.append("      }\n");
+		sb.append("    } catch (err) {\n");
+		sb.append("      body.innerHTML = '<p style=\"color:#f85149\">Error: ' + err.message + '</p>';\n");
+		sb.append("    }\n");
+		sb.append("  })();\n");
+		sb.append("});\n");
+		sb.append("\n");
+		sb.append("document.getElementById('modal-close').addEventListener('click', function() {\n");
+		sb.append("  document.getElementById('preview-modal').classList.remove('active');\n");
+		sb.append("});\n");
+		sb.append("document.getElementById('preview-modal').addEventListener('click', function(e) {\n");
+		sb.append("  if (e.target === this) this.classList.remove('active');\n");
+		sb.append("});\n");
 		sb.append("</script>\n");
 	}
 

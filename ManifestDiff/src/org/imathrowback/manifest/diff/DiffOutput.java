@@ -19,12 +19,20 @@ public class DiffOutput
 			final boolean showPak, final boolean verbose,
 			final Manifest manifestA, final Manifest manifestB)
 	{
+		return format(result, format, header, showPak, verbose, manifestA, manifestB, -1, -1);
+	}
+
+	public static String format(final DiffResult result, final Format format, final boolean header,
+			final boolean showPak, final boolean verbose,
+			final Manifest manifestA, final Manifest manifestB,
+			final int patchIndexA, final int patchIndexB)
+	{
 		switch (format)
 		{
 		case JSON:
 			return formatJson(result, manifestA, manifestB);
 		case HTML:
-			return HtmlFormatter.format(result, showPak, manifestA, manifestB);
+			return HtmlFormatter.format(result, showPak, manifestA, manifestB, patchIndexA, patchIndexB);
 		case TEXT:
 		default:
 			return formatText(result, header, showPak, verbose, manifestA, manifestB);

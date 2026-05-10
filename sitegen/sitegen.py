@@ -2,6 +2,7 @@
 import argparse
 import difflib
 import re
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -9,6 +10,7 @@ from pathlib import Path
 RIFTTOOLS_DIR = Path(__file__).resolve().parent.parent / "RiftTools"
 RIFTTOOL_JAR = RIFTTOOLS_DIR / "build" / "jar" / "RiftTool.jar"
 CACHE_DIR = Path.home() / ".riftools_cache"
+SITEGEN_DIR = Path(__file__).resolve().parent
 
 REQUIRED_FILES = ["telara.db", "lang_english.cds", "assets64.manifest"]
 
@@ -89,13 +91,15 @@ def run_telaradb_diff(db_a, db_b, lang_a, lang_b, datamodel_path, out_html):
     return parse_summary(result.stdout)
 
 
-def run_manifest_diff(manifest_a, manifest_b, out_html):
+def run_manifest_diff(manifest_a, manifest_b, out_html, patch_index_a, patch_index_b):
     out_html.parent.mkdir(parents=True, exist_ok=True)
     args = [
         "java", "-cp", str(RIFTTOOL_JAR),
         "org.imathrowback.manifest.ManifestDiff",
         "-manifestA", str(manifest_a),
         "-manifestB", str(manifest_b),
+        "-patchIndexA", str(patch_index_a),
+        "-patchIndexB", str(patch_index_b),
         "-outdir", str(out_html.parent),
         "-format", "html",
         "-output", str(out_html),
@@ -124,6 +128,27 @@ def convert_cds_text(cds_path):
     return txt_path
 
 
+_DARK_DIFF_CSS = """
+        body { background:#0d1117; color:#c9d1d9; }
+        table.diff { font-family:'SFMono-Regular',Consolas,'Liberation Mono',monospace;
+          border:1px solid #30363d; border-collapse:collapse; background:#0d1117;
+          font-size:12px; width:100%; }
+        table.diff tbody { background:#0d1117; }
+        .diff_header { background:#161b22; color:#8b949e; font-weight:600;
+          border:1px solid #30363d; }
+        .diff_header a { color:#58a6ff; text-decoration:none; }
+        .diff_header a:hover { text-decoration:underline; }
+        td.diff_header { text-align:right; padding:2px 8px;
+          border:1px solid #30363d; }
+        .diff_next { background:#161b22; border:1px solid #30363d; padding:2px 4px; }
+        .diff_next a { color:#58a6ff; text-decoration:none; }
+        .diff_next a:hover { text-decoration:underline; }
+        .diff_add { background:#23863633; color:#3fb950; border:1px solid #30363d; padding:2px 8px; }
+        .diff_chg { background:#d2992233; color:#d29922; border:1px solid #30363d; padding:2px 8px; }
+        .diff_sub { background:#da363333; color:#f85149; border:1px solid #30363d; padding:2px 8px; }
+"""
+
+
 def run_text_diff(lang_a, lang_b, out_html):
     out_html.parent.mkdir(parents=True, exist_ok=True)
     txt_a = convert_cds_text(lang_a)
@@ -133,11 +158,16 @@ def run_text_diff(lang_a, lang_b, out_html):
         return {}
     lines_a = txt_a.read_text(errors="replace").splitlines(keepends=True)
     lines_b = txt_b.read_text(errors="replace").splitlines(keepends=True)
-    diff = difflib.HtmlDiff(tabsize=2).make_file(
+    raw = difflib.HtmlDiff(tabsize=2).make_file(
         lines_a, lines_b, context=True, numlines=3,
-        fromdesc=str(lang_a), todesc=str(lang_b),
+        fromdesc=lang_a.name, todesc=lang_b.name,
     )
-    out_html.write_text(diff)
+    raw = re.sub(
+        r'<style[^>]*>.*?</style>',
+        '<style type="text/css">' + _DARK_DIFF_CSS + '</style>',
+        raw, count=1, flags=re.DOTALL,
+    )
+    out_html.write_text(raw)
 
     matcher = difflib.SequenceMatcher(None, lines_a, lines_b)
     added = deleted = 0
@@ -216,7 +246,7 @@ tr:hover td{background:#161b22}
 
         rows.append(f"""\
 <tr>
-  <td class="pair-cell">{n} vs {n+1}</td>
+  <td class="pair-cell">{n}&nbsp;&rarr;&nbsp;{n+1}</td>
   <td class="diff-cell">{db_html}</td>
   <td class="diff-cell">{mf_html}</td>
   <td class="diff-cell">{lg_html}</td>
@@ -310,7 +340,7 @@ def main():
         log("  Running ManifestDiff...")
         mf_summary = run_manifest_diff(
             cached["assets64.manifest_a"], cached["assets64.manifest_b"],
-            manifest_html,
+            manifest_html, n, n + 1,
         )
         if mf_summary:
             log(f"    Added: {mf_summary.get('added', 0)}, "
@@ -318,6 +348,13 @@ def main():
                 f"Changed: {mf_summary.get('changed', 0)}, "
                 f"Renamed: {mf_summary.get('renamed', 0)}, "
                 f"Moved: {mf_summary.get('moved', 0)}")
+        # Copy preview JS files alongside the manifest report
+        js_src = SITEGEN_DIR / "js"
+        if js_src.exists():
+            for js_file in ["xzwasm.js", "lzma2-dds-viewer.js"]:
+                src = js_src / js_file
+                if src.exists():
+                    shutil.copy2(src, manifest_html.parent / js_file)
 
         log("  Running text diff on lang_english.cds...")
         lang_summary = run_text_diff(

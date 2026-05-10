@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>LZMA2 DDS Decoder</title>
+    <script src="xzwasm.js"></script>
+    <style>
+        body { background: #222; color: #fff; font-family: sans-serif; text-align: center; }
+        canvas { border: 1px solid #555; margin-top: 20px; max-width: 90vw; }
+    </style>
+</head>
+<body>
+    <h2>LZMA2 Compressed DDS Viewer</h2>
+    <canvas id="viewer"></canvas>
+
+    <script type="module">
+        import { LZMA2Decoder, DDSRenderer } from './lzma2-dds-viewer.js';
+
+        async function init() {
+            const url = 'http://localhost:8000/raw.data';
+            const UNCOMPRESSED_SIZE = 87536; // Full size of the .dds file
+
+            try {
+                const resp = await fetch(url);
+                const raw = new Uint8Array(await resp.arrayBuffer());
+                
+                // Skip leading byte as per Java fis.skip(1)
+                const lzma2Data = raw.slice(1);
+
+                const ddsBuffer = await LZMA2Decoder.decompress(lzma2Data, UNCOMPRESSED_SIZE);
+                
+                const canvas = document.getElementById('viewer');
+                DDSRenderer.render(ddsBuffer, canvas);
+                
+                console.log('DDS rendered successfully');
+            } catch (err) {
+                console.error('Error:', err);
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>
