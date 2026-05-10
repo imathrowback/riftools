@@ -25,6 +25,7 @@ sourceSets.main {
 tasks.jar {
     archiveBaseName = "totext"
     archiveVersion = ""
+    destinationDirectory = layout.buildDirectory.dir("jar")
     manifest {
         attributes(
             "Main-Class" to "org.imathrowback.totext.ToTextMode",
@@ -35,7 +36,7 @@ tasks.jar {
 
 val copyDeps by tasks.registering(Copy::class) {
     from(configurations.runtimeClasspath)
-    into(layout.buildDirectory.dir("libs/libs"))
+    into(layout.buildDirectory.dir("jar/libs"))
     dependsOn(configurations.runtimeClasspath)
 }
 

@@ -26,6 +26,7 @@ tasks.jar {
 tasks.jar {
     archiveBaseName = "RiftTool"
     archiveVersion = ""
+    destinationDirectory = layout.buildDirectory.dir("jar")
     manifest {
         attributes(
             "Main-Class" to "org.imathrowback.riftool.RiftTool",
@@ -36,13 +37,13 @@ tasks.jar {
 
 val copyDeps by tasks.registering(Copy::class) {
     from(configurations.runtimeClasspath)
-    into(layout.buildDirectory.dir("libs/libs"))
+    into(layout.buildDirectory.dir("jar/libs"))
     dependsOn(configurations.runtimeClasspath)
 }
 
 val copyExes by tasks.registering(Copy::class) {
     from("exes")
-    into(layout.buildDirectory.dir("libs"))
+    into(layout.buildDirectory.dir("jar"))
 }
 
 val copySubprojectJars by tasks.registering(Copy::class) {
@@ -50,19 +51,19 @@ val copySubprojectJars by tasks.registering(Copy::class) {
               project(":telaradbdiff").tasks.jar,
               project(":totext").tasks.jar,
               project(":mapgen").tasks.jar)
-    from(project(":ManifestDiff").layout.buildDirectory.dir("libs")) {
+    from(project(":ManifestDiff").layout.buildDirectory.dir("jar")) {
         include("ManifestDiff.jar")
     }
-    from(project(":telaradbdiff").layout.buildDirectory.dir("libs")) {
+    from(project(":telaradbdiff").layout.buildDirectory.dir("jar")) {
         include("telaradbdiff.jar")
     }
-    from(project(":totext").layout.buildDirectory.dir("libs")) {
+    from(project(":totext").layout.buildDirectory.dir("jar")) {
         include("totext.jar")
     }
-    from(project(":mapgen").layout.buildDirectory.dir("libs")) {
+    from(project(":mapgen").layout.buildDirectory.dir("jar")) {
         include("mapgen.jar")
     }
-    into(layout.buildDirectory.dir("libs"))
+    into(layout.buildDirectory.dir("jar"))
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 

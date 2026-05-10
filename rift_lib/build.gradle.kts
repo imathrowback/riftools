@@ -35,4 +35,5 @@ tasks.jar {
 tasks.jar {
     archiveBaseName = "riftlib"
     archiveVersion = ""
+    destinationDirectory = layout.buildDirectory.dir("jar")
 }

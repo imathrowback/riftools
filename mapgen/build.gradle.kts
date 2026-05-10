@@ -28,6 +28,7 @@ sourceSets.main {
 tasks.jar {
     archiveBaseName = "mapgen"
     archiveVersion = ""
+    destinationDirectory = layout.buildDirectory.dir("jar")
     manifest {
         attributes(
             "Main-Class" to "org.imathrowback.mapgen.MapGen",
@@ -38,7 +39,7 @@ tasks.jar {
 
 val copyDeps by tasks.registering(Copy::class) {
     from(configurations.runtimeClasspath)
-    into(layout.buildDirectory.dir("libs/libs"))
+    into(layout.buildDirectory.dir("jar/libs"))
     dependsOn(configurations.runtimeClasspath)
 }
 

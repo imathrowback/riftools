@@ -26,6 +26,7 @@ sourceSets.main {
 tasks.jar {
     archiveBaseName = "ManifestDiff"
     archiveVersion = ""
+    destinationDirectory = layout.buildDirectory.dir("jar")
     manifest {
         attributes(
             "Main-Class" to "org.imathrowback.manifest.ManifestDiff",
@@ -36,7 +37,7 @@ tasks.jar {
 
 val copyDeps by tasks.registering(Copy::class) {
     from(configurations.runtimeClasspath)
-    into(layout.buildDirectory.dir("libs/libs"))
+    into(layout.buildDirectory.dir("jar/libs"))
     dependsOn(configurations.runtimeClasspath)
 }
 
