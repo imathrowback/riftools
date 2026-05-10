@@ -1,6 +1,14 @@
 # riftools
 Tools to do automatic rift patch differences
 
+# AI assistance
+
+- AI assitance via opencode
+- Implemention of sitegen
+- Migration from Ant/Ivy to Gradle.
+- Improvements to difference engine for manifests
+- Assistance writing git commits
+
 # required libraries
 
 - Java 1.8 SDK (64bit recommended) - http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html
@@ -9,7 +17,6 @@ Tools to do automatic rift patch differences
 
 Run `./build.sh` from the project root. This invokes Gradle to build all modules.
 
-Migrated from Ant/Ivy to Gradle with assistance from opencode.
 
 **Note:** The build output has changed from the old Ant-based system.
 Previously all JARs were under `RiftTools/build/jar/`; they are now in
