@@ -18,9 +18,14 @@
 *.tar.gz
 *.rar
 
-RiftTools/build/
+build/
+
+# Gradle wrapper jar must be committed for ./gradlew to work
+!gradle/wrapper/gradle-wrapper.jar
+
 ManifestDiff/assets64.manifest.cache
-rift_lib/build/classes/org/imathrowback/manifest/single-entries.dat
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+.gradle/
+sitegen/__pycache__/

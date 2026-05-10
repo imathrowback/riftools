@@ -7,8 +7,12 @@ import subprocess
 import sys
 from pathlib import Path
 
-RIFTTOOLS_DIR = Path(__file__).resolve().parent.parent / "RiftTools"
-RIFTTOOL_JAR = RIFTTOOLS_DIR / "build" / "jar" / "RiftTool.jar"
+ROOT_DIR = Path(__file__).resolve().parent.parent
+RIFTTOOLS_DIR = ROOT_DIR / "RiftTools"
+RIFTTOOL_JAR = RIFTTOOLS_DIR / "build" / "libs" / "RiftTool-1.0.jar"
+TELARADB_JAR = ROOT_DIR / "telaradbdiff" / "build" / "libs" / "telaradbdiff-1.0.jar"
+MANIFEST_DIFF_JAR = ROOT_DIR / "ManifestDiff" / "build" / "libs" / "ManifestDiff-1.0.jar"
+TOTEXT_JAR = ROOT_DIR / "totext" / "build" / "libs" / "totext-1.0.jar"
 CACHE_DIR = Path.home() / ".riftools_cache"
 SITEGEN_DIR = Path(__file__).resolve().parent
 
@@ -30,8 +34,12 @@ def cache_path(pindex, filename):
 
 
 def ensure_jar():
-    if not RIFTTOOL_JAR.exists():
-        log(f"ERROR: RiftTool jar not found at {RIFTTOOL_JAR}")
+    required_jars = [(RIFTTOOL_JAR, "RiftTool"), (TELARADB_JAR, "TelaraDBDiff"),
+                     (MANIFEST_DIFF_JAR, "ManifestDiff"), (TOTEXT_JAR, "ToTextMode")]
+    missing = [name for path, name in required_jars if not path.exists()]
+    if missing:
+        log(f"ERROR: Missing JARs: {', '.join(missing)}")
+        log(f"Check: {RIFTTOOLS_DIR / 'build' / 'libs'}")
         log("Run ./build.sh from the project root first.")
         sys.exit(1)
 
@@ -73,8 +81,7 @@ def parse_summary(stdout):
 def run_telaradb_diff(db_a, db_b, lang_a, lang_b, datamodel_path, out_html):
     out_html.parent.mkdir(parents=True, exist_ok=True)
     args = [
-        "java", "-cp", str(RIFTTOOL_JAR),
-        "org.imathrowback.telaradbdiff.TelaraDBDiff",
+        "java", "-jar", str(TELARADB_JAR),
         "-dbA", str(db_a),
         "-dbB", str(db_b),
         "-dbResolve", str(datamodel_path),
@@ -94,8 +101,7 @@ def run_telaradb_diff(db_a, db_b, lang_a, lang_b, datamodel_path, out_html):
 def run_manifest_diff(manifest_a, manifest_b, out_html, patch_index_a, patch_index_b):
     out_html.parent.mkdir(parents=True, exist_ok=True)
     args = [
-        "java", "-cp", str(RIFTTOOL_JAR),
-        "org.imathrowback.manifest.ManifestDiff",
+        "java", "-jar", str(MANIFEST_DIFF_JAR),
         "-manifestA", str(manifest_a),
         "-manifestB", str(manifest_b),
         "-patchIndexA", str(patch_index_a),
@@ -116,8 +122,7 @@ def convert_cds_text(cds_path):
     if txt_path.exists():
         return txt_path
     args = [
-        "java", "-cp", str(RIFTTOOL_JAR),
-        "org.imathrowback.totext.ToTextMode",
+        "java", "-jar", str(TOTEXT_JAR),
         "-fileType", "CDS",
         "-file", str(cds_path),
         "-output", str(txt_path),
