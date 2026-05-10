@@ -41,7 +41,28 @@ val copyDeps by tasks.registering(Copy::class) {
 
 val copyExes by tasks.registering(Copy::class) {
     from("exes")
-    into(layout.buildDirectory.dir("libs/exes"))
+    into(layout.buildDirectory.dir("libs"))
 }
 
-tasks.jar.get().dependsOn(copyDeps, copyExes)
+val copySubprojectJars by tasks.registering(Copy::class) {
+    dependsOn(project(":ManifestDiff").tasks.jar,
+              project(":telaradbdiff").tasks.jar,
+              project(":totext").tasks.jar,
+              project(":mapgen").tasks.jar)
+    from(project(":ManifestDiff").layout.buildDirectory.dir("libs")) {
+        include("ManifestDiff-*.jar")
+    }
+    from(project(":telaradbdiff").layout.buildDirectory.dir("libs")) {
+        include("telaradbdiff-*.jar")
+    }
+    from(project(":totext").layout.buildDirectory.dir("libs")) {
+        include("totext-*.jar")
+    }
+    from(project(":mapgen").layout.buildDirectory.dir("libs")) {
+        include("mapgen-*.jar")
+    }
+    into(layout.buildDirectory.dir("libs"))
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+}
+
+tasks.jar.get().dependsOn(copyDeps, copyExes, copySubprojectJars)
